@@ -1,7 +1,13 @@
+import 'package:dtr360_version3_2/view/screens/home_model.dart';
 import 'package:flutter/material.dart';
-import 'package:dtr360_version3_2/view/screens/register_model.dart';
+import 'package:dtr360_version3_2/view/screens/login_model.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -12,8 +18,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      
-      home: const MyHomePage(title: 'DTR360 v3.2.0'),
+      home: MyHomePage(title: 'DTR360 v3.2.0'),
+      routes: <String, WidgetBuilder>{
+        "Login": (BuildContext context) => LoginPage(),
+        "Home": (BuildContext context) => HomePage(),
+      },
     );
   }
 }
@@ -51,108 +60,42 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    initialization();
+  }
+
+  void initialization() async {
+    // This is where you can initialize the resources needed by your app while
+    // the splash screen is displayed.  Remove the following example because
+    // delaying the user experience is a bad design practice!
+    // ignore_for_file: avoid_print
+    print('ready in 3...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 2...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('ready in 1...');
+    await Future.delayed(const Duration(seconds: 1));
+    print('go!');
+    FlutterNativeSplash.remove();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return LoginPage();
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-            title: Text("DTR360 v3.2.0"),
-            backgroundColor: Colors.redAccent,
-            actions: [
-                 
-                 PopupMenuButton(
-                   // add icon, by default "3 dot" icon
-                   // icon: Icon(Icons.book)
-                   itemBuilder: (context){
-                     return [
-                            PopupMenuItem<int>(
-                                value: 0,
-                                child: Text("Register"),
-                                onTap: () {
-                                  WidgetsBinding.instance!.addPostFrameCallback((_) {
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) {
-                                                              return RegisterScreen();
-                                                            },
-                                                          ),
-                                                        );
-                                                      });
-                                  }
-                            ),
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     title: const Text("DTR360 v3.2.0"),
+    //     backgroundColor: Colors.redAccent,
+    //   ),
 
-                            PopupMenuItem<int>(
-                                value: 1,
-                                child: Text("User Edit"),
-                            ),
-
-                            PopupMenuItem<int>(
-                                value: 2,
-                                child: Text("Change password"),
-                            ),
-                            PopupMenuItem<int>(
-                                value: 3,
-                                child: Text("Logout"),
-                            ),
-                        ];
-                   },
-                   onSelected:(value){
-                      switch(value) {
-                        case 0: print("My 1 menu is selected.");
-                        break;
-                        case 1: print("My 2 menu is selected.");
-                        break;
-                        case 2: print("My 3 menu is selected.");
-                        break;
-                        case 3: print("My 4 menu is selected.");
-                        break;
-                      }
-                   }
-                  ),
-
-                   
-            ],
-         ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+    //   // This trailing comma makes auto-formatting nicer for build methods.
+    // );
   }
 }
