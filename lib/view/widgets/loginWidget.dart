@@ -1,8 +1,9 @@
-import 'package:dtr360_version3_2/view/screens/home_model.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:dtr360_version3_2/firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../utils/utilities.dart';
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key, required this.title});
@@ -24,34 +25,35 @@ class LoginWidget extends StatefulWidget {
 
 class _MyLoginPage extends State<LoginWidget> {
   int _counter = 0;
+  var credentials;
   FirebaseAuth auth = FirebaseAuth.instance;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  var email = '';
-  var password = '';
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  
+
+  
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      credentials = await read_credentials_pref();
+      if(credentials != null && credentials[0] != ''){
+        emailController.text = credentials[0] != null ? credentials[0] : '';
+        passwordController.text = credentials[1] != null ? credentials[1] : '';
+        setState(() {});
+        final credential = login_user(context, emailController.text, passwordController.text);
+      }
+      
     });
+    
   }
-
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
     emailController.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    initialization();
   }
 
   void initialization() async {
@@ -113,6 +115,7 @@ class _MyLoginPage extends State<LoginWidget> {
             TextButton(
               onPressed: () {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
+                
               },
               child: const Text(
                 'Forgot Password',
@@ -128,10 +131,8 @@ class _MyLoginPage extends State<LoginWidget> {
               child: TextButton(
                 onPressed: () async {
                   try {
-                    final credential = await auth.signInWithEmailAndPassword(
-                        email: emailController.text,
-                        password: passwordController.text);
-                    Navigator.pushReplacementNamed(context, 'Home');
+                    final credential = login_user(context, emailController.text, passwordController.text);
+                    
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'user-not-found') {
                       print('No user found for that email.');
