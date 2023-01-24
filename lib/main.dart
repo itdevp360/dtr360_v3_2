@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dtr360_version3_2/view/screens/login_model.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sizer/sizer.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -17,12 +18,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MyHomePage(title: 'DTR360 v3.2.0'),
-      routes: <String, WidgetBuilder>{
-        "Login": (BuildContext context) => LoginPage(),
-        "Home": (BuildContext context) => HomePage(),
-      },
+    return Sizer(
+      builder: (context, orientation, deviceType) => MaterialApp(
+        home: MyHomePage(title: 'DTR360 v3.2.0'),
+        routes: <String, WidgetBuilder>{
+          "Login": (BuildContext context) => LoginPage(),
+          "Home": (BuildContext context) => HomePage(),
+        },
+      ),
     );
   }
 }

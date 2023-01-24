@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../utils/utilities.dart';
 
@@ -30,25 +31,21 @@ class _MyLoginPage extends State<LoginWidget> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  
-
-  
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       credentials = await read_credentials_pref();
-      if(credentials != null && credentials[0] != ''){
+      if (credentials != null && credentials[0] != '') {
         emailController.text = credentials[0] != null ? credentials[0] : '';
         passwordController.text = credentials[1] != null ? credentials[1] : '';
         setState(() {});
-        final credential = login_user(context, emailController.text, passwordController.text);
+        final credential =
+            login_user(context, emailController.text, passwordController.text);
       }
-      
     });
-    
   }
+
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -115,7 +112,6 @@ class _MyLoginPage extends State<LoginWidget> {
             TextButton(
               onPressed: () {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
-                
               },
               child: const Text(
                 'Forgot Password',
@@ -123,16 +119,16 @@ class _MyLoginPage extends State<LoginWidget> {
               ),
             ),
             Container(
-              height: 50,
-              width: 450,
+              height: 6.h,
+              width: 80.w,
               decoration: BoxDecoration(
                   color: Colors.orange,
                   borderRadius: BorderRadius.circular(20)),
               child: TextButton(
                 onPressed: () async {
                   try {
-                    final credential = login_user(context, emailController.text, passwordController.text);
-                    
+                    final credential = login_user(
+                        context, emailController.text, passwordController.text);
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'user-not-found') {
                       print('No user found for that email.');
