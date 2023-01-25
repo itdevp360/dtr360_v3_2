@@ -1,4 +1,6 @@
+import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
+import 'package:dtr360_version3_2/view/screens/attendance_model.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:dtr360_version3_2/view/screens/register_model.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -7,8 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeWidget extends StatefulWidget {
-  const HomeWidget({super.key, });
-
+  const HomeWidget({
+    super.key,
+  });
 
   @override
   State<HomeWidget> createState() => _MyHomeWidgetState();
@@ -20,23 +23,12 @@ class _MyHomeWidgetState extends State<HomeWidget> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
   static const List<Widget> _widgetOptions = <Widget>[
     qrWidget(),
-    Text(
-      'Likes',
-      style: optionStyle,
-    ),
-    Text(
-      'Search',
-      style: optionStyle,
-    ),
-    Text(
-      'Profile',
-      style: optionStyle,
-    ),
+    DataTable2SimpleDemo(),
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: _widgetOptions.elementAt(_selectedIndex)),
+      body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -131,7 +123,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
               case 3:
                 print("My 4 menu is selected.");
                 await FirebaseAuth.instance.signOut();
-                save_credentials_pref('','');
+                save_credentials_pref('', '');
                 Navigator.pushReplacementNamed(context, 'Login');
                 break;
             }

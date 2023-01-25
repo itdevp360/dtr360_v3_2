@@ -49,7 +49,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '601054122216',
     projectId: 'people360-attendance-tra-cd98c',
     authDomain: 'people360-attendance-tra-cd98c.firebaseapp.com',
-    databaseURL: 'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'people360-attendance-tra-cd98c.appspot.com',
   );
 
@@ -58,7 +59,8 @@ class DefaultFirebaseOptions {
     appId: '1:601054122216:android:271c71aef92b24fe36795d',
     messagingSenderId: '601054122216',
     projectId: 'people360-attendance-tra-cd98c',
-    databaseURL: 'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'people360-attendance-tra-cd98c.appspot.com',
   );
 
@@ -67,9 +69,11 @@ class DefaultFirebaseOptions {
     appId: '1:601054122216:ios:c4cb61685cefed1436795d',
     messagingSenderId: '601054122216',
     projectId: 'people360-attendance-tra-cd98c',
-    databaseURL: 'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'people360-attendance-tra-cd98c.appspot.com',
-    iosClientId: '601054122216-jjhnh72i7ejqks0o902v44ro43oa7mgn.apps.googleusercontent.com',
+    iosClientId:
+        '601054122216-jjhnh72i7ejqks0o902v44ro43oa7mgn.apps.googleusercontent.com',
     iosBundleId: 'com.example.dtr360Version32',
   );
 
@@ -78,9 +82,11 @@ class DefaultFirebaseOptions {
     appId: '1:601054122216:ios:c4cb61685cefed1436795d',
     messagingSenderId: '601054122216',
     projectId: 'people360-attendance-tra-cd98c',
-    databaseURL: 'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'people360-attendance-tra-cd98c.appspot.com',
-    iosClientId: '601054122216-jjhnh72i7ejqks0o902v44ro43oa7mgn.apps.googleusercontent.com',
+    iosClientId:
+        '601054122216-jjhnh72i7ejqks0o902v44ro43oa7mgn.apps.googleusercontent.com',
     iosBundleId: 'com.example.dtr360Version32',
   );
 }
