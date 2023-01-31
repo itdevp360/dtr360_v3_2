@@ -18,7 +18,7 @@ class qrWidget extends StatefulWidget {
 }
 
 class _qrWidgetState extends State<qrWidget> {
-  var credentials;
+  var credentials, employeeProfile;
   var email, qrCode;
   Uint8List? bytes;
   Employees emp = Employees();
@@ -28,10 +28,27 @@ class _qrWidgetState extends State<qrWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      
       credentials = await read_credentials_pref();
       if (credentials != null && credentials[0] != '') {
-        email = credentials[0] != null ? credentials[0] : '';
+        email = credentials[0] ?? '';
+        employeeProfile = await read_employeeProfile();
         emp = await fetchEmployees(email);
+        save_employeeProfile(emp.empName, emp.dept, emp.emailAdd, emp.passW, emp.guid, emp.imgStr, emp.usrType);
+        // if(employeeProfile != null && employeeProfile[0] != ''){
+        //   emp.empName = employeeProfile[0] ?? '';
+        //   emp.dept = employeeProfile[1] ?? '';
+        //   emp.emailAdd = employeeProfile[2] ?? '';
+        //   emp.passW = employeeProfile[3] ?? '';
+        //   emp.guid = employeeProfile[4] ?? '';
+        //   emp.imgStr = employeeProfile[5] ?? '';
+        //   emp.usrType = employeeProfile[6] ?? '';
+        // }
+        // else{
+        //   emp = await fetchEmployees(email);
+        //   save_employeeProfile(emp.empName, emp.dept, emp.emailAdd, emp.passW, emp.guid, emp.imgStr, emp.usrType);
+        // }
+        
 
         setState(() {
           _loaded = true;
@@ -47,7 +64,7 @@ class _qrWidgetState extends State<qrWidget> {
             child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.h),
+              padding: EdgeInsets.symmetric(vertical: 8.h),
               child: Center(
                   child: Container(
                       width: 100.w,
@@ -74,7 +91,7 @@ class _qrWidgetState extends State<qrWidget> {
               child: Center(
                   child: Container(
                       width: 50.w,
-                      height: 24.h,
+                      height: 22.h,
                       child: _loaded
                           ? imageFromBase64String(emp.imageString.toString())
                           : Image.asset('assets/people360.png'))),

@@ -1,6 +1,7 @@
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:dtr360_version3_2/view/screens/attendance_model.dart';
+import 'package:dtr360_version3_2/view/widgets/attendanceWidget.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:dtr360_version3_2/view/screens/register_model.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -23,7 +24,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
   static const List<Widget> _widgetOptions = <Widget>[
     qrWidget(),
-    DataTable2SimpleDemo(),
+    AttendanceScreen(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -109,7 +110,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                 child: Text("Logout"),
               ),
             ];
-          }, onSelected: (value) async {
+          }, onSelected: (value) {
             switch (value) {
               case 0:
                 print("My 1 menu is selected.");
@@ -122,8 +123,9 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                 break;
               case 3:
                 print("My 4 menu is selected.");
-                await FirebaseAuth.instance.signOut();
+                FirebaseAuth.instance.signOut();
                 save_credentials_pref('', '');
+                save_employeeProfile('', '', '', '', '', '', '');
                 Navigator.pushReplacementNamed(context, 'Login');
                 break;
             }
