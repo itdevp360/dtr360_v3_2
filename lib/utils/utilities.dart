@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:math';
+import 'dart:ui';
 import 'package:intl/intl.dart';
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/model/users.dart';
@@ -6,6 +8,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'dart:typed_data';
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 read_credentials_pref() async {
   final prefs = await SharedPreferences.getInstance();
@@ -26,25 +33,29 @@ read_employeeProfile() async {
   return items;
 }
 
-save_employeeProfile(employeeName, department, email, password, guid, imageString, userType) async{
+save_employeeProfile(employeeName, department, email, password, guid,
+    imageString, userType) async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setStringList('employeeCredentials', <String>[employeeName, department, email, password, guid, imageString, userType]);
+  await prefs.setStringList('employeeCredentials', <String>[
+    employeeName,
+    department,
+    email,
+    password,
+    guid,
+    imageString,
+    userType
+  ]);
 }
 
 login_user(context, email, password) async {
   try {
-
     print('Email: ' + email);
     print('Password: ' + password);
     FirebaseAuth auth = FirebaseAuth.instance;
-    final credential =
-        await auth.signInWithEmailAndPassword(email: email, password: password).then((value) => save_credentials_pref(email, password)).then((value) =>
-         
-         Navigator.pushReplacementNamed(context, 'Home')
-        
-         );
-
-   
+    final credential = await auth
+        .signInWithEmailAndPassword(email: email, password: password)
+        .then((value) => save_credentials_pref(email, password))
+        .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {
       print('No user found for that email.');
@@ -59,21 +70,18 @@ Image imageFromBase64String(String base64String) {
       base64Decode(base64String.replaceAll(RegExp(r'\s+'), '')));
 }
 
-String timestampToDateString(dynamic timestamp, format){
-    if(timestamp != null){
-      if(timestamp is String){
-        return 'No Data';
-      }
-      else{
-        final date = DateTime.fromMillisecondsSinceEpoch(timestamp).add(Duration(hours:8));
-        return DateFormat(format).format(date.toLocal());
-      }
-    }
-    else{
+String timestampToDateString(dynamic timestamp, format) {
+  if (timestamp != null) {
+    if (timestamp is String) {
       return 'No Data';
+    } else {
+      final date = DateTime.fromMillisecondsSinceEpoch(timestamp)
+          .add(Duration(hours: 8));
+      return DateFormat(format).format(date.toLocal());
     }
-    
-    
+  } else {
+    return 'No Data';
+  }
 }
 
 String formatDate(DateTime date) {
@@ -86,21 +94,21 @@ fetchAttendance() async {
   DateTime start = now.subtract(Duration(days: 15));
   final logRef = FirebaseDatabase.instance.ref().child('Logs');
 
-
   final ss = await logRef.get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
         Attendance logs = Attendance();
-          logs.employeeID = value['employeeID'].toString();
-          logs.employeeName = value['employeeName'].toString();
-          logs.guid = value['guid'].toString();
-          logs.dateTimeIn = timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
-          logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
-          logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
-          logs.userType = value['userType'].toString();
-          logs.iswfh = value['isWfh'].toString();
-          _listKeys.add(logs);
+        logs.employeeID = value['employeeID'].toString();
+        logs.employeeName = value['employeeName'].toString();
+        logs.guid = value['guid'].toString();
+        logs.dateTimeIn =
+            timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
+        logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
+        logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
+        logs.userType = value['userType'].toString();
+        logs.iswfh = value['isWfh'].toString();
+        _listKeys.add(logs);
         // DateTime now = DateTime.now();
         // final date = DateTime.fromMillisecondsSinceEpoch(value['dateTimeIn']).add(Duration(hours:8));
         // Duration difference = now.difference(date);
@@ -116,7 +124,6 @@ fetchAttendance() async {
         //   logs.iswfh = value['isWfh'].toString();
         //   _listKeys.add(logs);
         // }
-        
       });
     }
   });
@@ -138,42 +145,49 @@ fetchAttendance() async {
   //     });
   //   }
   // });
-  
+
   return _listKeys;
 }
 
-fetchLatestWeeks(List<Attendance> logs){
+String generateGUID() {
+  final _random = Random.secure();
+  return '${_random.nextInt(1 << 32).toRadixString(16)}-${_random.nextInt(1 << 32).toRadixString(16)}-${_random.nextInt(1 << 32).toRadixString(16)}-${_random.nextInt(1 << 32).toRadixString(16)}';
+}
+
+fetchLatestWeeks(List<Attendance> logs) {
   DateTime now = DateTime.now();
-  
+
   return logs.where((element) {
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(element.dateIn!);
-    final date = DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch).add(Duration(hours:8));
+    final date =
+        DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch)
+            .add(Duration(hours: 8));
     Duration difference = now.difference(date);
-    if(difference <= Duration(days: 15)){
+    if (difference <= Duration(days: 15)) {
       return true;
-    }
-    else{
+    } else {
       return false;
     }
   }).toList();
 }
 
-getDateRange(dropdownvalue, startDate, endDate,  List<Attendance> logs){
+getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
   List<Attendance> ownLogs = [];
-  if(dropdownvalue != null && dropdownvalue != ''){
+  if (dropdownvalue != null && dropdownvalue != '') {
     String startDateString = formatDate(startDate);
     String endDateString = formatDate(endDate);
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(startDateString);
-    DateTime? endDate1 =  DateFormat('MM/dd/yyyy').parse(endDateString);
+    DateTime? endDate1 = DateFormat('MM/dd/yyyy').parse(endDateString);
     ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
     if (startDate1 != null && endDate1 != null) {
       List<Attendance> newlogs = [];
       for (var attendance in ownLogs!) {
         if (attendance.dateIn != null) {
-          var attendanceDate = DateFormat('MM/dd/yyyy').parse(attendance.dateIn!);
-          if (attendanceDate != null && 
-            attendanceDate.isAfter(startDate1!) && 
-            attendanceDate.isBefore(endDate1!)) {
+          var attendanceDate =
+              DateFormat('MM/dd/yyyy').parse(attendance.dateIn!);
+          if (attendanceDate != null &&
+              attendanceDate.isAfter(startDate1!) &&
+              attendanceDate.isBefore(endDate1!)) {
             newlogs.add(attendance);
           }
         }
@@ -184,8 +198,7 @@ getDateRange(dropdownvalue, startDate, endDate,  List<Attendance> logs){
   return ownLogs;
 }
 
-
-sortList(List<Attendance> attendance){
+sortList(List<Attendance> attendance) {
   attendance.sort((a, b) {
     var dateA = DateFormat("MM/dd/yyyy").parse(a.dateIn!);
     var dateB = DateFormat("MM/dd/yyyy").parse(b.dateIn!);
@@ -195,10 +208,10 @@ sortList(List<Attendance> attendance){
   return attendance;
 }
 
-fetchAllEmployees() async{
+fetchAllEmployees() async {
   List<Employees> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('Employee');
-  
+
   final snapshot = await ref.get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
@@ -239,11 +252,23 @@ fetchEmployees(String email) async {
           emp.isWfh = value['isWfh'].toString();
           emp.password = value['password'].toString();
           emp.usertype = value['usertype'].toString();
-
         }
       });
     }
   });
   print('done');
   return emp;
+}
+
+Future<String> generateQRBase64String(String text) async {
+  final image = await QrPainter(
+    data: text,
+    version: QrVersions.auto,
+    gapless: false,
+    color: const Color(0xFF000000),
+    emptyColor: const Color(0xFFFFFFFF),
+  ).toImage(300);
+
+  final pngBytes = await image.toByteData(format: ImageByteFormat.png);
+  return base64Encode(pngBytes!.buffer.asUint8List());
 }

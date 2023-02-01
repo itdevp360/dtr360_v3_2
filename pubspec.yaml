@@ -49,6 +49,7 @@ dependencies:
   shared_preferences: ^2.0.16
   firebase_database: ^10.0.9
   intl: ^0.17.0
+  qr_flutter: ^4.0.0
 
 dev_dependencies:
   flutter_test:
