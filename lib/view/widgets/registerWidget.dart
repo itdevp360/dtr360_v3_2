@@ -1,8 +1,12 @@
+import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../utils/firebase_functions.dart';
 
 class RegisterWidget extends StatefulWidget {
   const RegisterWidget({super.key});
@@ -43,13 +47,13 @@ class _RegisterWidget extends State<RegisterWidget> {
           Padding(
             padding: EdgeInsets.only(top: 5.h),
             child: Container(
-                width: 25.w,
-                height: 25.w,
+                width: 20.w,
+                height: 20.w,
                 child: Image.asset('assets/usericon.png')),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 35.0, right: 35.0, top: 75, bottom: 0),
+                EdgeInsets.only(left: 50.0, right: 50.0, top: 75, bottom: 0),
             child: TextField(
               controller: employeeId,
               decoration: InputDecoration(
@@ -58,7 +62,7 @@ class _RegisterWidget extends State<RegisterWidget> {
           ),
           Padding(
               padding:
-                  EdgeInsets.only(left: 35.0, right: 35.0, top: 10, bottom: 0),
+                  EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
               child: DropdownButton<String>(
                 isExpanded: true,
                 value: dropdownValue,
@@ -85,36 +89,36 @@ class _RegisterWidget extends State<RegisterWidget> {
               )),
           Padding(
             padding:
-                EdgeInsets.only(left: 35.0, right: 35.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
             child: TextField(
-              controller: employeeId,
+              controller: employeeName,
               decoration: InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Employee Name'),
             ),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 35.0, right: 35.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
             child: TextField(
-              controller: employeeId,
+              controller: department,
               decoration: InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Department'),
             ),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 35.0, right: 35.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
             child: TextField(
-              controller: employeeId,
+              controller: email,
               decoration: InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Email Address'),
             ),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 35.0, right: 35.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
             child: TextField(
-              controller: employeeId,
+              controller: password,
               obscureText: true,
               decoration: InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Password'),
@@ -122,9 +126,9 @@ class _RegisterWidget extends State<RegisterWidget> {
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 35.0, right: 35.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
             child: TextField(
-              controller: employeeId,
+              controller: confirmpass,
               obscureText: true,
               decoration: InputDecoration(
                   border: OutlineInputBorder(), labelText: 'Confirm Password'),
@@ -132,7 +136,7 @@ class _RegisterWidget extends State<RegisterWidget> {
           ),
           Padding(
               padding:
-                  EdgeInsets.only(left: 35.0, right: 35.0, top: 10, bottom: 0),
+                  EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
               child: Row(
                 children: [
                   Checkbox(
@@ -154,12 +158,28 @@ class _RegisterWidget extends State<RegisterWidget> {
                 color: Colors.orange, borderRadius: BorderRadius.circular(20)),
             child: TextButton(
               onPressed: () async {
-                print(employeeId.text);
-                String test = generateGUID();
-                String data = await generateQRBase64String(test);
-                String newData = data;
-                print(test);
-                String test2 = '5';
+                if(employeeId.text != '' && employeeName.text != '' && department.text != '' && email.text != '' && password.text != '' && (password.text == confirmpass.text)){
+                  String message = await registerWithEmailAndPassword(email.text, password.text);
+                  String guId = generateGUID();
+                  String data = await generateQRBase64String(guId);
+                  if(message == 'Account successfully created'){
+                    insertNewEmployee(department.text, email.text, employeeId.text, employeeName.text, guId, data, dropdownValue, _isChecked);
+                    success_box(context, message);
+                    department.text = '';
+                    email.text = '';
+                    employeeId.text = '';
+                    employeeName.text = '';
+                    department.text = '';
+                    password.text = '';
+                    confirmpass.text = '';
+                    _isChecked = false;
+                  }
+                  else{
+                    warning_box(context, message);
+                  }
+                }
+                
+                
                 // Navigator.push(context,
                 //     MaterialPageRoute(builder: (_) => const HomePage()));
               },

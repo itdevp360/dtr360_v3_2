@@ -29,6 +29,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.9.0"
+  awesome_dialog:
+    dependency: "direct main"
+    description:
+      name: awesome_dialog
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -181,6 +188,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_awesome_alert_box:
+    dependency: "direct main"
+    description:
+      name: flutter_awesome_alert_box
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.1"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -212,6 +226,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutterfire:
+    dependency: "direct main"
+    description:
+      name: flutterfire
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1"
   google_nav_bar:
     dependency: "direct main"
     description:
@@ -219,6 +240,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.6"
+  graphs:
+    dependency: transitive
+    description:
+      name: graphs
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.0"
   html:
     dependency: transitive
     description:
@@ -226,6 +254,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.15.1"
+  http:
+    dependency: transitive
+    description:
+      name: http
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.13.5"
   http_parser:
     dependency: transitive
     description:
@@ -275,6 +310,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0+4"
+  lottie:
+    dependency: "direct main"
+    description:
+      name: lottie
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.0"
   matcher:
     dependency: transitive
     description:
@@ -380,6 +422,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  rive:
+    dependency: transitive
+    description:
+      name: rive
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.9.1"
   scaled_app:
     dependency: "direct main"
     description:
@@ -541,4 +590,4 @@ packages:
     version: "3.1.1"
 sdks:
   dart: ">=2.18.6 <3.0.0"
-  flutter: ">=3.0.0"
+  flutter: ">=3.3.0"

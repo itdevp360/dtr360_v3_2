@@ -1,74 +1,38 @@
 {
   "project_info": {
-    "project_number": "601054122216",
-    "firebase_url": "https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "project_id": "people360-attendance-tra-cd98c",
-    "storage_bucket": "people360-attendance-tra-cd98c.appspot.com"
+    "project_number": "1047099632248",
+    "firebase_url": "https://dtr360-10879-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "dtr360-10879",
+    "storage_bucket": "dtr360-10879.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:601054122216:android:271c71aef92b24fe36795d",
+        "mobilesdk_app_id": "1:1047099632248:android:183fcbb85b967ec442db8d",
         "android_client_info": {
           "package_name": "com.example.dtr360_version3_2"
         }
       },
       "oauth_client": [
         {
-          "client_id": "601054122216-01h68atj62oke59atoe2t3rghh6mbbmm.apps.googleusercontent.com",
+          "client_id": "1047099632248-28d63glamuporv6v2h8h53ehcb648pi9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBixWbX_kaV_5t6aCx_3qMIBmDm7YnzniM"
+          "current_key": "AIzaSyDO5FcOrm6YKCKTNILiUavIxv6-WqaiQlM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "601054122216-01h68atj62oke59atoe2t3rghh6mbbmm.apps.googleusercontent.com",
+              "client_id": "1047099632248-28d63glamuporv6v2h8h53ehcb648pi9.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "601054122216-jjhnh72i7ejqks0o902v44ro43oa7mgn.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.dtr360Version32"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:601054122216:android:ae276d4fd71bdb3c36795d",
-        "android_client_info": {
-          "package_name": "com.example.people360employeeattendancetracker"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "601054122216-01h68atj62oke59atoe2t3rghh6mbbmm.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBixWbX_kaV_5t6aCx_3qMIBmDm7YnzniM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "601054122216-01h68atj62oke59atoe2t3rghh6mbbmm.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "601054122216-jjhnh72i7ejqks0o902v44ro43oa7mgn.apps.googleusercontent.com",
+              "client_id": "1047099632248-l5u1ptq4l556njil7q4781vjr45i3699.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.dtr360Version32"

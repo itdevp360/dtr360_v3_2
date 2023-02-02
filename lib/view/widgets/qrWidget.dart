@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sizer/sizer.dart';
-
+import '../../utils/firebase_functions.dart';
 import '../../utils/utilities.dart';
 
 class qrWidget extends StatefulWidget {
@@ -23,6 +23,7 @@ class _qrWidgetState extends State<qrWidget> {
   Uint8List? bytes;
   Employees emp = Employees();
   bool _loaded = false;
+  bool _isWfh = false;
 
   @override
   void initState() {
@@ -52,6 +53,8 @@ class _qrWidgetState extends State<qrWidget> {
 
         setState(() {
           _loaded = true;
+          _isWfh = emp.wfh == "null" || emp.wfh == '' ? false : true;
+          print(_isWfh);
         });
       }
     });
@@ -97,7 +100,7 @@ class _qrWidgetState extends State<qrWidget> {
                           : Image.asset('assets/people360.png'))),
             ),
             Visibility(
-                visible: _loaded,
+                visible: _isWfh,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

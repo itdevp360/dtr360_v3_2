@@ -1,9 +1,9 @@
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/model/users.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
+import 'package:dtr360_version3_2/utils/firebase_functions.dart';
 import 'package:dtr360_version3_2/view/widgets/loaderView.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 class AttendanceWidget extends StatefulWidget {

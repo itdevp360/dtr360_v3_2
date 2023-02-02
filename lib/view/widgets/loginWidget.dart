@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
-
+import '../../utils/firebase_functions.dart';
 import '../../utils/utilities.dart';
 
 class LoginWidget extends StatefulWidget {
