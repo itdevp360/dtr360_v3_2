@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
+import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../utils/firebase_functions.dart';
@@ -45,15 +46,12 @@ class _RegisterWidget extends State<RegisterWidget> {
               child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(top: 5.h),
-            child: Container(
-                width: 20.w,
-                height: 20.w,
-                child: Image.asset('assets/usericon.png')),
+            padding: EdgeInsets.only(top: 3.h),
+            child: Lottie.asset('assets/json_files/register_icon.json', width: 150, height: 150),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 75, bottom: 0),
+                EdgeInsets.only(left: 50.0, right: 50.0, top: 0, bottom: 0),
             child: TextField(
               controller: employeeId,
               decoration: InputDecoration(

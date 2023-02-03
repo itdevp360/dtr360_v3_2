@@ -133,6 +133,13 @@ sortList(List<Attendance> attendance) {
   return attendance;
 }
 
+//Ascending A to Z 
+sortListAlphabetical(List<Employees> employees){
+  employees.sort((a, b) {
+    return a.empName!.compareTo(b.empName!);
+  });
+  return employees;
+}
 
 
 Future<String> generateQRBase64String(String text) async {

@@ -1,7 +1,9 @@
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:dtr360_version3_2/view/screens/attendance_model.dart';
+import 'package:dtr360_version3_2/view/screens/useredit_model.dart';
 import 'package:dtr360_version3_2/view/widgets/attendanceWidget.dart';
+import 'package:dtr360_version3_2/view/widgets/userEditWidget.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:dtr360_version3_2/view/screens/register_model.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -97,9 +99,20 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                       );
                     });
                   }),
-              const PopupMenuItem<int>(
+              PopupMenuItem<int>(
                 value: 1,
                 child: Text("User Edit"),
+                onTap: () {
+                  WidgetsBinding.instance!.addPostFrameCallback((_) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const UserEditWidget();
+                          },
+                        ),
+                      );
+                    });}
               ),
               const PopupMenuItem<int>(
                 value: 2,
@@ -116,8 +129,6 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                 print("My 1 menu is selected.");
                 break;
               case 1:
-                print("My 2 menu is selected.");
-                break;
               case 2:
                 print("My 3 menu is selected.");
                 break;
