@@ -27,9 +27,12 @@ fetchAttendance() async {
             timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
         logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
         logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
-        logs.userType = value['userType'].toString();
+        logs.userType = value['usertype'].toString();
         logs.iswfh = value['isWfh'].toString();
-        _listKeys.add(logs);
+        if(value['usertype'].toString() != 'Former Employee'){
+          _listKeys.add(logs);
+        }
+        
       });
     }
   });
@@ -69,6 +72,7 @@ fetchAllEmployees() async {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
         Employees emp1 = Employees();
+        emp1.itemKey = key.toString();
         emp1.employeeID = value['employeeID'].toString();
         emp1.department = value['department'].toString();
         emp1.email = value['email'].toString();
@@ -78,7 +82,9 @@ fetchAllEmployees() async {
         emp1.isWfh = value['isWfh'].toString();
         emp1.password = value['password'].toString();
         emp1.usertype = value['usertype'].toString();
-        _listKeys.add(emp1);
+        if(value['usertype'].toString() != 'Former Employee'){
+          _listKeys.add(emp1);
+        }
       });
     }
   });
@@ -94,7 +100,7 @@ fetchEmployees(String email) async {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
-        if (value['email'] == email) {
+        if (value['email'] == email && value['usertype'].toString() != 'Former Employee' ) {
           emp.employeeID = value['employeeID'].toString();
           emp.department = value['department'].toString();
           emp.email = value['email'].toString();
@@ -112,6 +118,17 @@ fetchEmployees(String email) async {
   return emp;
 }
 
+updateEmployeeDetails(key, department, employeeID, employeeName, isWfh, userType) async{
+  final databaseReference = FirebaseDatabase.instance.ref().child('Employee/' + key);
+  await databaseReference.update({
+    'department' : department,
+    'employeeID' : employeeID,
+    'employeeName' : employeeName,
+    'usertype' : userType,
+    'isWfh' : isWfh == true ? 'Work from Home' : '',
+  });
+}
+
 insertNewEmployee(department, email, employeeID, employeeName, guid, imageString, userType, _isChecked){
   final databaseReference = FirebaseDatabase.instance.ref().child('Employee');
 
@@ -122,7 +139,7 @@ insertNewEmployee(department, email, employeeID, employeeName, guid, imageString
     'employeeName' : employeeName,
     'guid' : guid,
     'imageString' : imageString,
-    'userType' : userType,
+    'usertype' : userType,
     'isWfh' : _isChecked == true ? 'Work from Home' : '',
   }).then((value) => print('success saving'));
 

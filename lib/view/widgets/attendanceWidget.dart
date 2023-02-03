@@ -39,7 +39,7 @@ class _MyWidgetState extends State<AttendanceWidget> {
       ownLogs = sortList(fetchLatestWeeks(ownLogs!));
       if(employeeProfile[6] == 'Employee'){
         isEmployee = true;
-        screenH = 62.h;
+        screenH = 60.h;
       }
       else if(employeeProfile[6] == 'Approver'){
         employeeList = employeeList!.where((empList) => employeeProfile[1].toString().contains(empList.dept!)).toList();

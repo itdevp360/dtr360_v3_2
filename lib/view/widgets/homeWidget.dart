@@ -28,6 +28,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
     qrWidget(),
     AttendanceScreen(),
   ];
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,7 +90,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                   child: const Text("Register"),
                   onTap: () {
                     WidgetsBinding.instance!.addPostFrameCallback((_) {
-                      Navigator.push(
+                      Navigator.pop(
                         context,
                         MaterialPageRoute(
                           builder: (context) {

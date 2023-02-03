@@ -50,17 +50,8 @@ class _RegisterWidget extends State<RegisterWidget> {
             child: Lottie.asset('assets/json_files/register_icon.json', width: 150, height: 150),
           ),
           Padding(
-            padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 0, bottom: 0),
-            child: TextField(
-              controller: employeeId,
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Employee ID'),
-            ),
-          ),
-          Padding(
               padding:
-                  EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
+                  EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
               child: DropdownButton<String>(
                 isExpanded: true,
                 value: dropdownValue,
@@ -87,54 +78,70 @@ class _RegisterWidget extends State<RegisterWidget> {
               )),
           Padding(
             padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 28.0, right: 28.0, top: 0, bottom: 0),
+            child: TextField(
+              controller: employeeId,
+              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.badge),
+                  border: OutlineInputBorder(), labelText: 'Employee ID'),
+            ),
+          ),
+          
+          Padding(
+            padding:
+                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
             child: TextField(
               controller: employeeName,
-              decoration: InputDecoration(
+              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.drive_file_rename_outline),
                   border: OutlineInputBorder(), labelText: 'Employee Name'),
             ),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
             child: TextField(
               controller: department,
-              decoration: InputDecoration(
+              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.corporate_fare),
                   border: OutlineInputBorder(), labelText: 'Department'),
             ),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
             child: TextField(
               controller: email,
-              decoration: InputDecoration(
+              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.email),
                   border: OutlineInputBorder(), labelText: 'Email Address'),
             ),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
             child: TextField(
               controller: password,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.lock),
                   border: OutlineInputBorder(), labelText: 'Password'),
             ),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
+                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
             child: TextField(
               controller: confirmpass,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.lock),
                   border: OutlineInputBorder(), labelText: 'Confirm Password'),
             ),
           ),
           Padding(
               padding:
-                  EdgeInsets.only(left: 50.0, right: 50.0, top: 10, bottom: 0),
+                  EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
               child: Row(
                 children: [
                   Checkbox(
@@ -154,7 +161,8 @@ class _RegisterWidget extends State<RegisterWidget> {
             width: 80.w,
             decoration: BoxDecoration(
                 color: Colors.orange, borderRadius: BorderRadius.circular(20)),
-            child: TextButton(
+            child: TextButton.icon(
+              icon: Icon(Icons.person_add, color: Colors.white,),
               onPressed: () async {
                 if(employeeId.text != '' && employeeName.text != '' && department.text != '' && email.text != '' && password.text != '' && (password.text == confirmpass.text)){
                   String message = await registerWithEmailAndPassword(email.text, password.text);
@@ -181,7 +189,7 @@ class _RegisterWidget extends State<RegisterWidget> {
                 // Navigator.push(context,
                 //     MaterialPageRoute(builder: (_) => const HomePage()));
               },
-              child: const Text(
+              label: const Text(
                 'Register',
                 style: TextStyle(color: Colors.white, fontSize: 25),
               ),

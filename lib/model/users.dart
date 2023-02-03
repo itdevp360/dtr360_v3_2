@@ -1,11 +1,18 @@
 class Employees {
-  String? empId, empName, emailAdd, guid, dept, imgStr, passW, usrType, wfh;
+  String? empId, empName, emailAdd, guid, dept, imgStr, passW, usrType, wfh, key;
 
   String? get getId{
     return empId;
   }
   set employeeID(String employeeID){
     empId = employeeID;
+  }
+
+  String? get getKey{
+    return key;
+  }
+  set itemKey(String itemkey){
+    key = itemkey;
   }
 
   String? get employeeName{

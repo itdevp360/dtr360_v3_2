@@ -1,3 +1,4 @@
+import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,13 +16,14 @@ class UserEditWidget extends StatefulWidget {
   @override
   State<UserEditWidget> createState() => _MyWidgetState();
 }
-List<String> list = <String>['Admin', 'Employee', 'IT', 'Approver', 'IT/Admin'];
+List<String>? list = <String>['Admin', 'Employee', 'IT', 'Approver', 'IT/Admin', 'Former Employee'];
 class _MyWidgetState extends State<UserEditWidget> {
-
+  
   TextEditingController employeeId = TextEditingController();
   TextEditingController employeeName= TextEditingController();
   TextEditingController department= TextEditingController();
   List<Employees>? employeeList;
+  Employees selectedEmployee = new Employees();
   String? dropdownValue; 
   String? userTypeDropdown;
   bool loaded = false;
@@ -60,7 +62,7 @@ class _MyWidgetState extends State<UserEditWidget> {
           ),
           Padding(
               padding:
-                  EdgeInsets.only(left: 50.0, right: 50.0, top: 20, bottom: 0),
+                  EdgeInsets.only(left: 28.0, right: 28.0, top: 20, bottom: 0),
               child: DropdownButton<String>(
                 isExpanded: true,
                 value: dropdownValue,
@@ -75,19 +77,25 @@ class _MyWidgetState extends State<UserEditWidget> {
                   // This is called when the user selects an item.
                   setState(() {
                     dropdownValue = value!;
-                    print(dropdownValue);
+                    selectedEmployee = employeeList!.where((element) => element.guid == dropdownValue).first;
+                    employeeName = TextEditingController(text: selectedEmployee.empName);
+                    employeeId = TextEditingController(text: selectedEmployee.empId);
+                    department = TextEditingController(text: selectedEmployee.dept);
+                    _isWfh = selectedEmployee.wfh == 'null' || selectedEmployee.wfh == '' ? false : true;
+                    userTypeDropdown = selectedEmployee.usrType;
+                    print(selectedEmployee.key);
                   });
                 },
                 items: employeeList != null ? employeeList!.map((e) {
                   return DropdownMenuItem<String>(
-                    value: e.empName,
+                    value: e.guid!,
                     child: Text(e.empName!),
                   );
                 }).toList() : [],
               )),
           Padding(
               padding:
-                  EdgeInsets.only(left: 50.0, right: 50.0, top: 20, bottom: 0),
+                  EdgeInsets.only(left: 28.0, right: 28.0, top: 20, bottom: 0),
               child: DropdownButton<String>(
                 isExpanded: true,
                 value: userTypeDropdown,
@@ -105,7 +113,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                     print(userTypeDropdown);
                   });
                 },
-                items: list.map<DropdownMenuItem<String>>((String value) {
+                items: list!.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -114,34 +122,37 @@ class _MyWidgetState extends State<UserEditWidget> {
               )),
           Padding(
             padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 20, bottom: 0),
+                EdgeInsets.only(left: 28.0, right: 28.0, top: 20, bottom: 0),
             child: TextField(
               controller: employeeName,
-              decoration: InputDecoration(prefixIcon: Icon(Icons.drive_file_rename_outline),
+              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.drive_file_rename_outline),
                   border: OutlineInputBorder(), labelText: 'Employee Name'),
             ),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 20, bottom: 0),
+                EdgeInsets.only(left: 28.0, right: 28.0, top: 20, bottom: 0),
             child: TextField(
-              controller: employeeName,
-              decoration: InputDecoration(prefixIcon: Icon(Icons.badge),
+              controller: employeeId,
+              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.badge),
                   border: OutlineInputBorder(), labelText: 'Employee ID'),
             ),
           ),
           Padding(
             padding:
-                EdgeInsets.only(left: 50.0, right: 50.0, top: 20, bottom: 0),
+                EdgeInsets.only(left: 28.0, right: 28.0, top: 20, bottom: 0),
             child: TextField(
-              controller: employeeName,
-              decoration: InputDecoration(prefixIcon: Icon(Icons.corporate_fare),
+              controller: department,
+              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.corporate_fare),
                   border: OutlineInputBorder(), labelText: 'Department'),
             ),
           ),
           Padding(
               padding:
-                  EdgeInsets.only(left: 40.0, right: 50.0, top: 20, bottom: 0),
+                  EdgeInsets.only(left: 18.0, right: 28.0, top: 20, bottom: 0),
               child: Row(
                 children: [
                   Checkbox(
@@ -164,7 +175,19 @@ class _MyWidgetState extends State<UserEditWidget> {
             child: TextButton.icon(
               icon: Icon(Icons.person_add, color: Colors.white,),
               onPressed: () async {
-                
+                if(employeeName.text != '' && employeeId.text != '' && department.text != ''){
+                  updateEmployeeDetails(selectedEmployee.key, department.text, employeeId.text,employeeName.text, _isWfh, userTypeDropdown);
+                  success_box(context, "Employee profile updated.");
+                  employeeList = await fetchAllEmployees();
+                  sortListAlphabetical(employeeList!);
+                  department.text = '';
+                  employeeId.text = '';
+                  employeeName.text = '';
+                  FocusScope.of(context).unfocus();
+                }
+                else{
+                  warning_box(context, "Please complete all the fields");
+                }
                 
                 
                 // Navigator.push(context,
