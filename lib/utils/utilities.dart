@@ -34,7 +34,7 @@ read_employeeProfile() async {
 }
 
 save_employeeProfile(employeeName, department, email, password, guid,
-    imageString, userType) async {
+    imageString, userType, key) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setStringList('employeeCredentials', <String>[
     employeeName,
@@ -43,11 +43,10 @@ save_employeeProfile(employeeName, department, email, password, guid,
     password,
     guid,
     imageString,
-    userType
+    userType,
+    key
   ]);
 }
-
-
 
 Image imageFromBase64String(String base64String) {
   return Image.memory(
@@ -72,8 +71,6 @@ String formatDate(DateTime date) {
   return DateFormat('MM/dd/yyyy').format(date);
 }
 
-
-
 String generateGUID() {
   final _random = Random.secure();
   return '${_random.nextInt(1 << 32).toRadixString(16)}-${_random.nextInt(1 << 32).toRadixString(16)}-${_random.nextInt(1 << 32).toRadixString(16)}-${_random.nextInt(1 << 32).toRadixString(16)}';
@@ -94,6 +91,13 @@ fetchLatestWeeks(List<Attendance> logs) {
       return false;
     }
   }).toList();
+}
+
+logoutUser(context) {
+  FirebaseAuth.instance.signOut();
+  save_credentials_pref('', '');
+  save_employeeProfile('', '', '', '', '', '', '', '');
+  Navigator.pushReplacementNamed(context, 'Login');
 }
 
 getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
@@ -133,14 +137,13 @@ sortList(List<Attendance> attendance) {
   return attendance;
 }
 
-//Ascending A to Z 
-sortListAlphabetical(List<Employees> employees){
+//Ascending A to Z
+sortListAlphabetical(List<Employees> employees) {
   employees.sort((a, b) {
     return a.empName!.compareTo(b.empName!);
   });
   return employees;
 }
-
 
 Future<String> generateQRBase64String(String text) async {
   final image = await QrPainter(

@@ -1,6 +1,7 @@
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:dtr360_version3_2/view/screens/attendance_model.dart';
+import 'package:dtr360_version3_2/view/screens/changepass_model.dart';
 import 'package:dtr360_version3_2/view/screens/useredit_model.dart';
 import 'package:dtr360_version3_2/view/widgets/attendanceWidget.dart';
 import 'package:dtr360_version3_2/view/widgets/userEditWidget.dart';
@@ -28,7 +29,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
     qrWidget(),
     AttendanceScreen(),
   ];
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,7 +91,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                   child: const Text("Register"),
                   onTap: () {
                     WidgetsBinding.instance!.addPostFrameCallback((_) {
-                      Navigator.pop(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) {
@@ -101,10 +102,10 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                     });
                   }),
               PopupMenuItem<int>(
-                value: 1,
-                child: Text("User Edit"),
-                onTap: () {
-                  WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  value: 1,
+                  child: Text("User Edit"),
+                  onTap: () {
+                    WidgetsBinding.instance!.addPostFrameCallback((_) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -113,11 +114,23 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                           },
                         ),
                       );
-                    });}
-              ),
-              const PopupMenuItem<int>(
+                    });
+                  }),
+              PopupMenuItem<int>(
                 value: 2,
                 child: Text("Change password"),
+                onTap: () {
+                  WidgetsBinding.instance!.addPostFrameCallback((_) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const ChangePassScreen();
+                        },
+                      ),
+                    );
+                  });
+                },
               ),
               const PopupMenuItem<int>(
                 value: 3,
@@ -134,11 +147,9 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                 print("My 3 menu is selected.");
                 break;
               case 3:
+                logoutUser(context);
                 print("My 4 menu is selected.");
-                FirebaseAuth.instance.signOut();
-                save_credentials_pref('', '');
-                save_employeeProfile('', '', '', '', '', '', '');
-                Navigator.pushReplacementNamed(context, 'Login');
+
                 break;
             }
           }),

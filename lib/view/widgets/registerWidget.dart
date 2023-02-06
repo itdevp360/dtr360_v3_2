@@ -47,7 +47,8 @@ class _RegisterWidget extends State<RegisterWidget> {
         children: [
           Padding(
             padding: EdgeInsets.only(top: 3.h),
-            child: Lottie.asset('assets/json_files/register_icon.json', width: 150, height: 150),
+            child: Lottie.asset('assets/json_files/register_icon.json',
+                width: 150, height: 150),
           ),
           Padding(
               padding:
@@ -81,20 +82,23 @@ class _RegisterWidget extends State<RegisterWidget> {
                 EdgeInsets.only(left: 28.0, right: 28.0, top: 0, bottom: 0),
             child: TextField(
               controller: employeeId,
-              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
-                prefixIcon: Icon(Icons.badge),
-                  border: OutlineInputBorder(), labelText: 'Employee ID'),
+              decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                  prefixIcon: Icon(Icons.badge),
+                  border: OutlineInputBorder(),
+                  labelText: 'Employee ID'),
             ),
           ),
-          
           Padding(
             padding:
                 EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
             child: TextField(
               controller: employeeName,
-              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
-                prefixIcon: Icon(Icons.drive_file_rename_outline),
-                  border: OutlineInputBorder(), labelText: 'Employee Name'),
+              decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                  prefixIcon: Icon(Icons.drive_file_rename_outline),
+                  border: OutlineInputBorder(),
+                  labelText: 'Employee Name'),
             ),
           ),
           Padding(
@@ -102,9 +106,11 @@ class _RegisterWidget extends State<RegisterWidget> {
                 EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
             child: TextField(
               controller: department,
-              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
-                prefixIcon: Icon(Icons.corporate_fare),
-                  border: OutlineInputBorder(), labelText: 'Department'),
+              decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                  prefixIcon: Icon(Icons.corporate_fare),
+                  border: OutlineInputBorder(),
+                  labelText: 'Department'),
             ),
           ),
           Padding(
@@ -112,9 +118,11 @@ class _RegisterWidget extends State<RegisterWidget> {
                 EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
             child: TextField(
               controller: email,
-              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
-                prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(), labelText: 'Email Address'),
+              decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                  prefixIcon: Icon(Icons.email),
+                  border: OutlineInputBorder(),
+                  labelText: 'Email Address'),
             ),
           ),
           Padding(
@@ -123,9 +131,11 @@ class _RegisterWidget extends State<RegisterWidget> {
             child: TextField(
               controller: password,
               obscureText: true,
-              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
-                prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(), labelText: 'Password'),
+              decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                  prefixIcon: Icon(Icons.lock),
+                  border: OutlineInputBorder(),
+                  labelText: 'Password'),
             ),
           ),
           Padding(
@@ -134,9 +144,11 @@ class _RegisterWidget extends State<RegisterWidget> {
             child: TextField(
               controller: confirmpass,
               obscureText: true,
-              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 5.0),
-                prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(), labelText: 'Confirm Password'),
+              decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                  prefixIcon: Icon(Icons.lock),
+                  border: OutlineInputBorder(),
+                  labelText: 'Confirm Password'),
             ),
           ),
           Padding(
@@ -162,14 +174,31 @@ class _RegisterWidget extends State<RegisterWidget> {
             decoration: BoxDecoration(
                 color: Colors.orange, borderRadius: BorderRadius.circular(20)),
             child: TextButton.icon(
-              icon: Icon(Icons.person_add, color: Colors.white,),
+              icon: Icon(
+                Icons.person_add,
+                color: Colors.white,
+              ),
               onPressed: () async {
-                if(employeeId.text != '' && employeeName.text != '' && department.text != '' && email.text != '' && password.text != '' && (password.text == confirmpass.text)){
-                  String message = await registerWithEmailAndPassword(email.text, password.text);
+                if (employeeId.text != '' &&
+                    employeeName.text != '' &&
+                    department.text != '' &&
+                    email.text != '' &&
+                    password.text != '' &&
+                    (password.text == confirmpass.text)) {
+                  String message = await registerWithEmailAndPassword(
+                      email.text, password.text);
                   String guId = generateGUID();
                   String data = await generateQRBase64String(guId);
-                  if(message == 'Account successfully created'){
-                    insertNewEmployee(department.text, email.text, employeeId.text, employeeName.text, guId, data, dropdownValue, _isChecked);
+                  if (message == 'Account successfully created') {
+                    insertNewEmployee(
+                        department.text,
+                        email.text,
+                        employeeId.text,
+                        employeeName.text,
+                        guId,
+                        data,
+                        dropdownValue,
+                        _isChecked);
                     success_box(context, message);
                     department.text = '';
                     email.text = '';
@@ -179,13 +208,13 @@ class _RegisterWidget extends State<RegisterWidget> {
                     password.text = '';
                     confirmpass.text = '';
                     _isChecked = false;
-                  }
-                  else{
+                  } else {
                     warning_box(context, message);
                   }
+                } else {
+                  warning_box(context, 'Please fill all the required fields.');
                 }
-                
-                
+
                 // Navigator.push(context,
                 //     MaterialPageRoute(builder: (_) => const HomePage()));
               },

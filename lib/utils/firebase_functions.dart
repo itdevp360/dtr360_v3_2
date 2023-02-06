@@ -1,4 +1,3 @@
-
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/model/users.dart';
 import 'package:dtr360_version3_2/utils/alertbox.dart';
@@ -7,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
-
 
 fetchAttendance() async {
   List<Attendance> _listKeys = [];
@@ -29,23 +27,18 @@ fetchAttendance() async {
         logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
         logs.userType = value['usertype'].toString();
         logs.iswfh = value['isWfh'].toString();
-        if(value['usertype'].toString() != 'Former Employee'){
+        if (value['usertype'].toString() != 'Former Employee') {
           _listKeys.add(logs);
         }
-        
       });
     }
   });
 
-
-
   return _listKeys;
 }
 
-
 login_user(context, email, password) async {
   try {
-
     FirebaseAuth auth = FirebaseAuth.instance;
     final credential = await auth
         .signInWithEmailAndPassword(email: email, password: password)
@@ -61,7 +54,6 @@ login_user(context, email, password) async {
     }
   }
 }
-
 
 fetchAllEmployees() async {
   List<Employees> _listKeys = [];
@@ -82,7 +74,7 @@ fetchAllEmployees() async {
         emp1.isWfh = value['isWfh'].toString();
         emp1.password = value['password'].toString();
         emp1.usertype = value['usertype'].toString();
-        if(value['usertype'].toString() != 'Former Employee'){
+        if (value['usertype'].toString() != 'Former Employee') {
           _listKeys.add(emp1);
         }
       });
@@ -100,7 +92,9 @@ fetchEmployees(String email) async {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
-        if (value['email'] == email && value['usertype'].toString() != 'Former Employee' ) {
+        if (value['email'] == email &&
+            value['usertype'].toString() != 'Former Employee') {
+          emp.itemKey = key.toString();
           emp.employeeID = value['employeeID'].toString();
           emp.department = value['department'].toString();
           emp.email = value['email'].toString();
@@ -118,31 +112,33 @@ fetchEmployees(String email) async {
   return emp;
 }
 
-updateEmployeeDetails(key, department, employeeID, employeeName, isWfh, userType) async{
-  final databaseReference = FirebaseDatabase.instance.ref().child('Employee/' + key);
+updateEmployeeDetails(
+    key, department, employeeID, employeeName, isWfh, userType) async {
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('Employee/' + key);
   await databaseReference.update({
-    'department' : department,
-    'employeeID' : employeeID,
-    'employeeName' : employeeName,
-    'usertype' : userType,
-    'isWfh' : isWfh == true ? 'Work from Home' : '',
+    'department': department,
+    'employeeID': employeeID,
+    'employeeName': employeeName,
+    'usertype': userType,
+    'isWfh': isWfh == true ? 'Work from Home' : '',
   });
 }
 
-insertNewEmployee(department, email, employeeID, employeeName, guid, imageString, userType, _isChecked){
+insertNewEmployee(department, email, employeeID, employeeName, guid,
+    imageString, userType, _isChecked) {
   final databaseReference = FirebaseDatabase.instance.ref().child('Employee');
 
   databaseReference.push().set({
-    'department' : department,
-    'email' : email,
-    'employeeID' : employeeID,
-    'employeeName' : employeeName,
-    'guid' : guid,
-    'imageString' : imageString,
-    'usertype' : userType,
-    'isWfh' : _isChecked == true ? 'Work from Home' : '',
+    'department': department,
+    'email': email,
+    'employeeID': employeeID,
+    'employeeName': employeeName,
+    'guid': guid,
+    'imageString': imageString,
+    'usertype': userType,
+    'isWfh': _isChecked == true ? 'Work from Home' : '',
   }).then((value) => print('success saving'));
-
 }
 
 registerWithEmailAndPassword(String email, String password) async {
@@ -162,4 +158,44 @@ registerWithEmailAndPassword(String email, String password) async {
     }
     // Handle error
   }
+}
+
+changeCredential(empKey, newEmail, context, choice, password) async {
+  var credentials = await read_credentials_pref();
+  FirebaseAuth auth = FirebaseAuth.instance;
+  final credential = await auth.signInWithEmailAndPassword(
+      email: credentials[0], password: credentials[1]);
+  var user = await FirebaseAuth.instance.currentUser;
+
+  if (choice == 1 || choice == 3) {
+    user?.updateEmail(newEmail).then((_) async {
+      final databaseReference =
+          FirebaseDatabase.instance.ref().child('Employee/' + empKey);
+      await databaseReference.update({
+        'email': newEmail,
+      });
+
+      if (choice == 3) {
+        changePass(password, context, credentials);
+        await save_credentials_pref(newEmail, password);
+        success_box(context, "Successfully updated email and password");
+      } else {
+        await save_credentials_pref(newEmail, credentials[1]);
+        success_box(context, "Successfully updated email");
+      }
+    }).catchError((error) {
+      warning_box(context, "Error updating email: $error");
+    });
+  } else {
+    changePass(password, context, credentials);
+    await save_credentials_pref(credentials[0], password);
+    success_box(context, "Successfully updated password");
+  }
+}
+
+changePass(password, context, credentials) async {
+  var user = await FirebaseAuth.instance.currentUser;
+  user?.updatePassword(password).then((_) async {}).catchError((error) {
+    warning_box(context, "Error updating password: $error");
+  });
 }
