@@ -34,7 +34,7 @@ read_employeeProfile() async {
 }
 
 save_employeeProfile(employeeName, department, email, password, guid,
-    imageString, userType, key) async {
+    imageString, userType, key, employeeID) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setStringList('employeeCredentials', <String>[
     employeeName,
@@ -44,7 +44,8 @@ save_employeeProfile(employeeName, department, email, password, guid,
     guid,
     imageString,
     userType,
-    key
+    key,
+    employeeID
   ]);
 }
 
@@ -58,8 +59,8 @@ String timestampToDateString(dynamic timestamp, format) {
     if (timestamp is String) {
       return 'No Data';
     } else {
-      final date = DateTime.fromMillisecondsSinceEpoch(timestamp)
-          .add(Duration(hours: 8));
+      final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+      //.add(Duration(hours: 8));
       return DateFormat(format).format(date.toLocal());
     }
   } else {
@@ -82,8 +83,8 @@ fetchLatestWeeks(List<Attendance> logs) {
   return logs.where((element) {
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(element.dateIn!);
     final date =
-        DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch)
-            .add(Duration(hours: 8));
+        DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
+    //.add(Duration(hours: 8));
     Duration difference = now.difference(date);
     if (difference <= Duration(days: 15)) {
       return true;
@@ -93,10 +94,25 @@ fetchLatestWeeks(List<Attendance> logs) {
   }).toList();
 }
 
+getDateDiff(dateTime) {
+  DateTime now = DateTime.now();
+  DateTime? startDate1 =
+      DateFormat('MM/dd/yyyy HH:mm a').parse(dateTime.toString());
+  final date =
+      DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
+  //.add(Duration(hours: 8));
+  final difference = now.difference(date).abs();
+  if (difference <= Duration(days: 1)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 logoutUser(context) {
   FirebaseAuth.instance.signOut();
   save_credentials_pref('', '');
-  save_employeeProfile('', '', '', '', '', '', '', '');
+  save_employeeProfile('', '', '', '', '', '', '', '', '');
   Navigator.pushReplacementNamed(context, 'Login');
 }
 
@@ -129,8 +145,10 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
 
 sortList(List<Attendance> attendance) {
   attendance.sort((a, b) {
-    var dateA = DateFormat("MM/dd/yyyy").parse(a.dateIn!);
-    var dateB = DateFormat("MM/dd/yyyy").parse(b.dateIn!);
+    var dateA =
+        DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
+    var dateB =
+        DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
     return dateB.compareTo(dateA);
   });
 

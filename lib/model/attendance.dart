@@ -1,5 +1,5 @@
 class Attendance {
-  String? dept, empId, empName, guID, uType, dateIn, timeIn, timeOut, wfh;
+  String? dept, empId, empName, guID, uType, dateIn, timeIn, timeOut, wfh, key;
 
   String? get getDept {
     return dept;
@@ -7,6 +7,14 @@ class Attendance {
 
   set department(String? depart) {
     dept = depart;
+  }
+
+  String? get getKey {
+    return key;
+  }
+
+  set attendanceKey(String? attendancekey) {
+    key = attendancekey;
   }
 
   String? get getEmpId {

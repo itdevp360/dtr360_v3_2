@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:dtr360_version3_2/model/users.dart';
+import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:dtr360_version3_2/view/widgets/loaderView.dart';
+import 'package:dtr360_version3_2/view/widgets/qrScannerWidget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -19,8 +21,10 @@ class qrWidget extends StatefulWidget {
 
 class _qrWidgetState extends State<qrWidget> {
   var credentials, employeeProfile;
+  var qrCodeResult;
   var email, qrCode;
   Uint8List? bytes;
+  List<Employees> empList = [];
   Employees emp = Employees();
   bool _loaded = false;
   bool _isWfh = false;
@@ -33,9 +37,10 @@ class _qrWidgetState extends State<qrWidget> {
       if (credentials != null && credentials[0] != '') {
         email = credentials[0] ?? '';
         employeeProfile = await read_employeeProfile();
-        emp = await fetchEmployees(email);
+        empList = await fetchEmployees();
+        emp = empList.firstWhere((element) => element.emailAdd == email);
         save_employeeProfile(emp.empName, emp.dept, emp.emailAdd, emp.passW,
-            emp.guid, emp.imgStr, emp.usrType, emp.key);
+            emp.guid, emp.imgStr, emp.usrType, emp.key, emp.empId);
         // if(employeeProfile != null && employeeProfile[0] != ''){
         //   emp.empName = employeeProfile[0] ?? '';
         //   emp.dept = employeeProfile[1] ?? '';
@@ -109,9 +114,27 @@ class _qrWidgetState extends State<qrWidget> {
                           width: 20.w,
                           height: 25.w,
                           child: TextButton(
-                            onPressed: () {
-                              print(emp.empName);
-                              print(emp.guid);
+                            onPressed: () async {
+                              if (emp.usrType.toString() == 'Employee' ||
+                                  emp.usrType.toString() == 'Approver') {
+                                await updateAttendance(
+                                    emp.guid.toString(), context, true, emp);
+                              } else {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => QRViewExample()),
+                                );
+                                if (result != null) {
+                                  setState(() {
+                                    print("GUID " + result.toString());
+                                  });
+                                }
+                                Employees scannedEmp = empList.firstWhere(
+                                    (element) => element.guid == result);
+                                var newres = await updateAttendance(
+                                    result, context, true, scannedEmp);
+                              }
                             },
                             child: Image.asset('assets/greenclock.png'),
                           )),
@@ -127,8 +150,25 @@ class _qrWidgetState extends State<qrWidget> {
                           width: 20.w,
                           height: 25.w,
                           child: TextButton(
-                            onPressed: () {
-                              print('right');
+                            onPressed: () async {
+                              if (emp.usrType.toString() == 'Employee' ||
+                                  emp.usrType.toString() == 'Approver') {
+                                await updateAttendance(
+                                    emp.guid.toString(), context, false, emp);
+                              } else {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => QRViewExample()),
+                                );
+                                if (result != null) {
+                                  setState(() {});
+                                }
+                                Employees scannedEmp = empList.firstWhere(
+                                    (element) => element.guid == result);
+                                var newres = await updateAttendance(
+                                    result, context, false, scannedEmp);
+                              }
                             },
                             child: Image.asset('assets/redclock.png'),
                           )),

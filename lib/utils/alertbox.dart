@@ -20,11 +20,28 @@ success_box(context, message) {
   )..show();
 }
 
+error_box(context, message) {
+  AwesomeDialog(
+    context: context,
+    dialogType: DialogType.error,
+    btnOkColor: Colors.red,
+    animType: AnimType.rightSlide,
+    title: 'ERROR',
+    desc: message.toString(),
+    btnOkOnPress: () async {
+      // Navigator.pop(context);
+      // var items = await read_shared_pref();
+      // var snackBar = SnackBar(content: Text(items[0].toString()));
+      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    },
+  )..show();
+}
+
 warning_box(context, message) {
   AwesomeDialog(
     context: context,
     dialogType: DialogType.warning,
-    btnOkColor: Colors.orange, 
+    btnOkColor: Colors.orange,
     animType: AnimType.rightSlide,
     title: 'WARNING!',
     desc: message.toString(),
@@ -48,8 +65,7 @@ confirm_address(context, message, address, lattitude, longitude) {
       btnOkOnPress: () async {
         success_box(context, "Settings successfully updated.");
       },
-      btnCancelOnPress: () async {
-      })
+      btnCancelOnPress: () async {})
     ..show();
 }
 

@@ -18,6 +18,7 @@ fetchAttendance() async {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
         Attendance logs = Attendance();
+        logs.attendanceKey = key.toString();
         logs.employeeID = value['employeeID'].toString();
         logs.employeeName = value['employeeName'].toString();
         logs.guid = value['guid'].toString();
@@ -83,33 +84,31 @@ fetchAllEmployees() async {
   return _listKeys;
 }
 
-fetchEmployees(String email) async {
-  print(email);
+fetchEmployees() async {
   List<Employees> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('Employee');
-  Employees emp = Employees();
+
   final snapshot = await ref.get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
-        if (value['email'] == email &&
-            value['usertype'].toString() != 'Former Employee') {
-          emp.itemKey = key.toString();
-          emp.employeeID = value['employeeID'].toString();
-          emp.department = value['department'].toString();
-          emp.email = value['email'].toString();
-          emp.employeeName = value['employeeName'].toString();
-          emp.setguid = value['guid'].toString();
-          emp.imageString = value['imageString'].toString();
-          emp.isWfh = value['isWfh'].toString();
-          emp.password = value['password'].toString();
-          emp.usertype = value['usertype'].toString();
-        }
+        Employees emp = Employees();
+        emp.itemKey = key.toString();
+        emp.employeeID = value['employeeID'].toString();
+        emp.department = value['department'].toString();
+        emp.email = value['email'].toString();
+        emp.employeeName = value['employeeName'].toString();
+        emp.setguid = value['guid'].toString();
+        emp.imageString = value['imageString'].toString();
+        emp.isWfh = value['isWfh'].toString();
+        emp.password = value['password'].toString();
+        emp.usertype = value['usertype'].toString();
+        _listKeys.add(emp);
       });
     }
   });
   print('done');
-  return emp;
+  return _listKeys;
 }
 
 updateEmployeeDetails(
@@ -198,4 +197,73 @@ changePass(password, context, credentials) async {
   user?.updatePassword(password).then((_) async {}).catchError((error) {
     warning_box(context, "Error updating password: $error");
   });
+}
+
+insertAttendance(iswfh, context, Employees emp) async {
+  final databaseReference = FirebaseDatabase.instance.ref().child('Logs');
+  DateTime today = DateTime.now();
+  int timestamp = today.millisecondsSinceEpoch;
+  databaseReference.push().set({
+    'dateTimeIn': timestamp,
+    'department': emp.dept,
+    'employeeID': emp.empId,
+    'employeeName': emp.empName,
+    'guid': emp.guid,
+    'timeIn': timestamp,
+    'userType': emp.usrType,
+    'isWfh': iswfh.toString(),
+  });
+  return 'Successfully timed in at: ' +
+      timestampToDateString(timestamp, 'hh:mm a');
+}
+
+updateTimeOut(key) async {
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('Logs/' + key);
+  DateTime today = DateTime.now();
+  int timestamp = today.millisecondsSinceEpoch;
+
+  await databaseReference.update({
+    'timeOut': timestamp,
+  });
+
+  return timestampToDateString(timestamp, 'hh:mm a');
+}
+
+updateAttendance(guid, context, isTimeIn, Employees emp) async {
+  List<Attendance>? logs = await fetchAttendance();
+  List<Attendance>? newLogs = [];
+  newLogs = sortList(logs!.where((element) => element.guID == guid).toList());
+  var result;
+  //result = newLogs![0].getKey;
+  if (newLogs!.length > 0) {
+    if (isTimeIn == true) {
+      if (newLogs![0].timeOut != 'No Data') {
+        String message = await insertAttendance(context, 'No', emp);
+        success_box(context, message);
+      } else {
+        if (getDateDiff(newLogs![0].dateIn.toString() +
+            ' ' +
+            newLogs![0].timeIn.toString())) {
+          warning_box(context, 'Please time out first.');
+        } else {
+          String message = await insertAttendance(context, 'No', emp);
+          success_box(context, message);
+        }
+      }
+    } else {
+      if (newLogs![0].timeOut == 'No Data') {
+        var resultKey = newLogs![0].getKey;
+        var timeToday = await updateTimeOut(resultKey);
+        success_box(context, 'Successfully timed out: ' + timeToday);
+      } else {
+        error_box(
+            context, 'Already timed out: ' + newLogs![0].timeOut.toString());
+      }
+    }
+  } else {
+    String message = await insertAttendance(context, 'No', emp);
+    success_box(context, message);
+  }
+  return result;
 }
