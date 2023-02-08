@@ -131,19 +131,20 @@ class _MyWidgetState extends State<AttendanceWidget> {
                         });
                       },
                     ))),
-                TextField(
+                Padding(padding: EdgeInsets.only(left: 20, right: 20), child: TextField(
                   keyboardType: TextInputType.none,
                   decoration: InputDecoration(labelText: 'Date'),
                   onTap: () => _selectDate(context),
                   controller:
                       TextEditingController(text: formatDate(startDate)),
-                ),
-                TextField(
+                ),)  ,  
+                Padding(padding: EdgeInsets.only(left: 20, right: 20), child: TextField(
                   keyboardType: TextInputType.none,
                   decoration: InputDecoration(labelText: 'Date'),
                   onTap: () => _selectEndDate(context),
                   controller: TextEditingController(text: formatDate(endDate)),
-                ),
+                ),)  , 
+                
                 Container(
                     width: 100.w,
                     child: Padding(
