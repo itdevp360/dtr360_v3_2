@@ -1,3 +1,4 @@
+import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -110,7 +111,9 @@ class _MyLoginPage extends State<LoginWidget> {
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async{
+                await forgotpassword_box(context, "Forgot Password?");
+                
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
               },
               child: const Text(
