@@ -75,7 +75,7 @@ class _qrWidgetState extends State<qrWidget> {
               child: Center(
                   child: Container(
                       width: 100.w,
-                      height: 9.h,
+                      height: 8.h,
                       child: Column(
                         children: [
                           Text(

@@ -24,7 +24,7 @@ class _MyWidgetState extends State<AttendanceWidget> {
   bool loaded = false;
   bool isDateSelected = false;
   bool isEmployee = false;
-  double screenH = 50.h;
+  double screenH = 48.h;
   @override
   void initState() {
     super.initState();
