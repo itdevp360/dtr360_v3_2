@@ -30,7 +30,7 @@ class _MyWidgetState extends State<AttendanceWidget> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       logs = await fetchAttendance();
-      employeeList = await fetchAllEmployees();
+      employeeList = await fetchAllEmployees(true);
       sortListAlphabetical(employeeList!);
       employeeProfile = await read_employeeProfile();
       ownLogs = logs!.where((log) => log.guID == employeeProfile[4]).toList();

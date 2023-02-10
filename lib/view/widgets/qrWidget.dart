@@ -27,6 +27,7 @@ class _qrWidgetState extends State<qrWidget> {
   List<Employees> empList = [];
   Employees emp = Employees();
   bool _loaded = false;
+  bool _enabled = true;
   bool _isWfh = false;
 
   @override
@@ -114,11 +115,19 @@ class _qrWidgetState extends State<qrWidget> {
                           width: 20.w,
                           height: 25.w,
                           child: TextButton(
-                            onPressed: () async {
+                            onPressed: _enabled == false ? null : () async {
                               if (emp.usrType.toString() == 'Employee' ||
-                                  emp.usrType.toString() == 'Approver') {
+                                  emp.usrType.toString() == 'Approver' && _enabled == true) {
+                                  setState(() {
+                                    _enabled = false;
+                                  });
                                 await updateAttendance(
                                     emp.guid.toString(), context, true, emp);
+                                  Future.delayed(Duration(seconds: 2), () {
+                                    setState(() {
+                                      _enabled = true;
+                                    });
+                                  });
                               } else {
                                 final result = await Navigator.push(
                                   context,
@@ -150,11 +159,19 @@ class _qrWidgetState extends State<qrWidget> {
                           width: 20.w,
                           height: 25.w,
                           child: TextButton(
-                            onPressed: () async {
+                            onPressed: _enabled == false ? null : () async {
                               if (emp.usrType.toString() == 'Employee' ||
-                                  emp.usrType.toString() == 'Approver') {
+                                  emp.usrType.toString() == 'Approver' && _enabled == true) {
+                                    setState(() {
+                                    _enabled = false;
+                                  });
                                 await updateAttendance(
                                     emp.guid.toString(), context, false, emp);
+                                    Future.delayed(Duration(seconds: 2), () {
+                                    setState(() {
+                                      _enabled = true;
+                                    });
+                                  });
                               } else {
                                 final result = await Navigator.push(
                                   context,

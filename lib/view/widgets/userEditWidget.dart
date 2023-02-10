@@ -40,7 +40,7 @@ class _MyWidgetState extends State<UserEditWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      employeeList = await fetchAllEmployees();
+      employeeList = await fetchAllEmployees(false);
       sortListAlphabetical(employeeList!);
       if (this.mounted) {
         setState(() {
@@ -220,7 +220,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                         _isWfh,
                         userTypeDropdown);
                     success_box(context, "Employee profile updated.");
-                    employeeList = await fetchAllEmployees();
+                    employeeList = await fetchAllEmployees(false);
                     sortListAlphabetical(employeeList!);
                     department.text = '';
                     employeeId.text = '';

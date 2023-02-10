@@ -17,9 +17,9 @@ class LoaderView extends StatelessWidget {
       child: this.child,
       blur: 10,
       inAsyncCall: showLoader,
-      progressIndicator: SpinKitWave(
+      progressIndicator: SpinKitPouringHourGlass(
         color: Colors.white,
-        size: 10.0.w,
+        size: 20.0.w,
       ),
     );
   }

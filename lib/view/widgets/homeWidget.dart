@@ -12,6 +12,9 @@ import 'package:dtr360_version3_2/view/widgets/qrWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../model/users.dart';
+import '../../utils/firebase_functions.dart';
+
 class HomeWidget extends StatefulWidget {
   const HomeWidget({
     super.key,
@@ -22,6 +25,55 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _MyHomeWidgetState extends State<HomeWidget> {
+  var credentials, employeeProfile;
+  var qrCodeResult;
+  var email, qrCode;
+  List<Employees> empList = [];
+  Employees emp = Employees();
+  bool _loaded = false;
+  bool _isWfh = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      credentials = await read_credentials_pref();
+      if (credentials != null && credentials[0] != '') {
+        email = credentials[0] ?? '';
+        employeeProfile = await read_employeeProfile();
+        empList = await fetchEmployees();
+        emp = empList.firstWhere((element) => element.emailAdd == email);
+        save_employeeProfile(emp.empName, emp.dept, emp.emailAdd, emp.passW,
+            emp.guid, emp.imgStr, emp.usrType, emp.key, emp.empId);
+        // if(employeeProfile != null && employeeProfile[0] != ''){
+        //   emp.empName = employeeProfile[0] ?? '';
+        //   emp.dept = employeeProfile[1] ?? '';
+        //   emp.emailAdd = employeeProfile[2] ?? '';
+        //   emp.passW = employeeProfile[3] ?? '';
+        //   emp.guid = employeeProfile[4] ?? '';
+        //   emp.imgStr = employeeProfile[5] ?? '';
+        //   emp.usrType = employeeProfile[6] ?? '';
+        // }
+        // else{
+        //   emp = await fetchEmployees(email);
+        //   save_employeeProfile(emp.empName, emp.dept, emp.emailAdd, emp.passW, emp.guid, emp.imgStr, emp.usrType);
+        // }
+
+        setState(() {
+          if(emp.usrType == 'Former Employee'){
+            logoutUser(context);
+          }
+          _loaded = true;
+          _isWfh = emp.wfh == "null" || emp.wfh == '' ? false : true;
+          print(emp.key);
+        });
+      }
+    });
+  }
+
+
+
+
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
@@ -85,8 +137,9 @@ class _MyHomeWidgetState extends State<HomeWidget> {
               // add icon, by default "3 dot" icon
               // icon: Icon(Icons.book)
               itemBuilder: (context) {
-            return [
-              PopupMenuItem<int>(
+                var items = <PopupMenuItem>[];
+                if(emp.usrType == 'IT/Admin' || emp.usrType == 'Admin' || emp.usrType == 'IT'){
+                  items.add(PopupMenuItem<int>(
                   value: 0,
                   child: const Text("Register"),
                   onTap: () {
@@ -100,8 +153,8 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                         ),
                       );
                     });
-                  }),
-              PopupMenuItem<int>(
+                  }));
+                  items.add(PopupMenuItem<int>(
                   value: 1,
                   child: Text("User Edit"),
                   onTap: () {
@@ -115,8 +168,9 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                         ),
                       );
                     });
-                  }),
-              PopupMenuItem<int>(
+                  }));
+                }
+                items.add(PopupMenuItem<int>(
                 value: 2,
                 child: Text("Change password"),
                 onTap: () {
@@ -131,12 +185,15 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                     );
                   });
                 },
-              ),
-              const PopupMenuItem<int>(
+              ));
+              items.add(PopupMenuItem<int>(
                 value: 3,
                 child: Text("Logout"),
-              ),
-            ];
+                onTap: (){
+                  
+                },
+              ));
+            return items;
           }, onSelected: (value) {
             switch (value) {
               case 0:

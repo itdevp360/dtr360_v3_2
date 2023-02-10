@@ -56,7 +56,7 @@ login_user(context, email, password) async {
   }
 }
 
-fetchAllEmployees() async {
+fetchAllEmployees(bool isAttendance) async {
   List<Employees> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('Employee');
 
@@ -75,9 +75,15 @@ fetchAllEmployees() async {
         emp1.isWfh = value['isWfh'].toString();
         emp1.password = value['password'].toString();
         emp1.usertype = value['usertype'].toString();
-        if (value['usertype'].toString() != 'Former Employee') {
+        if(isAttendance == false){
           _listKeys.add(emp1);
         }
+        else{
+          if (value['usertype'].toString() != 'Former Employee') {
+            _listKeys.add(emp1);
+          }
+        }
+        
       });
     }
   });
