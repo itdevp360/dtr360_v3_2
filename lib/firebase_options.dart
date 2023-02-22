@@ -44,44 +44,43 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCtGUTdZz41i1xTVMZxwIXx9-KwD1QBgbs',
-    appId: '1:1047099632248:web:a90f1feb5b97c36c42db8d',
-    messagingSenderId: '1047099632248',
-    projectId: 'dtr360-10879',
-    authDomain: 'dtr360-10879.firebaseapp.com',
-    databaseURL: 'https://dtr360-10879-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'dtr360-10879.appspot.com',
-    measurementId: 'G-5C4FG4S15G',
+    apiKey: 'AIzaSyDDTjEEfaYNcsrC91QiQN1GphY_mwKuYqs',
+    appId: '1:601054122216:web:85f171cfaf94b75236795d',
+    messagingSenderId: '601054122216',
+    projectId: 'people360-attendance-tra-cd98c',
+    authDomain: 'people360-attendance-tra-cd98c.firebaseapp.com',
+    databaseURL: 'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'people360-attendance-tra-cd98c.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDO5FcOrm6YKCKTNILiUavIxv6-WqaiQlM',
-    appId: '1:1047099632248:android:183fcbb85b967ec442db8d',
-    messagingSenderId: '1047099632248',
-    projectId: 'dtr360-10879',
-    databaseURL: 'https://dtr360-10879-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'dtr360-10879.appspot.com',
+    apiKey: 'AIzaSyBixWbX_kaV_5t6aCx_3qMIBmDm7YnzniM',
+    appId: '1:601054122216:android:271c71aef92b24fe36795d',
+    messagingSenderId: '601054122216',
+    projectId: 'people360-attendance-tra-cd98c',
+    databaseURL: 'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'people360-attendance-tra-cd98c.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyClRdrz6MHkYn7jCMfUHww7X9_qsfAydiA',
-    appId: '1:1047099632248:ios:5db1bdd5bc5abaca42db8d',
-    messagingSenderId: '1047099632248',
-    projectId: 'dtr360-10879',
-    databaseURL: 'https://dtr360-10879-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'dtr360-10879.appspot.com',
-    iosClientId: '1047099632248-l5u1ptq4l556njil7q4781vjr45i3699.apps.googleusercontent.com',
+    apiKey: 'AIzaSyA9ZKMfVrluFR3WOkJMTYgkHKchMpxPiUY',
+    appId: '1:601054122216:ios:c4cb61685cefed1436795d',
+    messagingSenderId: '601054122216',
+    projectId: 'people360-attendance-tra-cd98c',
+    databaseURL: 'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'people360-attendance-tra-cd98c.appspot.com',
+    iosClientId: '601054122216-jjhnh72i7ejqks0o902v44ro43oa7mgn.apps.googleusercontent.com',
     iosBundleId: 'com.example.dtr360Version32',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyClRdrz6MHkYn7jCMfUHww7X9_qsfAydiA',
-    appId: '1:1047099632248:ios:5db1bdd5bc5abaca42db8d',
-    messagingSenderId: '1047099632248',
-    projectId: 'dtr360-10879',
-    databaseURL: 'https://dtr360-10879-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'dtr360-10879.appspot.com',
-    iosClientId: '1047099632248-l5u1ptq4l556njil7q4781vjr45i3699.apps.googleusercontent.com',
+    apiKey: 'AIzaSyA9ZKMfVrluFR3WOkJMTYgkHKchMpxPiUY',
+    appId: '1:601054122216:ios:c4cb61685cefed1436795d',
+    messagingSenderId: '601054122216',
+    projectId: 'people360-attendance-tra-cd98c',
+    databaseURL: 'https://people360-attendance-tra-cd98c-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'people360-attendance-tra-cd98c.appspot.com',
+    iosClientId: '601054122216-jjhnh72i7ejqks0o902v44ro43oa7mgn.apps.googleusercontent.com',
     iosBundleId: 'com.example.dtr360Version32',
   );
 }

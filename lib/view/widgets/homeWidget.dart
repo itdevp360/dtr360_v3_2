@@ -1,9 +1,6 @@
-import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:dtr360_version3_2/view/screens/attendance_model.dart';
 import 'package:dtr360_version3_2/view/screens/changepass_model.dart';
-import 'package:dtr360_version3_2/view/screens/useredit_model.dart';
-import 'package:dtr360_version3_2/view/widgets/attendanceWidget.dart';
 import 'package:dtr360_version3_2/view/widgets/userEditWidget.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:dtr360_version3_2/view/screens/register_model.dart';

@@ -1,8 +1,6 @@
 import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import '../../utils/firebase_functions.dart';
 import '../../utils/utilities.dart';
