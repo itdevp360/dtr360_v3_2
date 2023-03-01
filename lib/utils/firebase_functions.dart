@@ -239,7 +239,7 @@ updateTimeOut(key) async {
 updateAttendance(guid, context, isTimeIn, Employees emp) async {
   List<Attendance>? logs = await fetchAttendance();
   List<Attendance>? newLogs = [];
-  newLogs = sortList(logs!.where((element) => element.guID == guid).toList());
+  newLogs = sortList(logs!.where((element) => (element.guID == guid) || (element.empName == guid) || (element.empId == guid)).toList());
   var result;
   //result = newLogs![0].getKey;
   if (newLogs!.length > 0) {

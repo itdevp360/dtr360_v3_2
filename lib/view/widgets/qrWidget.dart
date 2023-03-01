@@ -58,7 +58,7 @@ class _qrWidgetState extends State<qrWidget> {
 
         setState(() {
           _loaded = true;
-          _isWfh = emp.wfh == "null" || emp.wfh == '' ? false : true;
+          _isWfh = (emp.wfh == "null" || emp.wfh == '') && emp.usrType != 'Admin' ? false : true;
           print(emp.key);
         });
       }
@@ -182,7 +182,7 @@ class _qrWidgetState extends State<qrWidget> {
                                   setState(() {});
                                 }
                                 Employees scannedEmp = empList.firstWhere(
-                                    (element) => element.guid == result);
+                                    (element) => (element.guid == result) || (element.empName == result));
                                 var newres = await updateAttendance(
                                     result, context, false, scannedEmp);
                               }
