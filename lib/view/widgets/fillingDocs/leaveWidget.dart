@@ -1,7 +1,9 @@
+import 'package:dtr360_version3_2/view/widgets/fileUploadWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../../utils/utilities.dart';
 
@@ -15,6 +17,7 @@ class leaveWidget extends StatefulWidget {
 class _MyWidgetState extends State<leaveWidget> {
   int remainingLeave = 5;
   String? selectedLeaveType;
+  bool isChecked = false;
   TextEditingController reason = new TextEditingController();
   TextEditingController noOfDays = new TextEditingController();
   List<String> leaveTypes = [
@@ -41,29 +44,29 @@ class _MyWidgetState extends State<leaveWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SingleChildScrollView(
+      child: Container(
       margin: EdgeInsets.all(24),
       child: Column(
         children: [
-          Text(
+          const Text(
             'Application for Leave',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          Text(
-            'Remaining Leaves: ' + remainingLeave.toString(),
+          Text('Remaining Leaves: $remainingLeave',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18),
+            style: const TextStyle(fontSize: 18),
           ),
           TextField(
             keyboardType: TextInputType.none,
-            decoration: InputDecoration(labelText: 'Date'),
+            decoration: const InputDecoration(labelText: 'Date'),
             onTap: () => _selectDate(context),
             controller: TextEditingController(text: formatDate(startDate)),
           ),
           DropdownButtonFormField<String>(
             value: selectedLeaveType,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Leave Type',
             ),
             onChanged: (newValue) {
@@ -79,15 +82,27 @@ class _MyWidgetState extends State<leaveWidget> {
             }).toList(),
           ),
           TextField(
-            decoration: InputDecoration(labelText: 'Reason'),
+            decoration: const InputDecoration(labelText: 'Reason'),
             controller: reason,
           ),
           TextField(
-            decoration: InputDecoration(labelText: 'No. of days'),
+            decoration: const InputDecoration(labelText: 'No. of days'),
             controller: noOfDays,
           ),
+          Row( children: [
+            Checkbox(value: isChecked, onChanged: (bool? value){
+              setState(() {
+                isChecked = value!;
+              });
+            }),
+            const Text('Deduct on leave credits', style: TextStyle(fontSize: 16),)
+          ],),
+          FilePickerWidget(),
+          
+          
         ],
       ),
-    );
+    ),
+    ); 
   }
 }

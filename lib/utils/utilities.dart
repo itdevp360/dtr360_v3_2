@@ -7,11 +7,6 @@ import 'package:dtr360_version3_2/model/users.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'dart:typed_data';
-import 'dart:convert';
-
-import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 read_credentials_pref() async {
@@ -176,6 +171,3 @@ Future<String> generateQRBase64String(String text) async {
   return base64Encode(pngBytes!.buffer.asUint8List());
 }
 
-testPrint() {
-  print('pumasok');
-}

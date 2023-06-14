@@ -62,7 +62,6 @@ class _MyHomeWidgetState extends State<HomeWidget> {
           }
           _loaded = true;
           _isWfh = emp.wfh == "null" || emp.wfh == '' ? false : true;
-          print(emp.key);
         });
       }
     });
@@ -85,7 +84,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
         child: Scaffold(
             body: _selectedIndex != 2
                 ? _widgetOptions.elementAt(_selectedIndex)
-                : FileDocumentsWidget(),
+                : const FileDocumentsWidget(),
             bottomNavigationBar: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -104,11 +103,11 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                   gap: 0,
                   activeColor: Colors.black,
                   iconSize: 24,
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                  duration: Duration(milliseconds: 400),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                  duration: const Duration(milliseconds: 400),
                   tabBackgroundColor: Colors.grey[100]!,
                   color: Colors.black,
-                  tabs: [
+                  tabs: const [
                     GButton(
                       icon: LineIcons.home,
                       text: 'Home',
@@ -126,7 +125,6 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                   onTabChange: (index) {
                     setState(() {
                       _selectedIndex = index;
-                      print(index);
                     });
                   },
                 ),
@@ -176,7 +174,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                         }));
                     items.add(PopupMenuItem<int>(
                         value: 1,
-                        child: Text("User Edit"),
+                        child: const Text("User Edit"),
                         onTap: () {
                           WidgetsBinding.instance!.addPostFrameCallback((_) {
                             Navigator.push(
@@ -192,7 +190,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                   }
                   items.add(PopupMenuItem<int>(
                     value: 2,
-                    child: Text("Change password"),
+                    child: const Text("Change password"),
                     onTap: () {
                       WidgetsBinding.instance!.addPostFrameCallback((_) {
                         Navigator.push(
@@ -208,22 +206,19 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                   ));
                   items.add(PopupMenuItem<int>(
                     value: 3,
-                    child: Text("Logout"),
+                    child: const Text("Logout"),
                     onTap: () {},
                   ));
                   return items;
                 }, onSelected: (value) {
                   switch (value) {
                     case 0:
-                      print("My 1 menu is selected.");
                       break;
                     case 1:
                     case 2:
-                      print("My 3 menu is selected.");
                       break;
                     case 3:
                       logoutUser(context);
-                      print("My 4 menu is selected.");
 
                       break;
                   }

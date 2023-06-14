@@ -32,7 +32,7 @@ class Employees {
   String? get getguid{
     return guid;
   }
-  void set setguid(String? guID){
+  set setguid(String? guID){
     guid = guID;
   }
 
