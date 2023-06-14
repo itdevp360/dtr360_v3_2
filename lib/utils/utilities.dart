@@ -19,7 +19,6 @@ save_credentials_pref(email, password) async {
   final prefs = await SharedPreferences.getInstance();
 
   await prefs.setStringList('credentials', <String>[email, password]);
-  print('nagsave sya');
 }
 
 read_employeeProfile() async {
@@ -170,4 +169,3 @@ Future<String> generateQRBase64String(String text) async {
   final pngBytes = await image.toByteData(format: ImageByteFormat.png);
   return base64Encode(pngBytes!.buffer.asUint8List());
 }
-

@@ -1,4 +1,5 @@
 import 'package:dtr360_version3_2/model/attendance.dart';
+import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/model/users.dart';
 import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -75,15 +76,13 @@ fetchAllEmployees(bool isAttendance) async {
         emp1.isWfh = value['isWfh'].toString();
         emp1.password = value['password'].toString();
         emp1.usertype = value['usertype'].toString();
-        if(isAttendance == false){
+        if (isAttendance == false) {
           _listKeys.add(emp1);
-        }
-        else{
+        } else {
           if (value['usertype'].toString() != 'Former Employee') {
             _listKeys.add(emp1);
           }
         }
-        
       });
     }
   });
@@ -144,6 +143,29 @@ insertNewEmployee(department, email, employeeID, employeeName, guid,
     'usertype': userType,
     'isWfh': _isChecked == true ? 'Work from Home' : '',
   }).then((value) => print('success saving'));
+}
+
+fileDocument(FilingDocument file, context) {
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('FilingDocuments');
+
+  databaseReference.push().set({
+    'guid': file.guid,
+    'docType': file.docType,
+    'date': file.date,
+    'reason': file.reason,
+    'leaveType': file.leaveType,
+    'noOfDay': file.noOfDay,
+    'deductLeave': file.deductLeave,
+    'attachmentName': file.attachmentName,
+    'fileId': file.fileId,
+    'isOut': file.isOut,
+    'correctTime': file.correctTime,
+    'hoursNo': file.hoursNo,
+    'isApproved': file.isApproved,
+    'notifyStatus': file.notifyStatus
+  }).then((value) => success_box(
+      context, 'Your application for ${file.docType} has been filed'));
 }
 
 registerWithEmailAndPassword(String email, String password) async {
@@ -239,7 +261,12 @@ updateTimeOut(key) async {
 updateAttendance(guid, context, isTimeIn, Employees emp) async {
   List<Attendance>? logs = await fetchAttendance();
   List<Attendance>? newLogs = [];
-  newLogs = sortList(logs!.where((element) => (element.guID == guid) || (element.empName == guid) || (element.empId == guid)).toList());
+  newLogs = sortList(logs!
+      .where((element) =>
+          (element.guID == guid) ||
+          (element.empName == guid) ||
+          (element.empId == guid))
+      .toList());
   var result;
   //result = newLogs![0].getKey;
   if (newLogs!.length > 0) {
