@@ -95,6 +95,36 @@ fetchLatestWeeks(List<Attendance> logs) {
   }).toList();
 }
 
+computeTotalHours(startTIme, endTime){
+  int difference = endTime - startTIme;
+
+  // Calculate the total hours
+  double totalHours = difference / (1000 * 60 * 60);
+
+  return totalHours.toStringAsFixed(2);
+}
+
+convertStringDateToUnix(date, selectedTime, docType){
+  int unixTimestamp = 0;
+  if(docType == 'Correction' || docType == 'Overtime'){
+    DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
+    DateFormat timeFormat = DateFormat('HH:mm');
+    DateTime time = timeFormat.parse(selectedTime);
+    DateTime convertedTime = DateTime(dateTime.year, dateTime.month, dateTime.day, time.hour, time.minute, time.second);
+
+    // Convert to Unix timestamp
+    unixTimestamp = convertedTime.millisecondsSinceEpoch;
+  }
+  else if(docType == 'Leave'){
+    DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
+
+    // Convert to Unix timestamp
+    unixTimestamp = dateTime.millisecondsSinceEpoch;
+  }
+  
+  return unixTimestamp;
+}
+
 getDateDiff(dateTime) {
   DateTime now = DateTime.now();
   DateTime? startDate1 =

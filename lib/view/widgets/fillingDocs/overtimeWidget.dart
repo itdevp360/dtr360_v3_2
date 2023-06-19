@@ -1,42 +1,36 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../model/filingdocument.dart';
 import '../../../utils/firebase_functions.dart';
 import '../../../utils/utilities.dart';
 
-class AttendanceCorrection extends StatefulWidget {
-  const AttendanceCorrection({super.key});
+class OvertimeWidget extends StatefulWidget {
+  const OvertimeWidget({super.key});
 
   @override
-  State<AttendanceCorrection> createState() => _AttendanceCorrectionState();
+  State<OvertimeWidget> createState() => _OvertimeWidgetState();
 }
 
-class _AttendanceCorrectionState extends State<AttendanceCorrection> {
+class _OvertimeWidgetState extends State<OvertimeWidget> {
   
   final FilingDocument dataModel = FilingDocument();
-  String? selectedInOrOut;
   DateTime startDate = DateTime.now();
-  TimeOfDay initialTime = const TimeOfDay(hour: 0, minute: 0);
+  String? selectedOtType;
+  TimeOfDay initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
+  TimeOfDay initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
   TextEditingController reason = TextEditingController();
-  List<String> inOrOut = [
-    'Time In',
-    'Time Out',
+  TextEditingController totalHours = TextEditingController();
+  List<String> otType = [
+    'Regular',
+    'Rest Day',
+    'Holiday'
   ];
 
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTime);
-    if (picked != null && picked != initialTime) {
-      setState(() {
-        initialTime = picked;
-        dataModel.correctTime = formatTime(initialTime);
-      });
-    }
-  }
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -52,6 +46,37 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
     }
   }
 
+  Future<void> _selectTimeFrom(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTimeFrom);
+    if (picked != null && picked != initialTimeFrom) {
+      setState(() {
+        initialTimeFrom = picked;
+        dataModel.otfrom = convertStringDateToUnix(dataModel.date, formatTime(initialTimeFrom), 'Overtime');
+        if(dataModel.otfrom != null && dataModel.otTo != null){
+          String totalNoHours = computeTotalHours(dataModel.otfrom, dataModel.otTo);
+          totalHours.text = totalNoHours;
+          dataModel.hoursNo = totalNoHours;
+        }
+        
+      });
+    }
+  }
+
+  Future<void> _selectTimeTo(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTimeTo);
+    if (picked != null && picked != initialTimeTo) {
+      setState(() {
+        initialTimeTo = picked;
+        dataModel.otTo = convertStringDateToUnix(dataModel.date, formatTime(initialTimeTo), 'Overtime');
+        if(dataModel.otfrom != '' && dataModel.otTo != ''){
+          String totalNoHours = computeTotalHours(dataModel.otfrom, dataModel.otTo);
+          totalHours.text = totalNoHours;
+          dataModel.hoursNo = totalNoHours;
+        }
+      });
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(child: Container(
@@ -63,23 +88,23 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
         const SizedBox(height: 20,),
         DropdownButtonFormField<String>(
-              value: selectedInOrOut,
+              value: selectedOtType,
               decoration: const InputDecoration(
-                labelText: 'Time In/Out',
+                labelText: 'OT Type',
               ),
               onChanged: (newValue) {
                 setState(() {
-                  selectedInOrOut = newValue;
-                  dataModel.isOut = newValue == 'Time In' ? false : true;
+                  selectedOtType = newValue;
+                  dataModel.otType = newValue!;
                 });
               },
-              items: inOrOut.map((dropdownValue) {
+              items: otType.map((dropdownValue) {
                 return DropdownMenuItem<String>(
                   value: dropdownValue,
                   child: Text(dropdownValue),
                 );
               }).toList(),
-            ),
+        ),
         TextField(
           keyboardType: TextInputType.none,
           decoration: const InputDecoration(labelText: 'Date'),
@@ -91,11 +116,28 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
         
         TextField(
           keyboardType: TextInputType.none,
-          decoration: const InputDecoration(labelText: 'Correct Time'),
+          decoration: const InputDecoration(labelText: 'From'),
           onTap: () {
-            _selectTime(context);
+            _selectTimeFrom(context);
           },
-          controller: TextEditingController(text: formatTime(initialTime)),
+          controller: TextEditingController(text: formatTime(initialTimeFrom)),
+        ),
+        TextField(
+          keyboardType: TextInputType.none,
+          decoration: const InputDecoration(labelText: 'To'),
+          onTap: () {
+            _selectTimeTo(context);
+          },
+          controller: TextEditingController(text: formatTime(initialTimeTo)),
+        ),
+        TextField(
+          decoration: const InputDecoration(labelText: 'Total Hours'),
+          onChanged: (value) {
+            setState(() {
+              dataModel.reason = value;
+            });
+          },
+          controller: totalHours,
         ),
         TextField(
           decoration: const InputDecoration(labelText: 'Reason'),
@@ -106,6 +148,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
           },
           controller: reason,
         ),
+        
         const SizedBox(height: 40),
         Container(
           height: 6.h,
@@ -118,9 +161,9 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
               color: Color.fromARGB(255, 141, 105, 105),
             ),
             onPressed: () {
-              dataModel.finalDate = convertStringDateToUnix(dataModel.date, dataModel.correctTime, 'Correction');
-              dataModel.docType = 'Correction';
-              // fileDocument(dataModel, context);
+              
+              dataModel.docType = 'Overtime';
+              fileDocument(dataModel, context);
             },
             label: const Text(
               'Submit',

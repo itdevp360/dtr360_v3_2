@@ -36,6 +36,7 @@ class _MyWidgetState extends State<leaveWidget> {
       setState(() {
         dataModel.guid = employeeProfile[4] ?? '';
         dataModel.dept = employeeProfile[1] ?? '';
+        dataModel.employeeName = employeeProfile[0] ?? '';
       });
     });
   }

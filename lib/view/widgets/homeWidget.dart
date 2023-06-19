@@ -1,8 +1,10 @@
 import 'package:dtr360_version3_2/utils/utilities.dart';
+import 'package:dtr360_version3_2/view/screens/approvalListScreen.dart';
 import 'package:dtr360_version3_2/view/screens/attendance_model.dart';
 import 'package:dtr360_version3_2/view/screens/changepass_model.dart';
 import 'package:dtr360_version3_2/view/screens/documentfiling_model.dart';
 import 'package:dtr360_version3_2/view/widgets/fileDocumentsWidget.dart';
+import 'package:dtr360_version3_2/view/widgets/fillingDocs/approverDocumentList.dart';
 import 'package:dtr360_version3_2/view/widgets/userEditWidget.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:dtr360_version3_2/view/screens/register_model.dart';
@@ -187,6 +189,24 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                             );
                           });
                         }));
+                  }
+                  if(emp.usrType == 'Approver'){
+                    items.add(PopupMenuItem<int>(
+                      value: 2,
+                      child: const Text("For Approval"),
+                      onTap: () {
+                        WidgetsBinding.instance!.addPostFrameCallback((_) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return const ApprovalListScreen();
+                              },
+                            ),
+                          );
+                        });
+                      },
+                    ));
                   }
                   items.add(PopupMenuItem<int>(
                     value: 2,

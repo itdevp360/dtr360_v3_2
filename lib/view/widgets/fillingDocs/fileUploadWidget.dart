@@ -6,6 +6,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../../utils/file_utilities.dart';
 import '../../../utils/firebase_functions.dart';
+import '../../../utils/utilities.dart';
 
 class FilePickerWidget extends StatefulWidget {
   @override
@@ -36,10 +37,17 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
   void runFile() async {
     final parentData = LeaveDataWidget.of(context)?.dataModel;
     var test = fetchFile('16yfuIyvJqjom8etz-TFSMK2XqafYY4p0');
-    final fileName = await uploadToDrive(_resultFilePath!);
+    // List<String> fileName = [];
+    if(_resultFilePath != null){
+      final fileName = await uploadToDrive(_resultFilePath!);
+      parentData?.fileId = fileName[0];
+      parentData?.attachmentName = fileName[1];
+    }
+    
     parentData?.docType = 'Leave';
-    parentData?.fileId = fileName[0];
-    parentData?.attachmentName = fileName[1];
+    
+    parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
+    
     //
     //Save document file to firebase
     fileDocument(parentData!, context);

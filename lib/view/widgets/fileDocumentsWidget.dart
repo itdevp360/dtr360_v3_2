@@ -1,5 +1,6 @@
 import 'package:dtr360_version3_2/view/widgets/fillingDocs/attendanceCorrectionWidget.dart';
 import 'package:dtr360_version3_2/view/widgets/fillingDocs/leaveWidget.dart';
+import 'package:dtr360_version3_2/view/widgets/fillingDocs/overtimeWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -18,9 +19,7 @@ class fileDocumentState extends State<FileDocumentsWidget> {
       children: <Widget>[
         leaveWidget(),
         AttendanceCorrection(),
-        Center(
-          child: Text("It's sunny here"),
-        ),
+        OvertimeWidget(),
       ],
     );
   }

@@ -163,7 +163,13 @@ fileDocument(FilingDocument file, context) {
     'correctTime': file.correctTime,
     'hoursNo': file.hoursNo,
     'isApproved': file.isApproved,
-    'notifyStatus': file.notifyStatus
+    'notifyStatus': file.notifyStatus,
+    'finalDate': file.finalDate,
+    'employeeName' : file.employeeName,
+    'otfrom': file.otfrom,
+    'otTo': file.otTo,
+    'otType': file.otType
+    
   }).then((value) => success_box(
       context, 'Your application for ${file.docType} has been filed'));
 }
