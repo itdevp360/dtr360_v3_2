@@ -1,10 +1,6 @@
 import 'package:dtr360_version3_2/view/widgets/fillingDocs/fileUploadWidget.dart';
 import 'package:dtr360_version3_2/view/widgets/fillingDocs/leaveDataWidget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:file_picker/file_picker.dart';
 
 import '../../../model/filingdocument.dart';
 import '../../../utils/utilities.dart';
