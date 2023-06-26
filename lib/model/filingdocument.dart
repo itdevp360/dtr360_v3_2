@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 
 class FilingDocument extends ChangeNotifier {
   String _reason = '';
+  String _key = '';
   String _guid = '';
   String _date = '';
   String _employeeName = '';
@@ -36,6 +37,7 @@ class FilingDocument extends ChangeNotifier {
   String get guid => _guid;
   String get date => _date;
   String get dept => _dept;
+  String get key => _key;
   String get employeeName => _employeeName;
   String get leaveType => _leaveType;
   String get noOfDay => _noOfDay;
@@ -52,6 +54,11 @@ class FilingDocument extends ChangeNotifier {
 
   set guid(String newData) {
     _guid = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set key(String newData) {
+    _key = newData;
     notifyListeners(); // Notify listeners when the data changes
   }
 

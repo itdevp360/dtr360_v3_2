@@ -63,6 +63,16 @@ String timestampToDateString(dynamic timestamp, format) {
   }
 }
 
+isEmployeeExist(employee, documents){
+  bool isExist = false;
+  for(var i=0; i < documents.length; i++){
+    if(documents[i].employeeName == employee){
+      isExist = true;
+    }
+  }
+  return isExist;
+}
+
 String formatDate(DateTime date) {
   return DateFormat('MM/dd/yyyy').format(date);
 }

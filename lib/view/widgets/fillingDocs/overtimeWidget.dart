@@ -6,6 +6,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../model/filingdocument.dart';
+import '../../../utils/fileDocuments_functions.dart';
 import '../../../utils/firebase_functions.dart';
 import '../../../utils/utilities.dart';
 
@@ -20,6 +21,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
   
   final FilingDocument dataModel = FilingDocument();
   DateTime startDate = DateTime.now();
+  var employeeProfile;
   String? selectedOtType;
   TimeOfDay initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
   TimeOfDay initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
@@ -30,6 +32,16 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
     'Rest Day',
     'Holiday'
   ];
+
+  void initState(){
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      employeeProfile = await read_employeeProfile();
+      dataModel.guid = employeeProfile[4] ?? '';
+      dataModel.dept = employeeProfile[1] ?? '';
+      dataModel.employeeName = employeeProfile[0] ?? '';
+    });
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(

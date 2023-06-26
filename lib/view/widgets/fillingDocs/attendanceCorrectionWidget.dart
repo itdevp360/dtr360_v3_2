@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../model/filingdocument.dart';
+import '../../../utils/fileDocuments_functions.dart';
 import '../../../utils/firebase_functions.dart';
 import '../../../utils/utilities.dart';
 
@@ -20,6 +21,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
   
   final FilingDocument dataModel = FilingDocument();
   String? selectedInOrOut;
+  var employeeProfile;
   DateTime startDate = DateTime.now();
   TimeOfDay initialTime = const TimeOfDay(hour: 0, minute: 0);
   TextEditingController reason = TextEditingController();
@@ -27,6 +29,16 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
     'Time In',
     'Time Out',
   ];
+
+  void initState(){
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      employeeProfile = await read_employeeProfile();
+      dataModel.guid = employeeProfile[4] ?? '';
+      dataModel.dept = employeeProfile[1] ?? '';
+      dataModel.employeeName = employeeProfile[0] ?? '';
+    });
+  }
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTime);
@@ -120,7 +132,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
             onPressed: () {
               dataModel.finalDate = convertStringDateToUnix(dataModel.date, dataModel.correctTime, 'Correction');
               dataModel.docType = 'Correction';
-              // fileDocument(dataModel, context);
+              fileDocument(dataModel, context);
             },
             label: const Text(
               'Submit',

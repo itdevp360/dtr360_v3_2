@@ -1,0 +1,55 @@
+Inspection, Testing, Certification
+
+1 procedure on testing - (new update)
+ -PM No 04 01 01 Inspection, Testing and Certification of Mechanical Equipment V3.1 24 Feb 2023
+- There is a established process 
+- 
+Previous OFI - No user manual stated in the PM plan (Currently included in the PM ) for closure
+
+1. Are requirements for the product and services defined?
+ - Inspector Competency (Responses) monitoring (can assess competency of the inspector)
+
+ - Outside form used for legal and other requirements (mostly coming from Sales department)
+ - Shedule request log is used to check legal and other requirements 
+ - no Work Instruction on proper process of determining legal requirements and assessment of employees
+ - no standard requirements, only based on sales input of requirements
+ - there is an occurance of no requirements 
+ - there is a checklist form used to ensure 
+ OFI  - create WI specific to the process of requirements and assessment
+
+
+Sample 1
+PR-IN-2023-04-03-LZN18386
+Handling Innovation , Inc.
+Mondelez International Philippines (former Kraft Foods ) 8378 Dr. Arcadio Santos Ave Paranaque
+Ms Daisery Joy Domingo (Fast Services Safety Ovfficer)
+Inspector - Paul Pecajas, 
+Fork lift, Reach truck(type of forklift)
+Manuel Dalanon - Fork lift 
+Technical meeting (Learning session) - monthly (half day learning session, hapon)
+New trainign inspectors - Through technical meeting, 3 months and 6months for new inspector (Assessments)
+For old inspectors ( annual, evaluation and exam and actual)
+Training plan for Inspector (
+Minutes of Meeting Feb 17, 2023 
+- identification of assessment of project
+- no standard plan for topics and learning session 
+
+Toolbox Meeting Form FM 12-05-01 V3.0 01 Dec 2021
+Hairac Form For Testing Department - FM 12-01-05 V 3.0 28 March 2022
+Registry of Hazards and Aspects
+- identified hazards are included in the registry of hazards and aspects
+- natural calamities are not incoroporated currently in the Registry of hazards 
+- OFI - include natural calamities during activities
+
+Inspector Training Monitoring established
+-assessment of training effectiveness through actual inspection
+OFI: - no established asessment of training effective, Create evaluation of inspectors attended the learning session
+
+Technical Service Summary Report (TSSR) 0515-23-LZN18386 FM no. 04-02-01 V3.3 15 Apr 2023(Conducted Last 05,15,2023)
+project monitoring sheet - included
+Checklist sample
+- Backhoe Inspection Checklist
+- FM 04-03-01-I V 3.0 31 Dec 2021
+
+Documentation - Document Analyst
+

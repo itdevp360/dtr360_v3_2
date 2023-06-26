@@ -1,0 +1,34 @@
+verification
+IA-100	yesterday - enrolled (system problem, IMSDMS DCRF )
+reason why enrolled yesterday
+Effectivity date (not yet informed by IMS) 
+- no one assigned to create work instructions
+- no time alloted
+- no discussion on daily meetings
+- did not include documented information on daily meetings
+
+Walkthrough 
+ - determine ASME standard
+- January and July (Updating and checking of monitoring)
+- January (Latest updating of version)
+
+101
+IGR 04-01-08 Inspection Sticker Guidelines 3.0 V3.0 27 Jan 2023
+- Guidelines enrolled (as of latest)
+- Generation of stickers not yet standardized
+- there is a tag in the box where stickers are stored
+- Stickers logged are checked by the deployment team (Sir Ivan and Sir Renelson)
+- disposal of stickers are handled by deployment team
+- not yet shredded and cut, currently stored in cabinet
+- no specific date of audit for stickers
+OFI?? - implement specific date of audit to ensure error free stickers 
+OFI?? - no proper storage and audit stated in the enrolled Guidelines for stickers
+
+102
+- meet with Sales department 
+- May 25, 2023 
+- Not discussed in testing monthly 
+- no minutes conducted but discussed in weekly checking
+- restriction on cells available to be edited are already implemented
+- there is an established monitoring to be checked in KPI (weekly)
+

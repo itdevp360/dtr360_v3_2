@@ -1,7 +1,11 @@
+import 'package:dtr360_version3_2/model/filingdocument.dart';
+import 'package:dtr360_version3_2/utils/fileDocuments_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+
+import '../../../utils/utilities.dart';
 
 class ApproverListWidget extends StatefulWidget {
   const ApproverListWidget({super.key});
@@ -12,9 +16,15 @@ class ApproverListWidget extends StatefulWidget {
 
 class _ApproverListWidgetState extends State<ApproverListWidget> {
 
+  
+  String? selectedValue = 'Leave';
+  List<FilingDocument>? documents;
+  var employeeProfile;
   List<String> items = List.generate(20, (index) => 'Item ${index + 1}');
-  List<bool> selectedItems = List.generate(20, (index) => false);
+  late List<bool> selectedItems;
   List<int> selectedIndexes = [];
+  bool isLoaded = false;
+  bool isSelected = false;
 
   void deleteSelectedItems() {
     setState(() {
@@ -25,91 +35,142 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
     });
   }
 
+  void initState(){
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      employeeProfile = await read_employeeProfile();
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (selectedIndexes.isNotEmpty) {
-          setState(() {
-            selectedIndexes.clear();
-            selectedItems = List.generate(20, (index) => false);
-          });
-          return false;
-        }
-        return true;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Multiple Selection ListView'),
-          leading: selectedIndexes.isNotEmpty
+    var dropdownValue;
+    return Scaffold(appBar: AppBar(
+        title: Text('Approver Page'),
+        leading: selectedIndexes.isNotEmpty
               ? IconButton(
                   icon: Icon(Icons.close),
                   onPressed: () {
                     setState(() {
                       selectedIndexes.clear();
-                      selectedItems = List.generate(20, (index) => false);
+                      selectedItems = List.generate(documents!.length, (index) => false);
                     });
                   },
                 )
-              : null,
-          actions: [
-            if (selectedIndexes.isNotEmpty)
-              IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  deleteSelectedItems();
-                },
-              ),
-          ],
-        ),
-        body: ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onLongPress: () {
-                setState(() {
-                  selectedIndexes.add(index);
-                  selectedItems[index] = true;
-                });
-              },
-              onTap: () {
-                if (selectedIndexes.isNotEmpty) {
-                  setState(() {
-                    if (selectedIndexes.contains(index)) {
-                      selectedIndexes.remove(index);
-                      selectedItems[index] = false;
-                    } else {
+        : null,
+        actions: [
+          if(selectedIndexes.isNotEmpty)
+            IconButton(
+                  icon: Icon(Icons.approval_rounded),
+                  onPressed: () async{
+                    await updateFilingDocs(selectedItems, documents, context);
+                  },
+                )
+          
+        ],
+      ),
+      body: Column(children: [
+        DropdownButton<String>(
+            value: selectedValue,
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValue = newValue!;
+                isSelected = true;
+                
+              });
+            },
+            items: <String>[
+              'Leave',
+              'Correction',
+              'Overtime',
+            ].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+          Flexible(child: FutureBuilder(future: fetchFilingDocuments(), builder: ((context, snapshot) {
+      if(snapshot.hasData){
+        documents = snapshot.data! as List<FilingDocument>?;
+        documents = documents!.where((item) => item.docType == selectedValue).toList();
+        if(isSelected){
+          selectedItems = List.generate(documents!.length, (index) => false);
+          isSelected = false;
+        }
+        
+        if(!isLoaded){
+          selectedItems = List.generate(documents!.length, (index) => false);
+          isLoaded = true;
+        }   
+        return ListView.builder(
+              itemCount: documents!.length,
+              itemBuilder: (context, index) {
+                
+                final document = documents![index];
+                return GestureDetector(
+                  onLongPress: () {
+                    setState(() {
                       selectedIndexes.add(index);
                       selectedItems[index] = true;
-                    }
-                  });
-                } else {
-                  // Show modal pop-up for single item press
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Item Pressed'),
-                        content: Text(items[index]),
-                        actions: [
-                          TextButton(onPressed: () {
-                              Navigator.of(context).pop();
-                            }, child: Text('OK'))
-                        ],
+                      print(selectedItems[index]);
+                    });
+                  },
+                  onTap: () {
+                    if (selectedIndexes.isNotEmpty) {
+                      setState(() {
+                        if (selectedIndexes.contains(index)) {
+                          selectedIndexes.remove(index);
+                          selectedItems[index] = false;
+                        } else {
+                          selectedIndexes.add(index);
+                          selectedItems[index] = true;
+                        }
+                      });
+                    } else {
+                      // Show modal pop-up for single item press
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Item Pressed'),
+                            content: SizedBox(
+                              height: 100, 
+                              width: 60, 
+                              child: Column(children: [Row(children: [Text('Application Type: ' + document.docType)]),
+                              Row(children: [Text('Employee Name: ' + document.employeeName)])],),),
+                            actions: [
+                              TextButton(onPressed: () {
+                                  Navigator.of(context).pop();
+                                }, child: Text('OK'))
+                            ],
+                          );
+                        },
                       );
-                    },
-                  );
-                }
+                    }
+                  },
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(8),
+                    title: Text('Application for ' + document.docType),
+                    subtitle: Column(mainAxisAlignment: MainAxisAlignment.start, 
+                    children: [Row(children: [Text('Employee Name: ' + document.employeeName)],),
+                    Row(children: [Text('Date filed: ' + document.date)],)],) ,
+                    
+                    tileColor: selectedItems[index] ? Colors.blue : null,
+                  ),
+                );
               },
-              child: ListTile(
-                title: Text(items[index]),
-                tileColor: selectedItems[index] ? Colors.blue : null,
-              ),
             );
-          },
-        ),
-      ),
-    );
+      }
+      else if(snapshot.hasError){
+        return Text('Error: ${snapshot.error}');
+      }
+      else{
+        return Center(child: CircularProgressIndicator());
+      }
+    }),))
+      ],));
   }
 
 

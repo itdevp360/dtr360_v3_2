@@ -7,6 +7,79 @@ import 'package:flutter/widgets.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
+import 'package:intl/intl.dart';
+
+
+fetchSelectedEmployeesAttendance(documents) async{
+  List<Attendance> _listKeys = [];
+  DateTime now = DateTime.now();
+  DateTime start = now.subtract(Duration(days: 15));
+  final logRef = FirebaseDatabase.instance.ref().child('Logs');
+
+  final ss = await logRef.get().then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      values!.forEach((key, value) {
+        Attendance logs = Attendance();
+        logs.attendanceKey = key.toString();
+        logs.employeeID = value['employeeID'].toString();
+        logs.employeeName = value['employeeName'].toString();
+        logs.guid = value['guid'].toString();
+        logs.dateTimeIn =
+            timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
+        logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
+        logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
+        logs.userType = value['usertype'].toString();
+        logs.iswfh = value['isWfh'].toString();
+        if(isEmployeeExist(logs.empName, documents) && value['usertype'].toString() != 'Former Employee'){
+          _listKeys.add(logs);
+        }
+      });
+    }
+  });
+
+  return _listKeys;
+}
+
+fileLeave() async{
+  
+}
+
+attendanceCorrection(key, date, time, isOut, filingDocKey,context) async{
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('Logs/' + key);
+  String dateTimeString = '$date $time';
+  DateFormat dateFormat = DateFormat('MM/dd/yyyy HH:mm');
+  DateTime dateTime = dateFormat.parse(dateTimeString);
+
+  int unixTimestamp = dateTime.millisecondsSinceEpoch;
+  if(isOut){
+    await databaseReference.update({
+      'timeOut': unixTimestamp,
+    }).then((value) async{
+      await updateFilingDocStatus(filingDocKey, context);
+    });
+  }
+  else{
+    await databaseReference.update({
+      'timeIn': unixTimestamp,
+    }).then((value) async{
+      await updateFilingDocStatus(filingDocKey, context);
+    });
+  }
+  
+
+}
+
+updateFilingDocStatus(key, context) async {
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
+      await databaseReference.update({
+        'isApproved': true,
+      }).then((value) {
+        success_box(context, 'Document approved');
+      });
+}
 
 fetchAttendance() async {
   List<Attendance> _listKeys = [];
@@ -145,34 +218,7 @@ insertNewEmployee(department, email, employeeID, employeeName, guid,
   }).then((value) => print('success saving'));
 }
 
-fileDocument(FilingDocument file, context) {
-  final databaseReference =
-      FirebaseDatabase.instance.ref().child('FilingDocuments');
 
-  databaseReference.push().set({
-    'guid': file.guid,
-    'docType': file.docType,
-    'date': file.date,
-    'reason': file.reason,
-    'leaveType': file.leaveType,
-    'noOfDay': file.noOfDay,
-    'deductLeave': file.deductLeave,
-    'attachmentName': file.attachmentName,
-    'fileId': file.fileId,
-    'isOut': file.isOut,
-    'correctTime': file.correctTime,
-    'hoursNo': file.hoursNo,
-    'isApproved': file.isApproved,
-    'notifyStatus': file.notifyStatus,
-    'finalDate': file.finalDate,
-    'employeeName' : file.employeeName,
-    'otfrom': file.otfrom,
-    'otTo': file.otTo,
-    'otType': file.otType
-    
-  }).then((value) => success_box(
-      context, 'Your application for ${file.docType} has been filed'));
-}
 
 registerWithEmailAndPassword(String email, String password) async {
   final FirebaseAuth _auth = FirebaseAuth.instance;
