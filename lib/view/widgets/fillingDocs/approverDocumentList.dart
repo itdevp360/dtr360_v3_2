@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
+import '../../../utils/alertbox.dart';
 import '../../../utils/utilities.dart';
 
 class ApproverListWidget extends StatefulWidget {
@@ -16,7 +17,7 @@ class ApproverListWidget extends StatefulWidget {
 
 class _ApproverListWidgetState extends State<ApproverListWidget> {
 
-  
+  GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   String? selectedValue = 'Leave';
   List<FilingDocument>? documents;
   var employeeProfile;
@@ -43,11 +44,16 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
     });
   }
 
+  void runFunction() async{
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     var dropdownValue;
     return Scaffold(appBar: AppBar(
         title: Text('Approver Page'),
+        backgroundColor: Colors.redAccent,
         leading: selectedIndexes.isNotEmpty
               ? IconButton(
                   icon: Icon(Icons.close),
@@ -58,13 +64,34 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                     });
                   },
                 )
-        : null,
+        : IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); // Pop the current route when back button is pressed
+            },
+          ),
         actions: [
           if(selectedIndexes.isNotEmpty)
             IconButton(
                   icon: Icon(Icons.approval_rounded),
                   onPressed: () async{
-                    await updateFilingDocs(selectedItems, documents, context);
+                    var isTrue = await updateFilingDocs(selectedItems, documents, context);
+                    if(isTrue == true){
+                      documents!.clear();
+                      
+                      documents = await fetchFilingDocuments();
+                      
+                      _listKey.currentState?.setState(() {
+                        
+                        documents = documents!.where((item) => item.docType == selectedValue).toList();
+                        selectedItems = List.generate(documents!.length, (index) => false);
+                      });
+                      setState(() {
+                        selectedIndexes.clear();
+                      });
+                      success_box(context, 'Document approved');
+                    }
+                    
                   },
                 )
           
@@ -105,6 +132,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
           isLoaded = true;
         }   
         return ListView.builder(
+              key: _listKey,
               itemCount: documents!.length,
               itemBuilder: (context, index) {
                 
@@ -142,7 +170,22 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                               Row(children: [Text('Employee Name: ' + document.employeeName)])],),),
                             actions: [
                               TextButton(onPressed: () {
+                                  
+                                }, child: Text('Cancel')),
+                                TextButton(onPressed: () async {
+                                  selectedIndexes.add(index);
+                                  selectedItems[index] = true;
+                                  var result =  await updateFilingDocs(selectedItems, documents, context);
+                                  _listKey.currentState?.setState(() {
+                                    documents = documents!.where((item) => item.docType == selectedValue).toList();
+                                    selectedItems = List.generate(documents!.length, (index) => false);
+                                  });
+                                  setState(() {
+                                    selectedIndexes.clear();
+                                  });
                                   Navigator.of(context).pop();
+                                  _showSecondaryAlertDialog(context);
+                                  // await success_box(context, "Document Approved");
                                 }, child: Text('OK'))
                             ],
                           );
@@ -173,6 +216,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
       ],));
   }
 
+  
+
 
   void _showModalPopup(String selectedItem) {
     showDialog(
@@ -184,6 +229,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
           actions: [
             TextButton(
               onPressed: () {
+                
                 Navigator.pop(context);
               },
               child: Text('Close'),
@@ -193,7 +239,35 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
       },
     );
   }
-
+  void _showSecondaryAlertDialog(BuildContext context) {
+    Future.delayed(Duration(milliseconds: 100), () {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Builder(builder: (BuildContext context) {
+            return AlertDialog(
+              title:Row(
+                children: [
+                  Icon(Icons.check, color: Colors.green),
+                  SizedBox(width: 8),
+                  Text('Success'),
+                ],
+              ),
+              content: Text('Document Approved!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the secondary AlertDialog
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          });
+        },
+      );
+    });
+  }
   void _showDeleteDialog(List<String> selectedItems) {
     showDialog(
       context: context,

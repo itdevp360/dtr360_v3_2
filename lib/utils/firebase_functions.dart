@@ -41,8 +41,26 @@ fetchSelectedEmployeesAttendance(documents) async{
   return _listKeys;
 }
 
-fileLeave() async{
-  
+fileLeave(key, filingDocKey, context) async{
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('Logs/' + key);
+      await databaseReference.update({
+      'isLeave': true,
+    }).then((value) async{
+      await updateFilingDocStatus(filingDocKey, context);
+    });
+}
+
+fileOvertime(key, filingDocKey, context, otType, hoursNo) async{
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('Logs/' + key);
+      await databaseReference.update({
+      'otType': otType,
+      'hoursNo': hoursNo,
+      'isOt': true
+    }).then((value) async{
+      await updateFilingDocStatus(filingDocKey, context);
+    });
 }
 
 attendanceCorrection(key, date, time, isOut, filingDocKey,context) async{
@@ -76,8 +94,8 @@ updateFilingDocStatus(key, context) async {
       FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
       await databaseReference.update({
         'isApproved': true,
-      }).then((value) {
-        success_box(context, 'Document approved');
+      }).then((value) async {
+        // await success_box(context, 'Document approved');
       });
 }
 

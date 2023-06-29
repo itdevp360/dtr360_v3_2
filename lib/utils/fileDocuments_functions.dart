@@ -45,13 +45,20 @@ updateFilingDocs(selectedItems, documents, context) async{
         print(documents![i].employeeName);
         print(documents![i].docType);
         print(documents![i].date);
+        var selectedData = attendance.where((element) => element.getDateIn == documents![i].date).toList();
         if(documents![i].docType == 'Correction'){
-          var selectedData = attendance.where((element) => element.getDateIn == documents![i].date).toList();
-          attendanceCorrection(selectedData[0].getKey, selectedData[0].getDateIn, documents[i].correctTime, documents[i].isOut, documents[i].key, context);
+          await attendanceCorrection(selectedData[0].getKey, selectedData[0].getDateIn, documents[i].correctTime, documents[i].isOut, documents[i].key, context);
+        }
+        else if(documents![i].docType == 'Leave'){
+          await fileLeave(selectedData[0].getKey, documents[i].key, context);
+        }
+        else{
+          await fileOvertime(selectedData[0].getKey, documents[i].key, context, documents[i].otType, documents[i].hoursNo);
         }
       }
     }
   }
+  return true;
 }
 
 
