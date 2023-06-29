@@ -64,12 +64,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                     });
                   },
                 )
-        : IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context); // Pop the current route when back button is pressed
-            },
-          ),
+        : null,
         actions: [
           if(selectedIndexes.isNotEmpty)
             IconButton(
