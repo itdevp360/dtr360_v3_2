@@ -97,6 +97,7 @@ class _MyWidgetState extends State<AttendanceWidget> {
   @override
   Widget build(BuildContext context) {
     return LoaderView(
+        showLoader: loaded == false,
         child: Container(
             width: 100.w,
             child: Column(
@@ -131,16 +132,16 @@ class _MyWidgetState extends State<AttendanceWidget> {
                         });
                       },
                     ))),
-                Padding(padding: EdgeInsets.only(left: 20, right: 20), child: TextField(
+                Padding(padding: const EdgeInsets.only(left: 20, right: 20), child: TextField(
                   keyboardType: TextInputType.none,
-                  decoration: InputDecoration(labelText: 'Date'),
+                  decoration: const InputDecoration(labelText: 'Date'),
                   onTap: () => _selectDate(context),
                   controller:
                       TextEditingController(text: formatDate(startDate)),
                 ),)  ,  
-                Padding(padding: EdgeInsets.only(left: 20, right: 20), child: TextField(
+                Padding(padding: const EdgeInsets.only(left: 20, right: 20), child: TextField(
                   keyboardType: TextInputType.none,
-                  decoration: InputDecoration(labelText: 'Date'),
+                  decoration: const InputDecoration(labelText: 'Date'),
                   onTap: () => _selectEndDate(context),
                   controller: TextEditingController(text: formatDate(endDate)),
                 ),)  , 
@@ -151,12 +152,12 @@ class _MyWidgetState extends State<AttendanceWidget> {
                         padding: EdgeInsets.only(left: 6.w),
                         child: DataTable(
                           dataRowHeight: 5.h,
-                          columns: [
+                          columns: const [
                             DataColumn(label: Text('Date')),
                             DataColumn(label: Text('Time In')),
                             DataColumn(label: Text('Time Out'))
                           ],
-                          rows: [],
+                          rows: const [],
                         ))),
                 Container(
                     width: 100.w,
@@ -165,7 +166,7 @@ class _MyWidgetState extends State<AttendanceWidget> {
                         child: DataTable(
                       headingRowHeight: 0,
                       dataRowHeight: 6.h,
-                      columns: [
+                      columns: const [
                         DataColumn(label: Text('Date')),
                         DataColumn(label: Text('Time In')),
                         DataColumn(label: Text('Time Out'))
@@ -181,7 +182,6 @@ class _MyWidgetState extends State<AttendanceWidget> {
                               .toList(),
                     )))
               ],
-            )),
-        showLoader: loaded == false);
+            )));
   }
 }

@@ -90,21 +90,21 @@ class _MyLoginPage extends State<LoginWidget> {
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding:
-                  EdgeInsets.only(left: 35.0, right: 35.0, top: 75, bottom: 0),
+                  const EdgeInsets.only(left: 35.0, right: 35.0, top: 75, bottom: 0),
               child: TextField(
                 controller: emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                     border: OutlineInputBorder(), labelText: 'Email'),
               ),
             ),
             Padding(
               padding:
-                  EdgeInsets.only(left: 35.0, right: 35.0, top: 25, bottom: 0),
+                  const EdgeInsets.only(left: 35.0, right: 35.0, top: 25, bottom: 0),
               //padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
                 controller: passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                     border: OutlineInputBorder(), labelText: 'Password'),
               ),
             ),
@@ -112,7 +112,6 @@ class _MyLoginPage extends State<LoginWidget> {
               onPressed: () async{
                 await forgotpassword_box(context, "Forgot Password?");
                 
-                //TODO FORGOT PASSWORD SCREEN GOES HERE
               },
               child: const Text(
                 'Forgot Password',

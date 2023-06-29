@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../model/users.dart';
-
 class ChangePasswordWidget extends StatefulWidget {
   const ChangePasswordWidget({super.key});
 
@@ -34,20 +32,6 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
       if (credentials != null && credentials[0] != '') {
         email = credentials[0] ?? '';
         employeeProfile = await read_employeeProfile();
-        // if(employeeProfile != null && employeeProfile[0] != ''){
-        //   emp.empName = employeeProfile[0] ?? '';
-        //   emp.dept = employeeProfile[1] ?? '';
-        //   emp.emailAdd = employeeProfile[2] ?? '';
-        //   emp.passW = employeeProfile[3] ?? '';
-        //   emp.guid = employeeProfile[4] ?? '';
-        //   emp.imgStr = employeeProfile[5] ?? '';
-        //   emp.usrType = employeeProfile[6] ?? '';
-        // }
-        // else{
-        //   emp = await fetchEmployees(email);
-        //   save_employeeProfile(emp.empName, emp.dept, emp.emailAdd, emp.passW, emp.guid, emp.imgStr, emp.usrType);
-        // }
-
         setState(() {
           loaded = true;
           empKey = employeeProfile[7];
@@ -67,7 +51,7 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text("Change Password"),
+        title: const Text("Change Password"),
         backgroundColor: Colors.redAccent,
       ),
       body: SingleChildScrollView(
@@ -83,7 +67,7 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
           ),
           Padding(
               padding:
-                  EdgeInsets.only(left: 18.0, right: 28.0, top: 0, bottom: 0),
+                  const EdgeInsets.only(left: 18.0, right: 28.0, top: 0, bottom: 0),
               child: Row(
                 children: [
                   Checkbox(
@@ -95,17 +79,17 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
                       });
                     },
                   ),
-                  Text('Change Email', style: TextStyle(fontSize: 20)),
+                  const Text('Change Email', style: TextStyle(fontSize: 20)),
                 ],
               )),
           Visibility(
               visible: _changeEmail == true,
               child: Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                     left: 28.0, right: 28.0, top: 20, bottom: 0),
                 child: TextField(
                   controller: newEmail,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                       prefixIcon: Icon(Icons.mail),
                       border: OutlineInputBorder(),
@@ -114,7 +98,7 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
               )),
           Padding(
               padding:
-                  EdgeInsets.only(left: 18.0, right: 28.0, top: 20, bottom: 0),
+                  const EdgeInsets.only(left: 18.0, right: 28.0, top: 20, bottom: 0),
               child: Row(
                 children: [
                   Checkbox(
@@ -122,22 +106,21 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
                     onChanged: (value) {
                       setState(() {
                         _changePassword = value!;
-                        print(_changePassword);
                       });
                     },
                   ),
-                  Text('Change Password', style: TextStyle(fontSize: 20)),
+                  const Text('Change Password', style: TextStyle(fontSize: 20)),
                 ],
               )),
           Visibility(
               visible: _changePassword == true,
               child: Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                     left: 28.0, right: 28.0, top: 20, bottom: 0),
                 child: TextField(
                   controller: newPassword,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                       prefixIcon: Icon(Icons.lock),
                       border: OutlineInputBorder(),
@@ -147,26 +130,26 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
           Visibility(
               visible: _changePassword == true,
               child: Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                     left: 28.0, right: 28.0, top: 20, bottom: 0),
                 child: TextField(
                   controller: confirmNewPass,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                       prefixIcon: Icon(Icons.check),
                       border: OutlineInputBorder(),
                       labelText: 'Confirm New Password'),
                 ),
               )),
-          Padding(padding: EdgeInsets.only(top: 20)),
+          const Padding(padding: EdgeInsets.only(top: 20)),
           Container(
             height: 6.h,
             width: 80.w,
             decoration: BoxDecoration(
                 color: Colors.orange, borderRadius: BorderRadius.circular(20)),
             child: TextButton.icon(
-                icon: Icon(
+                icon: const Icon(
                   Icons.person_add,
                   color: Colors.white,
                 ),
@@ -210,7 +193,7 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
                     warning_box(context, 'Please select an option');
                   }
                 },
-                label: Text('Change login access',
+                label: const Text('Change login access',
                     style: TextStyle(fontSize: 20, color: Colors.white))),
           ),
         ],

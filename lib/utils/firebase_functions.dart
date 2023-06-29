@@ -1,4 +1,5 @@
 import 'package:dtr360_version3_2/model/attendance.dart';
+import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/model/users.dart';
 import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +7,97 @@ import 'package:flutter/widgets.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
+import 'package:intl/intl.dart';
+
+
+fetchSelectedEmployeesAttendance(documents) async{
+  List<Attendance> _listKeys = [];
+  DateTime now = DateTime.now();
+  DateTime start = now.subtract(Duration(days: 15));
+  final logRef = FirebaseDatabase.instance.ref().child('Logs');
+
+  final ss = await logRef.get().then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      values!.forEach((key, value) {
+        Attendance logs = Attendance();
+        logs.attendanceKey = key.toString();
+        logs.employeeID = value['employeeID'].toString();
+        logs.employeeName = value['employeeName'].toString();
+        logs.guid = value['guid'].toString();
+        logs.dateTimeIn =
+            timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
+        logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
+        logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
+        logs.userType = value['usertype'].toString();
+        logs.iswfh = value['isWfh'].toString();
+        if(isEmployeeExist(logs.empName, documents) && value['usertype'].toString() != 'Former Employee'){
+          _listKeys.add(logs);
+        }
+      });
+    }
+  });
+
+  return _listKeys;
+}
+
+fileLeave(key, filingDocKey, context) async{
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('Logs/' + key);
+      await databaseReference.update({
+      'isLeave': true,
+    }).then((value) async{
+      await updateFilingDocStatus(filingDocKey, context);
+    });
+}
+
+fileOvertime(key, filingDocKey, context, otType, hoursNo) async{
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('Logs/' + key);
+      await databaseReference.update({
+      'otType': otType,
+      'hoursNo': hoursNo,
+      'isOt': true
+    }).then((value) async{
+      await updateFilingDocStatus(filingDocKey, context);
+    });
+}
+
+attendanceCorrection(key, date, time, isOut, filingDocKey,context) async{
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('Logs/' + key);
+  String dateTimeString = '$date $time';
+  DateFormat dateFormat = DateFormat('MM/dd/yyyy HH:mm');
+  DateTime dateTime = dateFormat.parse(dateTimeString);
+
+  int unixTimestamp = dateTime.millisecondsSinceEpoch;
+  if(isOut){
+    await databaseReference.update({
+      'timeOut': unixTimestamp,
+    }).then((value) async{
+      await updateFilingDocStatus(filingDocKey, context);
+    });
+  }
+  else{
+    await databaseReference.update({
+      'timeIn': unixTimestamp,
+    }).then((value) async{
+      await updateFilingDocStatus(filingDocKey, context);
+    });
+  }
+  
+
+}
+
+updateFilingDocStatus(key, context) async {
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
+      await databaseReference.update({
+        'isApproved': true,
+      }).then((value) async {
+        // await success_box(context, 'Document approved');
+      });
+}
 
 fetchAttendance() async {
   List<Attendance> _listKeys = [];
@@ -75,15 +167,13 @@ fetchAllEmployees(bool isAttendance) async {
         emp1.isWfh = value['isWfh'].toString();
         emp1.password = value['password'].toString();
         emp1.usertype = value['usertype'].toString();
-        if(isAttendance == false){
+        if (isAttendance == false) {
           _listKeys.add(emp1);
-        }
-        else{
+        } else {
           if (value['usertype'].toString() != 'Former Employee') {
             _listKeys.add(emp1);
           }
         }
-        
       });
     }
   });
@@ -145,6 +235,8 @@ insertNewEmployee(department, email, employeeID, employeeName, guid,
     'isWfh': _isChecked == true ? 'Work from Home' : '',
   }).then((value) => print('success saving'));
 }
+
+
 
 registerWithEmailAndPassword(String email, String password) async {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -239,7 +331,12 @@ updateTimeOut(key) async {
 updateAttendance(guid, context, isTimeIn, Employees emp) async {
   List<Attendance>? logs = await fetchAttendance();
   List<Attendance>? newLogs = [];
-  newLogs = sortList(logs!.where((element) => element.guID == guid).toList());
+  newLogs = sortList(logs!
+      .where((element) =>
+          (element.guID == guid) ||
+          (element.empName == guid) ||
+          (element.empId == guid))
+      .toList());
   var result;
   //result = newLogs![0].getKey;
   if (newLogs!.length > 0) {

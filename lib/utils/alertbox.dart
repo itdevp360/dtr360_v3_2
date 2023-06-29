@@ -1,9 +1,6 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:lottie/lottie.dart';
 
 success_box(context, message) {
   AwesomeDialog(
@@ -13,10 +10,6 @@ success_box(context, message) {
     title: 'SUCCESS',
     desc: message.toString(),
     btnOkOnPress: () async {
-      // Navigator.pop(context);
-      // var items = await read_shared_pref();
-      // var snackBar = SnackBar(content: Text(items[0].toString()));
-      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
     },
   )..show();
 }
@@ -30,10 +23,6 @@ error_box(context, message) {
     title: 'ERROR',
     desc: message.toString(),
     btnOkOnPress: () async {
-      // Navigator.pop(context);
-      // var items = await read_shared_pref();
-      // var snackBar = SnackBar(content: Text(items[0].toString()));
-      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
     },
   )..show();
 }
@@ -48,10 +37,6 @@ warning_box(context, message) {
     desc: message.toString(),
 
     btnOkOnPress: () async {
-      // Navigator.pop(context);
-      // var items = await read_shared_pref();
-      // var snackBar = SnackBar(content: Text(items[0].toString()));
-      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
     },
   )..show();
 }
@@ -93,10 +78,7 @@ forgotpassword_box(context, message) {
         }
         
       }
-      // Navigator.pop(context);
-      // var items = await read_shared_pref();
-      // var snackBar = SnackBar(content: Text(items[0].toString()));
-      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
+     
     },
     
   )..show();
@@ -117,15 +99,3 @@ confirm_address(context, message, address, lattitude, longitude) {
     ..show();
 }
 
-// loader_show(context) {
-//   Loader.show(context,
-//       isSafeAreaOverlay: true,
-//       isBottomBarOverlay: true,
-//       overlayFromBottom: 80,
-//       overlayColor: Colors.black26,
-//       progressIndicator: CircularProgressIndicator(
-//           backgroundColor: Color.fromRGBO(250, 151, 85, 0)),
-//       themeData: Theme.of(context).copyWith(
-//           colorScheme:
-//               ColorScheme.fromSwatch().copyWith(secondary: Colors.green)));
-// }

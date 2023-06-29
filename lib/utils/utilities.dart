@@ -1,17 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/model/users.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'dart:typed_data';
-import 'dart:convert';
-
-import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 read_credentials_pref() async {
@@ -24,7 +20,6 @@ save_credentials_pref(email, password) async {
   final prefs = await SharedPreferences.getInstance();
 
   await prefs.setStringList('credentials', <String>[email, password]);
-  print('nagsave sya');
 }
 
 read_employeeProfile() async {
@@ -68,8 +63,24 @@ String timestampToDateString(dynamic timestamp, format) {
   }
 }
 
+isEmployeeExist(employee, documents){
+  bool isExist = false;
+  for(var i=0; i < documents.length; i++){
+    if(documents[i].employeeName == employee){
+      isExist = true;
+    }
+  }
+  return isExist;
+}
+
 String formatDate(DateTime date) {
   return DateFormat('MM/dd/yyyy').format(date);
+}
+
+String formatTime(TimeOfDay date) {
+  final hour = date.hour.toString().padLeft(2, '0');
+  final minute = date.minute.toString().padLeft(2, '0');
+  return '$hour:$minute';
 }
 
 String generateGUID() {
@@ -92,6 +103,36 @@ fetchLatestWeeks(List<Attendance> logs) {
       return false;
     }
   }).toList();
+}
+
+computeTotalHours(startTIme, endTime){
+  int difference = endTime - startTIme;
+
+  // Calculate the total hours
+  double totalHours = difference / (1000 * 60 * 60);
+
+  return totalHours.toStringAsFixed(2);
+}
+
+convertStringDateToUnix(date, selectedTime, docType){
+  int unixTimestamp = 0;
+  if(docType == 'Correction' || docType == 'Overtime'){
+    DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
+    DateFormat timeFormat = DateFormat('HH:mm');
+    DateTime time = timeFormat.parse(selectedTime);
+    DateTime convertedTime = DateTime(dateTime.year, dateTime.month, dateTime.day, time.hour, time.minute, time.second);
+
+    // Convert to Unix timestamp
+    unixTimestamp = convertedTime.millisecondsSinceEpoch;
+  }
+  else if(docType == 'Leave'){
+    DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
+
+    // Convert to Unix timestamp
+    unixTimestamp = dateTime.millisecondsSinceEpoch;
+  }
+  
+  return unixTimestamp;
 }
 
 getDateDiff(dateTime) {
