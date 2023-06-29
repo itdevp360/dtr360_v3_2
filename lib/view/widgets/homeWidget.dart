@@ -133,19 +133,19 @@ class _MyHomeWidgetState extends State<HomeWidget> {
               ),
             ),
             appBar: AppBar(
-              title: const Text("DTR360 v3.2.0"),
+              title: const Text("DTR360 v3.3"),
               backgroundColor: Colors.redAccent,
               bottom: _selectedIndex == 2
                   ? const TabBar(
                       tabs: <Widget>[
                         Tab(
-                          icon: Icon(Icons.cloud_outlined),
+                          icon: Icon(Icons.filter_frames_rounded),
                         ),
                         Tab(
-                          icon: Icon(Icons.beach_access_sharp),
+                          icon: Icon(Icons.checklist_rtl),
                         ),
                         Tab(
-                          icon: Icon(Icons.brightness_5_sharp),
+                          icon: Icon(Icons.timer_sharp),
                         ),
                       ],
                     )

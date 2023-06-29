@@ -95,7 +95,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
       margin: const EdgeInsets.all(24),
       child: 
       Column(children: [
-        const Text('Attendance Correction', 
+        const Text('Overtime', 
         textAlign: TextAlign.center, 
         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
         const SizedBox(height: 20,),
