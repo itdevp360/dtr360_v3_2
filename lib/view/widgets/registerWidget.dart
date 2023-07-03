@@ -7,6 +7,7 @@ import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../model/users.dart';
 import '../../utils/firebase_functions.dart';
 
 class RegisterWidget extends StatefulWidget {
@@ -25,12 +26,28 @@ class _RegisterWidget extends State<RegisterWidget> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController confirmpass = TextEditingController();
+  TextEditingController approver = TextEditingController();
+  TextEditingController absences = TextEditingController();
+
+  List<Employees>? approverList;
+  Employees selectedApprover = Employees();
+  String? approverDropdownValue;
 
   bool _isChecked = false;
   String dropdownValue = list.first;
+  bool loaded = false;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      approverList = await fetchApprover();
+      sortListAlphabetical(approverList!);
+      if (this.mounted) {
+        setState(() {
+          loaded = true;
+        });
+      }
+    });
   }
 
   @override
@@ -38,7 +55,7 @@ class _RegisterWidget extends State<RegisterWidget> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text("DTR360 v3.2.0"),
+        title: const Text("DTR360 v3.2.0"),
         backgroundColor: Colors.redAccent,
       ),
       body: SingleChildScrollView(
@@ -51,38 +68,47 @@ class _RegisterWidget extends State<RegisterWidget> {
                 width: 150, height: 150),
           ),
           Padding(
-              padding:
-                  EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
-              child: DropdownButton<String>(
-                isExpanded: true,
-                value: dropdownValue,
-                icon: const Icon(Icons.arrow_downward),
-                elevation: 16,
-                style: const TextStyle(color: Colors.deepPurple),
-                underline: Container(
-                  height: 2,
-                  color: Colors.deepPurpleAccent,
-                ),
-                onChanged: (String? value) {
-                  // This is called when the user selects an item.
-                  setState(() {
-                    dropdownValue = value!;
-                    print(dropdownValue);
-                  });
-                },
-                items: list.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              )),
+            padding: const EdgeInsets.only(
+              left: 28.0,
+              right: 28.0,
+              top: 10,
+              bottom: 0,
+            ),
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: dropdownValue,
+              icon: const Icon(Icons.arrow_downward),
+              elevation: 16,
+              style: const TextStyle(color: Colors.deepPurple),
+              underline: Container(
+                height: 2,
+                color: Colors.deepPurpleAccent,
+              ),
+              onChanged: (String? value) {
+                // This is called when the user selects an item.
+                setState(() {
+                  dropdownValue = value!;
+                  print(dropdownValue);
+                });
+              },
+              items: list.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ),
           Padding(
-            padding:
-                EdgeInsets.only(left: 28.0, right: 28.0, top: 0, bottom: 0),
+            padding: const EdgeInsets.only(
+              left: 28.0,
+              right: 28.0,
+              top: 0,
+              bottom: 0,
+            ),
             child: TextField(
               controller: employeeId,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                   prefixIcon: Icon(Icons.badge),
                   border: OutlineInputBorder(),
@@ -90,11 +116,15 @@ class _RegisterWidget extends State<RegisterWidget> {
             ),
           ),
           Padding(
-            padding:
-                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
+            padding: const EdgeInsets.only(
+              left: 28.0,
+              right: 28.0,
+              top: 10,
+              bottom: 0,
+            ),
             child: TextField(
               controller: employeeName,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                   prefixIcon: Icon(Icons.drive_file_rename_outline),
                   border: OutlineInputBorder(),
@@ -102,11 +132,15 @@ class _RegisterWidget extends State<RegisterWidget> {
             ),
           ),
           Padding(
-            padding:
-                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
+            padding: const EdgeInsets.only(
+              left: 28.0,
+              right: 28.0,
+              top: 10,
+              bottom: 0,
+            ),
             child: TextField(
               controller: department,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                   prefixIcon: Icon(Icons.corporate_fare),
                   border: OutlineInputBorder(),
@@ -114,11 +148,15 @@ class _RegisterWidget extends State<RegisterWidget> {
             ),
           ),
           Padding(
-            padding:
-                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
+            padding: const EdgeInsets.only(
+              left: 28.0,
+              right: 28.0,
+              top: 10,
+              bottom: 0,
+            ),
             child: TextField(
               controller: email,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                   prefixIcon: Icon(Icons.email),
                   border: OutlineInputBorder(),
@@ -126,12 +164,16 @@ class _RegisterWidget extends State<RegisterWidget> {
             ),
           ),
           Padding(
-            padding:
-                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
+            padding: const EdgeInsets.only(
+              left: 28.0,
+              right: 28.0,
+              top: 10,
+              bottom: 0,
+            ),
             child: TextField(
               controller: password,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                   prefixIcon: Icon(Icons.lock),
                   border: OutlineInputBorder(),
@@ -139,12 +181,16 @@ class _RegisterWidget extends State<RegisterWidget> {
             ),
           ),
           Padding(
-            padding:
-                EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
+            padding: const EdgeInsets.only(
+              left: 28.0,
+              right: 28.0,
+              top: 10,
+              bottom: 0,
+            ),
             child: TextField(
               controller: confirmpass,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                   prefixIcon: Icon(Icons.lock),
                   border: OutlineInputBorder(),
@@ -152,8 +198,67 @@ class _RegisterWidget extends State<RegisterWidget> {
             ),
           ),
           Padding(
-              padding:
-                  EdgeInsets.only(left: 28.0, right: 28.0, top: 10, bottom: 0),
+            padding: const EdgeInsets.only(
+              left: 28.0,
+              right: 28.0,
+              top: 10,
+              bottom: 0,
+            ),
+            child: TextField(
+              keyboardType: TextInputType.number,
+              controller: absences,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.symmetric(vertical: 5.0),
+                prefixIcon: Icon(Icons.person_remove),
+                border: OutlineInputBorder(),
+                labelText: 'Absences',
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 28.0,
+              right: 28.0,
+              top: 20,
+              bottom: 0,
+            ),
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: approverDropdownValue,
+              icon: const Icon(Icons.arrow_downward),
+              elevation: 16,
+              style: const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
+              underline: Container(
+                height: 2,
+                color: Color.fromARGB(255, 57, 57, 231),
+              ),
+              onChanged: (String? value) {
+                // This is called when the user selects an item.
+                setState(() {
+                  approverDropdownValue = value!;
+                  selectedApprover = approverList!
+                      .where((element) => element.guid == approverDropdownValue)
+                      .first;
+                  print(selectedApprover.key);
+                });
+              },
+              items: approverList != null
+                  ? approverList!.map((e) {
+                      return DropdownMenuItem<String>(
+                        value: e.guid!,
+                        child: Text(e.empName!),
+                      );
+                    }).toList()
+                  : [],
+            ),
+          ),
+          Padding(
+              padding: const EdgeInsets.only(
+                left: 28.0,
+                right: 28.0,
+                top: 10,
+                bottom: 0,
+              ),
               child: Row(
                 children: [
                   Checkbox(
@@ -191,14 +296,18 @@ class _RegisterWidget extends State<RegisterWidget> {
                   String data = await generateQRBase64String(guId);
                   if (message == 'Account successfully created') {
                     insertNewEmployee(
-                        department.text,
-                        email.text,
-                        employeeId.text,
-                        employeeName.text,
-                        guId,
-                        data,
-                        dropdownValue,
-                        _isChecked);
+                      department.text,
+                      email.text,
+                      employeeId.text,
+                      employeeName.text,
+                      guId,
+                      data,
+                      dropdownValue,
+                      approverDropdownValue,
+                      selectedApprover.employeeName,
+                      absences.text,
+                      _isChecked,
+                    );
                     success_box(context, message);
                     department.text = '';
                     email.text = '';
@@ -207,6 +316,7 @@ class _RegisterWidget extends State<RegisterWidget> {
                     department.text = '';
                     password.text = '';
                     confirmpass.text = '';
+                    absences.text = '';
                     _isChecked = false;
                   } else {
                     warning_box(context, message);

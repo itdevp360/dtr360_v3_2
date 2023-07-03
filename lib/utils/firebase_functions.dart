@@ -9,8 +9,7 @@ import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
 import 'package:intl/intl.dart';
 
-
-fetchSelectedEmployeesAttendance(documents) async{
+fetchSelectedEmployeesAttendance(documents) async {
   List<Attendance> _listKeys = [];
   DateTime now = DateTime.now();
   DateTime start = now.subtract(Duration(days: 15));
@@ -31,7 +30,8 @@ fetchSelectedEmployeesAttendance(documents) async{
         logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
         logs.userType = value['usertype'].toString();
         logs.iswfh = value['isWfh'].toString();
-        if(isEmployeeExist(logs.empName, documents) && value['usertype'].toString() != 'Former Employee'){
+        if (isEmployeeExist(logs.empName, documents) &&
+            value['usertype'].toString() != 'Former Employee') {
           _listKeys.add(logs);
         }
       });
@@ -41,29 +41,26 @@ fetchSelectedEmployeesAttendance(documents) async{
   return _listKeys;
 }
 
-fileLeave(key, filingDocKey, context) async{
+fileLeave(key, filingDocKey, context) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
-      await databaseReference.update({
-      'isLeave': true,
-    }).then((value) async{
-      await updateFilingDocStatus(filingDocKey, context);
-    });
+  await databaseReference.update({
+    'isLeave': true,
+  }).then((value) async {
+    await updateFilingDocStatus(filingDocKey, context);
+  });
 }
 
-fileOvertime(key, filingDocKey, context, otType, hoursNo) async{
+fileOvertime(key, filingDocKey, context, otType, hoursNo) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
-      await databaseReference.update({
-      'otType': otType,
-      'hoursNo': hoursNo,
-      'isOt': true
-    }).then((value) async{
-      await updateFilingDocStatus(filingDocKey, context);
-    });
+  await databaseReference.update(
+      {'otType': otType, 'hoursNo': hoursNo, 'isOt': true}).then((value) async {
+    await updateFilingDocStatus(filingDocKey, context);
+  });
 }
 
-attendanceCorrection(key, date, time, isOut, filingDocKey,context) async{
+attendanceCorrection(key, date, time, isOut, filingDocKey, context) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
   String dateTimeString = '$date $time';
@@ -71,32 +68,29 @@ attendanceCorrection(key, date, time, isOut, filingDocKey,context) async{
   DateTime dateTime = dateFormat.parse(dateTimeString);
 
   int unixTimestamp = dateTime.millisecondsSinceEpoch;
-  if(isOut){
+  if (isOut) {
     await databaseReference.update({
       'timeOut': unixTimestamp,
-    }).then((value) async{
+    }).then((value) async {
       await updateFilingDocStatus(filingDocKey, context);
     });
-  }
-  else{
+  } else {
     await databaseReference.update({
       'timeIn': unixTimestamp,
-    }).then((value) async{
+    }).then((value) async {
       await updateFilingDocStatus(filingDocKey, context);
     });
   }
-  
-
 }
 
 updateFilingDocStatus(key, context) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
-      await databaseReference.update({
-        'isApproved': true,
-      }).then((value) async {
-        // await success_box(context, 'Document approved');
-      });
+  await databaseReference.update({
+    'isApproved': true,
+  }).then((value) async {
+    // await success_box(context, 'Document approved');
+  });
 }
 
 fetchAttendance() async {
@@ -167,6 +161,9 @@ fetchAllEmployees(bool isAttendance) async {
         emp1.isWfh = value['isWfh'].toString();
         emp1.password = value['password'].toString();
         emp1.usertype = value['usertype'].toString();
+        emp1.appId = value['approver'].toString();
+        emp1.appName = value['approverName'].toString();
+        emp1.absences = value['remainingLeaves'].toString();
         if (isAttendance == false) {
           _listKeys.add(emp1);
         } else {
@@ -207,8 +204,39 @@ fetchEmployees() async {
   return _listKeys;
 }
 
-updateEmployeeDetails(
-    key, department, employeeID, employeeName, isWfh, userType) async {
+fetchApprover() async {
+  List<Employees> _listKeys = [];
+  final ref = FirebaseDatabase.instance.ref().child('Employee');
+
+  final snapshot = await ref.get().then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      values!.forEach((key, value) {
+        Employees emp = Employees();
+        emp.itemKey = key.toString();
+        emp.employeeID = value['employeeID'].toString();
+        emp.department = value['department'].toString();
+        emp.email = value['email'].toString();
+        emp.employeeName = value['employeeName'].toString();
+        emp.setguid = value['guid'].toString();
+        emp.imageString = value['imageString'].toString();
+        emp.isWfh = value['isWfh'].toString();
+        emp.password = value['password'].toString();
+        emp.usertype = value['usertype'].toString();
+        emp.appId = value['approver'].toString();
+        emp.appName = value['approverName'].toString();
+        if (value['usertype'].toString() == 'Approver') {
+          _listKeys.add(emp);
+        }
+      });
+    }
+  });
+  // print(_listKeys);
+  return _listKeys;
+}
+
+updateEmployeeDetails(key, department, employeeID, employeeName, isWfh,
+    userType, approver, approverName, absences) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Employee/' + key);
   await databaseReference.update({
@@ -216,12 +244,15 @@ updateEmployeeDetails(
     'employeeID': employeeID,
     'employeeName': employeeName,
     'usertype': userType,
+    'approver': approver,
+    'approverName': approverName,
+    'remainingLeaves': absences,
     'isWfh': isWfh == true ? 'Work from Home' : '',
   });
 }
 
 insertNewEmployee(department, email, employeeID, employeeName, guid,
-    imageString, userType, _isChecked) {
+    imageString, userType, approver, approverName, absences, _isChecked) {
   final databaseReference = FirebaseDatabase.instance.ref().child('Employee');
 
   databaseReference.push().set({
@@ -232,11 +263,12 @@ insertNewEmployee(department, email, employeeID, employeeName, guid,
     'guid': guid,
     'imageString': imageString,
     'usertype': userType,
+    'approver': approver,
+    'approverName': approverName,
+    'remainingLeaves': absences,
     'isWfh': _isChecked == true ? 'Work from Home' : '',
   }).then((value) => print('success saving'));
 }
-
-
 
 registerWithEmailAndPassword(String email, String password) async {
   final FirebaseAuth _auth = FirebaseAuth.instance;
