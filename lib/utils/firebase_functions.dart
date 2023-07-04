@@ -59,7 +59,7 @@ updateRemainingLeaves(empKey, noOfDays) async {
   if (snapshot.exists) {
     Map<dynamic, dynamic>? values = snapshot.value as Map?;
     if (values != null && values.containsKey('remainingLeaves')) {
-      int remainingLeave = values['remainingLeaves'];
+      int remainingLeave = int.parse(values['remainingLeaves']);
       remainingLeave = remainingLeave - int.parse(noOfDays);
       await ref.update({
         'remainingLeaves': remainingLeave,

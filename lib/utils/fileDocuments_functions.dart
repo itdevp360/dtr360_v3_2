@@ -90,6 +90,48 @@ updateFilingDocs(selectedItems, documents, context) async {
   return true;
 }
 
+fetchEmployeeDocument() async {
+  List<FilingDocument> _listKeys = [];
+  final ref = FirebaseDatabase.instance.ref().child('FilingDocuments');
+  final empProfile = await read_employeeProfile();
+
+  final snapshot = await ref.get().then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      values!.forEach((key, value) {
+        FilingDocument file = FilingDocument();
+        file.key = key.toString();
+        file.attachmentName = value['attachmentName'].toString();
+        file.dept = value['dept'].toString();
+        file.correctTime = value['correctTime'].toString();
+        file.docType = value['docType'].toString();
+        file.employeeName = value['employeeName'].toString();
+        file.date = formatDate(DateTime.parse(value['date'])).toString();
+        file.deductLeave = value['deductLeave'];
+        file.guid = value['guid'].toString();
+        file.hoursNo = value['hoursNo'].toString();
+        file.isApproved = value['isApproved'];
+        file.isOut = value['isOut'];
+        file.leaveType = value['leaveType'].toString();
+        file.noOfDay = value['noOfDay'].toString();
+        file.notifyStatus = value['notifyStatus'].toString();
+        file.empKey = value['empKey'].toString();
+        file.reason = value['reason'].toString();
+        file.dateFrom = value['dateFrom'] == null || value['dateFrom'] == ''
+            ? ''
+            : formatDate(DateTime.parse(value['dateFrom'])).toString();
+        file.dateTo = value['dateTo'] == null || value['dateTo'] == ''
+            ? ''
+            : formatDate(DateTime.parse(value['dateTo'])).toString();
+        if (file.guid == empProfile[4]) {
+          _listKeys.add(file);
+        }
+      });
+    }
+  });
+  return _listKeys;
+}
+
 fetchFilingDocuments() async {
   List<FilingDocument> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('FilingDocuments');
