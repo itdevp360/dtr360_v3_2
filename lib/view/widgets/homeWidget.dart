@@ -5,6 +5,7 @@ import 'package:dtr360_version3_2/view/screens/changepass_model.dart';
 import 'package:dtr360_version3_2/view/screens/documentfiling_model.dart';
 import 'package:dtr360_version3_2/view/widgets/fileDocumentsWidget.dart';
 import 'package:dtr360_version3_2/view/widgets/fillingDocs/approverDocumentList.dart';
+import 'package:dtr360_version3_2/view/widgets/fillingDocs/documentStatusList.dart';
 import 'package:dtr360_version3_2/view/widgets/userEditWidget.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:dtr360_version3_2/view/screens/register_model.dart';
@@ -221,7 +222,23 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                     ));
                   }
                   items.add(PopupMenuItem<int>(
-                    value: 2,
+                    value: 3,
+                    child: const Text("Document Status"),
+                    onTap: () {
+                      WidgetsBinding.instance!.addPostFrameCallback((_) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return const DocumentStatusWidget();
+                            },
+                          ),
+                        );
+                      });
+                    },
+                  ));
+                  items.add(PopupMenuItem<int>(
+                    value: 4,
                     child: const Text("Change password"),
                     onTap: () {
                       WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -237,7 +254,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                     },
                   ));
                   items.add(PopupMenuItem<int>(
-                    value: 3,
+                    value: 5,
                     child: const Text("Logout"),
                     onTap: () {},
                   ));
@@ -249,7 +266,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                     case 1:
                     case 2:
                       break;
-                    case 3:
+                    case 5:
                       logoutUser(context);
 
                       break;
