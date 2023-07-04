@@ -49,6 +49,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
               builder: ((context, snapshot) {
                 if (snapshot.hasData) {
                   documents = snapshot.data! as List<FilingDocument>?;
+                  documents = sortDocs(documents!);
                   return ListView.builder(
                     itemCount: documents!.length,
                     itemBuilder: (context, index) {
@@ -69,7 +70,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                           maxHeight: MediaQuery.of(context)
                                                   .size
                                                   .height *
-                                              0.7,
+                                              0.4,
                                           maxWidth: MediaQuery.of(context)
                                                   .size
                                                   .width *
@@ -78,36 +79,70 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                         child: Column(
                                           children: [
                                             Row(children: [
-                                              Text('Department: ' +
-                                                  document.dept)
+                                              Text(
+                                                  'Department: ' +
+                                                      document.dept,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold))
                                             ]),
                                             Row(children: [
-                                              Text('Date filed: ' +
-                                                  document.date)
+                                              Text(
+                                                  'Date filed: ' +
+                                                      document.date,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold))
                                             ]),
                                             if (document.docType == 'Leave')
                                               Row(children: [
-                                                Text('Date from: ' +
-                                                    document.dateFrom)
+                                                Text(
+                                                    'Date from: ' +
+                                                        document.dateFrom,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))
                                               ]),
                                             if (document.docType == 'Leave')
                                               Row(children: [
-                                                Text('Date to: ' +
-                                                    document.dateTo)
+                                                Text(
+                                                    'Date to: ' +
+                                                        document.dateTo,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))
                                               ]),
                                             if (document.docType == 'Leave')
                                               Row(children: [
-                                                Text('Leave Type: ' +
-                                                    document.leaveType)
+                                                Text(
+                                                    'Leave Type: ' +
+                                                        document.leaveType,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))
                                               ]),
                                             Row(children: [
-                                              Text('Reason: ' + document.reason)
+                                              Text('Reason: ' + document.reason,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold))
                                             ]),
                                             Row(children: [
-                                              Text('Status: ' +
-                                                  (document.isApproved
-                                                      ? 'Approved'
-                                                      : 'Pending'))
+                                              Text(
+                                                'Status: ',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              Text(
+                                                (document.isApproved
+                                                    ? 'Approved'
+                                                    : 'Pending'),
+                                                style: TextStyle(
+                                                    color: document.isApproved
+                                                        ? Colors.green
+                                                        : Colors.red),
+                                              )
                                             ]),
                                           ],
                                         ),
@@ -129,21 +164,37 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                         },
                         child: ListTile(
                           contentPadding: EdgeInsets.all(8),
-                          title: Text('Application for ' + document.docType),
+                          title: Text(
+                            'Application for ' + document.docType,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           subtitle: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
-                                  Text('Date filed: ' + document.date)
+                                  Text(
+                                    'Date filed: ' + document.date,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  )
                                 ],
                               ),
                               Row(
                                 children: [
-                                  Text('Status: ' +
+                                  Text(
+                                    'Status: ',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
                                       (document.isApproved
                                           ? 'Approved'
-                                          : 'Pending'))
+                                          : 'Pending'),
+                                      style: TextStyle(
+                                          color: document.isApproved
+                                              ? Colors.green
+                                              : Colors.red))
                                 ],
                               )
                             ],
