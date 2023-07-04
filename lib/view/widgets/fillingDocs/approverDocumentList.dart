@@ -121,6 +121,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   documents = documents!
                       .where((item) => item.docType == selectedValue)
                       .toList();
+                  documents = sortDocs(documents!);
                   if (isSelected) {
                     selectedItems =
                         List.generate(documents!.length, (index) => false);

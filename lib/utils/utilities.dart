@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:dtr360_version3_2/model/attendance.dart';
@@ -208,6 +209,16 @@ sortList(List<Attendance> attendance) {
   });
 
   return attendance;
+}
+
+sortDocs(List<FilingDocument> docs) {
+  docs.sort((a, b) {
+    var dateA = DateFormat("MM/dd/yyyy").parse(a.date!);
+    var dateB = DateFormat("MM/dd/yyyy").parse(b.date!);
+    return dateB.compareTo(dateA);
+  });
+
+  return docs;
 }
 
 //Ascending A to Z
