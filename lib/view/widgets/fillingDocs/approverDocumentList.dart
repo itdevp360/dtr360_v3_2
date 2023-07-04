@@ -16,7 +16,6 @@ class ApproverListWidget extends StatefulWidget {
 }
 
 class _ApproverListWidgetState extends State<ApproverListWidget> {
-
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   String? selectedValue = 'Leave';
   List<FilingDocument>? documents;
@@ -36,183 +35,220 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
     });
   }
 
-  void initState(){
+  void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       employeeProfile = await read_employeeProfile();
-      
     });
   }
 
-  void runFunction() async{
-    
-  }
+  void runFunction() async {}
 
   @override
   Widget build(BuildContext context) {
     var dropdownValue;
-    return Scaffold(appBar: AppBar(
-        title: Text('Approver Page'),
-        backgroundColor: Colors.redAccent,
-        leading: selectedIndexes.isNotEmpty
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Approver Page'),
+          backgroundColor: Colors.redAccent,
+          leading: selectedIndexes.isNotEmpty
               ? IconButton(
                   icon: Icon(Icons.close),
                   onPressed: () {
                     setState(() {
                       selectedIndexes.clear();
-                      selectedItems = List.generate(documents!.length, (index) => false);
+                      selectedItems =
+                          List.generate(documents!.length, (index) => false);
                     });
                   },
                 )
-        : null,
-        actions: [
-          if(selectedIndexes.isNotEmpty)
-            IconButton(
-                  icon: Icon(Icons.approval_rounded),
-                  onPressed: () async{
-                    var isTrue = await updateFilingDocs(selectedItems, documents, context);
-                    if(isTrue == true){
-                      documents!.clear();
-                      
-                      documents = await fetchFilingDocuments();
-                      
-                      _listKey.currentState?.setState(() {
-                        
-                        documents = documents!.where((item) => item.docType == selectedValue).toList();
-                        selectedItems = List.generate(documents!.length, (index) => false);
-                      });
-                      setState(() {
-                        selectedIndexes.clear();
-                      });
-                      success_box(context, 'Document approved');
-                    }
-                    
-                  },
-                )
-          
-        ],
-      ),
-      body: Column(children: [
-        DropdownButton<String>(
-            value: selectedValue,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedValue = newValue!;
-                isSelected = true;
-                
-              });
-            },
-            items: <String>[
-              'Leave',
-              'Correction',
-              'Overtime',
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-          Flexible(child: FutureBuilder(future: fetchFilingDocuments(), builder: ((context, snapshot) {
-      if(snapshot.hasData){
-        documents = snapshot.data! as List<FilingDocument>?;
-        documents = documents!.where((item) => item.docType == selectedValue).toList();
-        if(isSelected){
-          selectedItems = List.generate(documents!.length, (index) => false);
-          isSelected = false;
-        }
-        
-        if(!isLoaded){
-          selectedItems = List.generate(documents!.length, (index) => false);
-          isLoaded = true;
-        }   
-        return ListView.builder(
-              key: _listKey,
-              itemCount: documents!.length,
-              itemBuilder: (context, index) {
-                
-                final document = documents![index];
-                return GestureDetector(
-                  onLongPress: () {
+              : null,
+          actions: [
+            if (selectedIndexes.isNotEmpty)
+              IconButton(
+                icon: Icon(Icons.approval_rounded),
+                onPressed: () async {
+                  var isTrue =
+                      await updateFilingDocs(selectedItems, documents, context);
+                  if (isTrue == true) {
+                    documents!.clear();
+
+                    documents = await fetchFilingDocuments();
+
+                    _listKey.currentState?.setState(() {
+                      documents = documents!
+                          .where((item) => item.docType == selectedValue)
+                          .toList();
+                      selectedItems =
+                          List.generate(documents!.length, (index) => false);
+                    });
                     setState(() {
-                      selectedIndexes.add(index);
-                      selectedItems[index] = true;
-                      print(selectedItems[index]);
+                      selectedIndexes.clear();
                     });
-                  },
-                  onTap: () {
-                    if (selectedIndexes.isNotEmpty) {
-                      setState(() {
-                        if (selectedIndexes.contains(index)) {
-                          selectedIndexes.remove(index);
-                          selectedItems[index] = false;
-                        } else {
-                          selectedIndexes.add(index);
-                          selectedItems[index] = true;
-                        }
-                      });
-                    } else {
-                      // Show modal pop-up for single item press
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text('Item Pressed'),
-                            content: SizedBox(
-                              height: 100, 
-                              width: 60, 
-                              child: Column(children: [Row(children: [Text('Application Type: ' + document.docType)]),
-                              Row(children: [Text('Employee Name: ' + document.employeeName)])],),),
-                            actions: [
-                              TextButton(onPressed: () {
-                                  
-                                }, child: Text('Cancel')),
-                                TextButton(onPressed: () async {
-                                  selectedIndexes.add(index);
-                                  selectedItems[index] = true;
-                                  var result =  await updateFilingDocs(selectedItems, documents, context);
-                                  _listKey.currentState?.setState(() {
-                                    documents = documents!.where((item) => item.docType == selectedValue).toList();
-                                    selectedItems = List.generate(documents!.length, (index) => false);
-                                  });
-                                  setState(() {
-                                    selectedIndexes.clear();
-                                  });
-                                  Navigator.of(context).pop();
-                                  _showSecondaryAlertDialog(context);
-                                  // await success_box(context, "Document Approved");
-                                }, child: Text('OK'))
-                            ],
-                          );
-                        },
-                      );
-                    }
-                  },
-                  child: ListTile(
-                    contentPadding: EdgeInsets.all(8),
-                    title: Text('Application for ' + document.docType),
-                    subtitle: Column(mainAxisAlignment: MainAxisAlignment.start, 
-                    children: [Row(children: [Text('Employee Name: ' + document.employeeName)],),
-                    Row(children: [Text('Date filed: ' + document.date)],)],) ,
-                    
-                    tileColor: selectedItems[index] ? Colors.blue : null,
-                  ),
-                );
+                    success_box(context, 'Document approved');
+                  }
+                },
+              )
+          ],
+        ),
+        body: Column(
+          children: [
+            DropdownButton<String>(
+              value: selectedValue,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedValue = newValue!;
+                  isSelected = true;
+                });
               },
-            );
-      }
-      else if(snapshot.hasError){
-        return Text('Error: ${snapshot.error}');
-      }
-      else{
-        return Center(child: CircularProgressIndicator());
-      }
-    }),))
-      ],));
+              items: <String>[
+                'Leave',
+                'Correction',
+                'Overtime',
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+            Flexible(
+                child: FutureBuilder(
+              future: fetchFilingDocuments(),
+              builder: ((context, snapshot) {
+                if (snapshot.hasData) {
+                  documents = snapshot.data! as List<FilingDocument>?;
+                  documents = documents!
+                      .where((item) => item.docType == selectedValue)
+                      .toList();
+                  if (isSelected) {
+                    selectedItems =
+                        List.generate(documents!.length, (index) => false);
+                    isSelected = false;
+                  }
+
+                  if (!isLoaded) {
+                    selectedItems =
+                        List.generate(documents!.length, (index) => false);
+                    isLoaded = true;
+                  }
+                  return ListView.builder(
+                    key: _listKey,
+                    itemCount: documents!.length,
+                    itemBuilder: (context, index) {
+                      final document = documents![index];
+                      return GestureDetector(
+                        onLongPress: () {
+                          setState(() {
+                            selectedIndexes.add(index);
+                            selectedItems[index] = true;
+                            print(selectedItems[index]);
+                          });
+                        },
+                        onTap: () {
+                          if (selectedIndexes.isNotEmpty) {
+                            setState(() {
+                              if (selectedIndexes.contains(index)) {
+                                selectedIndexes.remove(index);
+                                selectedItems[index] = false;
+                              } else {
+                                selectedIndexes.add(index);
+                                selectedItems[index] = true;
+                              }
+                            });
+                          } else {
+                            // Show modal pop-up for single item press
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Item Pressed'),
+                                  content: SizedBox(
+                                    height: 100,
+                                    width: 60,
+                                    child: Column(
+                                      children: [
+                                        Row(children: [
+                                          Text('Application Type: ' +
+                                              document.docType)
+                                        ]),
+                                        Row(children: [
+                                          Text('Employee Name: ' +
+                                              document.employeeName)
+                                        ])
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {},
+                                        child: Text('Cancel')),
+                                    TextButton(
+                                        onPressed: () async {
+                                          selectedIndexes.add(index);
+                                          selectedItems[index] = true;
+                                          var result = await updateFilingDocs(
+                                              selectedItems,
+                                              documents,
+                                              context);
+                                          _listKey.currentState?.setState(() {
+                                            documents = documents!
+                                                .where((item) =>
+                                                    item.docType ==
+                                                    selectedValue)
+                                                .toList();
+                                            selectedItems = List.generate(
+                                                documents!.length,
+                                                (index) => false);
+                                          });
+                                          setState(() {
+                                            selectedIndexes.clear();
+                                          });
+                                          Navigator.of(context).pop();
+                                          _showSecondaryAlertDialog(context);
+                                          // await success_box(context, "Document Approved");
+                                        },
+                                        child: Text('OK'))
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                        },
+                        child: ListTile(
+                          contentPadding: EdgeInsets.all(8),
+                          title: Text('Application for ' + document.docType),
+                          subtitle: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                      'Employee Name: ' + document.employeeName)
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text('Date filed: ' + document.date)
+                                ],
+                              )
+                            ],
+                          ),
+                          tileColor: selectedItems[index] ? Colors.blue : null,
+                        ),
+                      );
+                    },
+                  );
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
+              }),
+            ))
+          ],
+        ));
   }
-
-  
-
 
   void _showModalPopup(String selectedItem) {
     showDialog(
@@ -224,7 +260,6 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
           actions: [
             TextButton(
               onPressed: () {
-                
                 Navigator.pop(context);
               },
               child: Text('Close'),
@@ -234,6 +269,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
       },
     );
   }
+
   void _showSecondaryAlertDialog(BuildContext context) {
     Future.delayed(Duration(milliseconds: 100), () {
       showDialog(
@@ -241,7 +277,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
         builder: (BuildContext context) {
           return Builder(builder: (BuildContext context) {
             return AlertDialog(
-              title:Row(
+              title: Row(
                 children: [
                   Icon(Icons.check, color: Colors.green),
                   SizedBox(width: 8),
@@ -252,7 +288,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close the secondary AlertDialog
+                    Navigator.of(context)
+                        .pop(); // Close the secondary AlertDialog
                   },
                   child: Text('OK'),
                 ),
@@ -263,6 +300,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
       );
     });
   }
+
   void _showDeleteDialog(List<String> selectedItems) {
     showDialog(
       context: context,

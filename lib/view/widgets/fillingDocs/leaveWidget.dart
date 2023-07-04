@@ -15,7 +15,7 @@ class leaveWidget extends StatefulWidget {
 class _MyWidgetState extends State<leaveWidget> {
   final FilingDocument dataModel = FilingDocument();
   var employeeProfile;
-  int remainingLeave = 5;
+  String? remainingLeave;
   String? selectedLeaveType;
   bool isChecked = false;
   TextEditingController reason = new TextEditingController();
@@ -24,7 +24,8 @@ class _MyWidgetState extends State<leaveWidget> {
     'Vacation',
     'Sick Leave',
     'Maternity Leave',
-    'Paternity Leave'
+    'Paternity Leave',
+    'Birthday Leave'
   ];
 
   @override
@@ -36,7 +37,9 @@ class _MyWidgetState extends State<leaveWidget> {
       setState(() {
         dataModel.guid = employeeProfile[4] ?? '';
         dataModel.dept = employeeProfile[1] ?? '';
+        dataModel.empKey = employeeProfile[7] ?? '';
         dataModel.employeeName = employeeProfile[0] ?? '';
+        remainingLeave = employeeProfile[11] ?? 0;
       });
     });
   }
@@ -53,6 +56,38 @@ class _MyWidgetState extends State<leaveWidget> {
       setState(() {
         startDate = picked;
         dataModel.date = startDate.toString();
+      });
+    }
+  }
+
+  DateTime dateFrom = DateTime.now();
+  Future<void> _dateFrom(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: dateFrom,
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != dateFrom) {
+      setState(() {
+        dateFrom = picked;
+        dataModel.dateFrom = dateFrom.toString();
+      });
+    }
+  }
+
+  DateTime dateTo = DateTime.now();
+  Future<void> _dateTo(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: dateTo,
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != dateTo) {
+      setState(() {
+        dateTo = picked;
+        dataModel.dateTo = dateTo.toString();
       });
     }
   }
@@ -76,9 +111,21 @@ class _MyWidgetState extends State<leaveWidget> {
             ),
             TextField(
               keyboardType: TextInputType.none,
-              decoration: const InputDecoration(labelText: 'Date'),
+              decoration: const InputDecoration(labelText: 'Date of Filing'),
               onTap: () => _selectDate(context),
               controller: TextEditingController(text: formatDate(startDate)),
+            ),
+            TextField(
+              keyboardType: TextInputType.none,
+              decoration: const InputDecoration(labelText: 'Date from'),
+              onTap: () => _dateFrom(context),
+              controller: TextEditingController(text: formatDate(dateFrom)),
+            ),
+            TextField(
+              keyboardType: TextInputType.none,
+              decoration: const InputDecoration(labelText: 'Date to'),
+              onTap: () => _dateTo(context),
+              controller: TextEditingController(text: formatDate(dateTo)),
             ),
             DropdownButtonFormField<String>(
               value: selectedLeaveType,
@@ -107,15 +154,6 @@ class _MyWidgetState extends State<leaveWidget> {
                 });
               },
             ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'No. of days'),
-              controller: noOfDays,
-              onChanged: (value) {
-                setState(() {
-                  dataModel.noOfDay = value;
-                });
-              },
-            ),
             Row(
               children: [
                 Checkbox(
@@ -130,6 +168,15 @@ class _MyWidgetState extends State<leaveWidget> {
                   style: TextStyle(fontSize: 16),
                 )
               ],
+            ),
+            TextField(
+              decoration: const InputDecoration(labelText: 'No. of days'),
+              controller: noOfDays,
+              onChanged: (value) {
+                setState(() {
+                  dataModel.noOfDay = value;
+                });
+              },
             ),
             LeaveDataWidget(dataModel: dataModel, child: FilePickerWidget()),
           ],

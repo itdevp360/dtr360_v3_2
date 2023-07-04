@@ -40,8 +40,19 @@ class _qrWidgetState extends State<qrWidget> {
         employeeProfile = await read_employeeProfile();
         empList = await fetchEmployees();
         emp = empList.firstWhere((element) => element.emailAdd == email);
-        save_employeeProfile(emp.empName, emp.dept, emp.emailAdd, emp.passW,
-            emp.guid, emp.imgStr, emp.usrType, emp.key, emp.empId);
+        save_employeeProfile(
+            emp.empName,
+            emp.dept,
+            emp.emailAdd,
+            emp.passW,
+            emp.guid,
+            emp.imgStr,
+            emp.usrType,
+            emp.key,
+            emp.empId,
+            emp.appId,
+            emp.appName,
+            emp.absences);
         // if(employeeProfile != null && employeeProfile[0] != ''){
         //   emp.empName = employeeProfile[0] ?? '';
         //   emp.dept = employeeProfile[1] ?? '';
@@ -58,7 +69,10 @@ class _qrWidgetState extends State<qrWidget> {
 
         setState(() {
           _loaded = true;
-          _isWfh = (emp.wfh == "null" || emp.wfh == '') && emp.usrType != 'Admin' ? false : true;
+          _isWfh =
+              (emp.wfh == "null" || emp.wfh == '') && emp.usrType != 'Admin'
+                  ? false
+                  : true;
           print(emp.key);
         });
       }
@@ -115,36 +129,43 @@ class _qrWidgetState extends State<qrWidget> {
                           width: 20.w,
                           height: 25.w,
                           child: TextButton(
-                            onPressed: _enabled == false ? null : () async {
-                              if (emp.usrType.toString() == 'Employee' ||
-                                  emp.usrType.toString() == 'Approver' && _enabled == true) {
-                                  setState(() {
-                                    _enabled = false;
-                                  });
-                                await updateAttendance(
-                                    emp.guid.toString(), context, true, emp);
-                                  Future.delayed(Duration(seconds: 2), () {
-                                    setState(() {
-                                      _enabled = true;
-                                    });
-                                  });
-                              } else {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => QRViewExample()),
-                                );
-                                if (result != null) {
-                                  setState(() {
-                                    print("GUID " + result.toString());
-                                  });
-                                }
-                                Employees scannedEmp = empList.firstWhere(
-                                    (element) => element.guid == result);
-                                var newres = await updateAttendance(
-                                    result, context, true, scannedEmp);
-                              }
-                            },
+                            onPressed: _enabled == false
+                                ? null
+                                : () async {
+                                    if (emp.usrType.toString() == 'Employee' ||
+                                        emp.usrType.toString() == 'Approver' &&
+                                            _enabled == true) {
+                                      setState(() {
+                                        _enabled = false;
+                                      });
+                                      await updateAttendance(
+                                          emp.guid.toString(),
+                                          context,
+                                          true,
+                                          emp);
+                                      Future.delayed(Duration(seconds: 2), () {
+                                        setState(() {
+                                          _enabled = true;
+                                        });
+                                      });
+                                    } else {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                QRViewExample()),
+                                      );
+                                      if (result != null) {
+                                        setState(() {
+                                          print("GUID " + result.toString());
+                                        });
+                                      }
+                                      Employees scannedEmp = empList.firstWhere(
+                                          (element) => element.guid == result);
+                                      var newres = await updateAttendance(
+                                          result, context, true, scannedEmp);
+                                    }
+                                  },
                             child: Image.asset('assets/greenclock.png'),
                           )),
                     ),
@@ -159,34 +180,43 @@ class _qrWidgetState extends State<qrWidget> {
                           width: 20.w,
                           height: 25.w,
                           child: TextButton(
-                            onPressed: _enabled == false ? null : () async {
-                              if (emp.usrType.toString() == 'Employee' ||
-                                  emp.usrType.toString() == 'Approver' && _enabled == true) {
-                                    setState(() {
-                                    _enabled = false;
-                                  });
-                                await updateAttendance(
-                                    emp.guid.toString(), context, false, emp);
-                                    Future.delayed(Duration(seconds: 2), () {
-                                    setState(() {
-                                      _enabled = true;
-                                    });
-                                  });
-                              } else {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => QRViewExample()),
-                                );
-                                if (result != null) {
-                                  setState(() {});
-                                }
-                                Employees scannedEmp = empList.firstWhere(
-                                    (element) => (element.guid == result) || (element.empName == result));
-                                var newres = await updateAttendance(
-                                    result, context, false, scannedEmp);
-                              }
-                            },
+                            onPressed: _enabled == false
+                                ? null
+                                : () async {
+                                    if (emp.usrType.toString() == 'Employee' ||
+                                        emp.usrType.toString() == 'Approver' &&
+                                            _enabled == true) {
+                                      setState(() {
+                                        _enabled = false;
+                                      });
+                                      await updateAttendance(
+                                          emp.guid.toString(),
+                                          context,
+                                          false,
+                                          emp);
+                                      Future.delayed(Duration(seconds: 2), () {
+                                        setState(() {
+                                          _enabled = true;
+                                        });
+                                      });
+                                    } else {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                QRViewExample()),
+                                      );
+                                      if (result != null) {
+                                        setState(() {});
+                                      }
+                                      Employees scannedEmp = empList.firstWhere(
+                                          (element) =>
+                                              (element.guid == result) ||
+                                              (element.empName == result));
+                                      var newres = await updateAttendance(
+                                          result, context, false, scannedEmp);
+                                    }
+                                  },
                             child: Image.asset('assets/redclock.png'),
                           )),
                     ),

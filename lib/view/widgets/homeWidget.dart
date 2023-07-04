@@ -42,8 +42,19 @@ class _MyHomeWidgetState extends State<HomeWidget> {
         employeeProfile = await read_employeeProfile();
         empList = await fetchEmployees();
         emp = empList.firstWhere((element) => element.emailAdd == email);
-        save_employeeProfile(emp.empName, emp.dept, emp.emailAdd, emp.passW,
-            emp.guid, emp.imgStr, emp.usrType, emp.key, emp.empId);
+        save_employeeProfile(
+            emp.empName,
+            emp.dept,
+            emp.emailAdd,
+            emp.passW,
+            emp.guid,
+            emp.imgStr,
+            emp.usrType,
+            emp.key,
+            emp.empId,
+            emp.appId,
+            emp.appName,
+            emp.absences);
         // if(employeeProfile != null && employeeProfile[0] != ''){
         //   emp.empName = employeeProfile[0] ?? '';
         //   emp.dept = employeeProfile[1] ?? '';
@@ -105,7 +116,8 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                   gap: 0,
                   activeColor: Colors.black,
                   iconSize: 24,
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
                   duration: const Duration(milliseconds: 400),
                   tabBackgroundColor: Colors.grey[100]!,
                   color: Colors.black,
@@ -190,7 +202,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                           });
                         }));
                   }
-                  if(emp.usrType == 'Approver'){
+                  if (emp.usrType == 'Approver') {
                     items.add(PopupMenuItem<int>(
                       value: 2,
                       child: const Text("For Approval"),

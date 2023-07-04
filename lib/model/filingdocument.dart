@@ -11,9 +11,12 @@ class FilingDocument extends ChangeNotifier {
   int _finalDate = 0;
   bool _isApproved = false;
   String _notifyStatus = '';
+  String _empKey = '';
   String _dept = '';
   //Leaves
   String _leaveType = '';
+  String _dateFrom = '';
+  String _dateTo = '';
   String _noOfDay = '';
   String _docType = '';
   String _attachmentName = '';
@@ -36,7 +39,10 @@ class FilingDocument extends ChangeNotifier {
   String get reason => _reason;
   String get guid => _guid;
   String get date => _date;
+  String get dateFrom => _dateFrom;
+  String get dateTo => _dateTo;
   String get dept => _dept;
+  String get empKey => _empKey;
   String get key => _key;
   String get employeeName => _employeeName;
   String get leaveType => _leaveType;
@@ -59,6 +65,11 @@ class FilingDocument extends ChangeNotifier {
 
   set key(String newData) {
     _key = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set empKey(String newData) {
+    _empKey = newData;
     notifyListeners(); // Notify listeners when the data changes
   }
 
@@ -104,6 +115,16 @@ class FilingDocument extends ChangeNotifier {
 
   set date(String newData) {
     _date = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set dateFrom(String newData) {
+    _dateFrom = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set dateTo(String newData) {
+    _dateTo = newData;
     notifyListeners(); // Notify listeners when the data changes
   }
 
