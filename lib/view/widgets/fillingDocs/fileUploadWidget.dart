@@ -39,15 +39,18 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
     final parentData = LeaveDataWidget.of(context)?.dataModel;
     var test = fetchFile('16yfuIyvJqjom8etz-TFSMK2XqafYY4p0');
     // List<String> fileName = [];
-    if(_resultFilePath != null){
+    if (_resultFilePath != null) {
       final fileName = await uploadToDrive(_resultFilePath!);
       parentData?.fileId = fileName[0];
       parentData?.attachmentName = fileName[1];
     }
-    
+
     parentData?.docType = 'Leave';
-    parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
-    
+    parentData?.date = (parentData?.date == ''
+        ? DateTime.now().toString()
+        : parentData?.date)!;
+    // parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
+
     //
     //Save document file to firebase
     fileDocument(parentData!, context);

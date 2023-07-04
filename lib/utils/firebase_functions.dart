@@ -41,26 +41,44 @@ fetchSelectedEmployeesAttendance(documents) async {
   return _listKeys;
 }
 
-fileLeave(key, filingDocKey, context) async {
+fileLeave(key, filingDocKey, context, empKey, noOfDays) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
   await databaseReference.update({
     'isLeave': true,
   }).then((value) async {
-    await updateFilingDocStatus(filingDocKey, context);
+    await updateRemainingLeaves(empKey, noOfDays).then((value) async {
+      await updateFilingDocStatus(filingDocKey, context, empKey);
+    });
   });
 }
 
-fileOvertime(key, filingDocKey, context, otType, hoursNo) async {
+updateRemainingLeaves(empKey, noOfDays) async {
+  final ref = FirebaseDatabase.instance.ref().child('Employee/' + empKey);
+  final snapshot = await ref.get();
+  if (snapshot.exists) {
+    Map<dynamic, dynamic>? values = snapshot.value as Map?;
+    if (values != null && values.containsKey('remainingLeaves')) {
+      int remainingLeave = values['remainingLeaves'];
+      remainingLeave = remainingLeave - int.parse(noOfDays);
+      await ref.update({
+        'remainingLeaves': remainingLeave,
+      });
+    }
+  }
+}
+
+fileOvertime(key, filingDocKey, context, otType, hoursNo, empKey) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
   await databaseReference.update(
       {'otType': otType, 'hoursNo': hoursNo, 'isOt': true}).then((value) async {
-    await updateFilingDocStatus(filingDocKey, context);
+    await updateFilingDocStatus(filingDocKey, context, empKey);
   });
 }
 
-attendanceCorrection(key, date, time, isOut, filingDocKey, context) async {
+attendanceCorrection(
+    key, date, time, isOut, filingDocKey, context, empKey) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
   String dateTimeString = '$date $time';
@@ -72,18 +90,18 @@ attendanceCorrection(key, date, time, isOut, filingDocKey, context) async {
     await databaseReference.update({
       'timeOut': unixTimestamp,
     }).then((value) async {
-      await updateFilingDocStatus(filingDocKey, context);
+      await updateFilingDocStatus(filingDocKey, context, empKey);
     });
   } else {
     await databaseReference.update({
       'timeIn': unixTimestamp,
     }).then((value) async {
-      await updateFilingDocStatus(filingDocKey, context);
+      await updateFilingDocStatus(filingDocKey, context, empKey);
     });
   }
 }
 
-updateFilingDocStatus(key, context) async {
+updateFilingDocStatus(key, context, empKey) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
   await databaseReference.update({
@@ -196,6 +214,9 @@ fetchEmployees() async {
         emp.isWfh = value['isWfh'].toString();
         emp.password = value['password'].toString();
         emp.usertype = value['usertype'].toString();
+        emp.appId = value['approver'].toString();
+        emp.appName = value['approverName'].toString();
+        emp.absences = value['remainingLeaves'].toString();
         _listKeys.add(emp);
       });
     }

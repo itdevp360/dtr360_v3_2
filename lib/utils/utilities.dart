@@ -28,8 +28,19 @@ read_employeeProfile() async {
   return items;
 }
 
-save_employeeProfile(employeeName, department, email, password, guid,
-    imageString, userType, key, employeeID) async {
+save_employeeProfile(
+    employeeName,
+    department,
+    email,
+    password,
+    guid,
+    imageString,
+    userType,
+    key,
+    employeeID,
+    approver,
+    approverName,
+    remainingLeaves) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setStringList('employeeCredentials', <String>[
     employeeName,
@@ -40,7 +51,10 @@ save_employeeProfile(employeeName, department, email, password, guid,
     imageString,
     userType,
     key,
-    employeeID
+    employeeID,
+    approverName,
+    approver,
+    remainingLeaves
   ]);
 }
 
@@ -63,10 +77,10 @@ String timestampToDateString(dynamic timestamp, format) {
   }
 }
 
-isEmployeeExist(employee, documents){
+isEmployeeExist(employee, documents) {
   bool isExist = false;
-  for(var i=0; i < documents.length; i++){
-    if(documents[i].employeeName == employee){
+  for (var i = 0; i < documents.length; i++) {
+    if (documents[i].employeeName == employee) {
       isExist = true;
     }
   }
@@ -105,7 +119,7 @@ fetchLatestWeeks(List<Attendance> logs) {
   }).toList();
 }
 
-computeTotalHours(startTIme, endTime){
+computeTotalHours(startTIme, endTime) {
   int difference = endTime - startTIme;
 
   // Calculate the total hours
@@ -114,24 +128,24 @@ computeTotalHours(startTIme, endTime){
   return totalHours.toStringAsFixed(2);
 }
 
-convertStringDateToUnix(date, selectedTime, docType){
+convertStringDateToUnix(date, selectedTime, docType) {
   int unixTimestamp = 0;
-  if(docType == 'Correction' || docType == 'Overtime'){
+  if (docType == 'Correction' || docType == 'Overtime') {
     DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
     DateFormat timeFormat = DateFormat('HH:mm');
     DateTime time = timeFormat.parse(selectedTime);
-    DateTime convertedTime = DateTime(dateTime.year, dateTime.month, dateTime.day, time.hour, time.minute, time.second);
+    DateTime convertedTime = DateTime(dateTime.year, dateTime.month,
+        dateTime.day, time.hour, time.minute, time.second);
 
     // Convert to Unix timestamp
     unixTimestamp = convertedTime.millisecondsSinceEpoch;
-  }
-  else if(docType == 'Leave'){
+  } else if (docType == 'Leave') {
     DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
 
     // Convert to Unix timestamp
     unixTimestamp = dateTime.millisecondsSinceEpoch;
   }
-  
+
   return unixTimestamp;
 }
 
@@ -153,7 +167,7 @@ getDateDiff(dateTime) {
 logoutUser(context) {
   FirebaseAuth.instance.signOut();
   save_credentials_pref('', '');
-  save_employeeProfile('', '', '', '', '', '', '', '', '');
+  save_employeeProfile('', '', '', '', '', '', '', '', '', '', '', '');
   Navigator.pushReplacementNamed(context, 'Login');
 }
 
