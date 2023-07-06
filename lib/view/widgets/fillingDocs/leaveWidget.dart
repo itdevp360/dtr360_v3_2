@@ -17,8 +17,11 @@ class _MyWidgetState extends State<leaveWidget> {
   var employeeProfile;
   String? remainingLeave;
   String? selectedLeaveType;
+  String? isAm;
   bool isChecked = false;
+  bool isHalfday = false;
   TextEditingController reason = new TextEditingController();
+  TextEditingController location = new TextEditingController();
   TextEditingController noOfDays = new TextEditingController();
   List<String> leaveTypes = [
     'Vacation',
@@ -26,6 +29,10 @@ class _MyWidgetState extends State<leaveWidget> {
     'Maternity Leave',
     'Paternity Leave',
     'Birthday Leave'
+  ];
+  List<String> amPmList = [
+    'AM',
+    'PM',
   ];
 
   @override
@@ -40,6 +47,9 @@ class _MyWidgetState extends State<leaveWidget> {
         dataModel.empKey = employeeProfile[7] ?? '';
         dataModel.employeeName = employeeProfile[0] ?? '';
         remainingLeave = employeeProfile[11] ?? 0;
+        dataModel.date = startDate.toString();
+        dataModel.dateFrom = dateFrom.toString();
+        dataModel.dateTo = dateTo.toString();
       });
     });
   }
@@ -111,8 +121,8 @@ class _MyWidgetState extends State<leaveWidget> {
             ),
             TextField(
               keyboardType: TextInputType.none,
+              readOnly: true,
               decoration: const InputDecoration(labelText: 'Date of Filing'),
-              onTap: () => _selectDate(context),
               controller: TextEditingController(text: formatDate(startDate)),
             ),
             TextField(
@@ -145,6 +155,16 @@ class _MyWidgetState extends State<leaveWidget> {
                 );
               }).toList(),
             ),
+            dataModel!.leaveType == 'Vacation'
+            ? TextField(
+              decoration: const InputDecoration(labelText: 'Location'),
+              controller: location,
+              onChanged: (value) {
+                setState(() {
+                  dataModel.location = value;
+                });
+              },
+            ): SizedBox(height: 0),
             TextField(
               decoration: const InputDecoration(labelText: 'Reason'),
               controller: reason,
@@ -169,7 +189,7 @@ class _MyWidgetState extends State<leaveWidget> {
                 )
               ],
             ),
-            TextField(
+            isChecked ? TextField(
               decoration: const InputDecoration(labelText: 'No. of days'),
               controller: noOfDays,
               onChanged: (value) {
@@ -177,7 +197,42 @@ class _MyWidgetState extends State<leaveWidget> {
                   dataModel.noOfDay = value;
                 });
               },
+            ): SizedBox(height: 0),
+             Row(
+              children: [
+                Checkbox(
+                    value: isHalfday,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isHalfday = value!;
+                        dataModel.isHalfday = isHalfday;
+                      });
+                    }),
+                const Text(
+                  'Half day leave',
+                  style: TextStyle(fontSize: 16),
+                )
+              ],
             ),
+            isHalfday ? DropdownButtonFormField<String>(
+              value: isAm,
+              decoration: const InputDecoration(
+                labelText: 'AP/PM',
+              ),
+              onChanged: (newValue) {
+                setState(() {
+                
+                  isAm = newValue as String;
+                  dataModel.isAm = isAm == 'AM' ? true : false;
+                });
+              },
+              items: amPmList.map((leaveType) {
+                return DropdownMenuItem<String>(
+                  value: leaveType,
+                  child: Text(leaveType),
+                );
+              }).toList(),
+            ): SizedBox(height: 0),
             LeaveDataWidget(dataModel: dataModel, child: FilePickerWidget()),
           ],
         ),

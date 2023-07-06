@@ -102,6 +102,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                 });
               },
               items: <String>[
+                'All',
                 'Leave',
                 'Correction',
                 'Overtime',
@@ -118,9 +119,12 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               builder: ((context, snapshot) {
                 if (snapshot.hasData) {
                   documents = snapshot.data! as List<FilingDocument>?;
-                  documents = documents!
+                  if(selectedValue != 'All'){
+                    documents = documents!
                       .where((item) => item.docType == selectedValue)
                       .toList();
+                  }
+                  
                   documents = sortDocs(documents!);
                   if (isSelected) {
                     selectedItems =
@@ -164,25 +168,112 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                               builder: (context) {
                                 return AlertDialog(
                                   title: Text('Item Pressed'),
-                                  content: SizedBox(
-                                    height: 100,
-                                    width: 60,
-                                    child: Column(
-                                      children: [
-                                        Row(children: [
-                                          Text('Application Type: ' +
-                                              document.docType)
-                                        ]),
-                                        Row(children: [
-                                          Text('Employee Name: ' +
-                                              document.employeeName)
-                                        ])
-                                      ],
-                                    ),
-                                  ),
+                                  content: Builder(
+                                  builder: (BuildContext context) {
+                                    return SingleChildScrollView(
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.4,
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.8,
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Row(children: [
+                                              Flexible(child: Text(
+                                                  'Employee Name | ' +
+                                                      document.employeeName,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)))
+                                              
+                                            ]),
+                                            Row(children: [
+                                              Flexible(child: Text(
+                                                  'Department | ' +
+                                                      document.dept,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)))                              
+                                            ]),
+                                            Row(children: [
+                                              Flexible(child: Text(
+                                                  'Date filed | ' +
+                                                      document.date,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)))             
+                                            ]),
+                                            if (document.docType == 'Leave')
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'Date from | ' +
+                                                        document.dateFrom,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))   
+                                              ]),
+                                            if (document.docType == 'Leave')
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'Date to | ' +
+                                                        document.dateTo,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))
+                                                
+                                              ]),
+                                            if (document.docType == 'Leave')
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'Leave Type | ' +
+                                                        document.leaveType,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))
+                                                
+                                              ]),
+                                            Row(children: [
+                                              Flexible(child: Text('Reason | ' + document.reason,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)))
+                                              
+                                            ]),
+                                            Row(children: [
+                                              Flexible(child: Text(
+                                                'Status | ',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),)
+                                              
+                                              ),
+                                              Text(
+                                                (document.isApproved
+                                                    ? 'Approved'
+                                                    : 'Pending'),
+                                                style: TextStyle(
+                                                    color: document.isApproved
+                                                        ? Colors.green
+                                                        : Colors.red),
+                                              )
+                                            ]),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                                   actions: [
                                     TextButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
                                         child: Text('Cancel')),
                                     TextButton(
                                         onPressed: () async {

@@ -36,6 +36,9 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
       dataModel.dept = employeeProfile[1] ?? '';
       dataModel.empKey = employeeProfile[7] ?? '';
       dataModel.employeeName = employeeProfile[0] ?? '';
+      setState(() {
+        dataModel.date = startDate.toString();
+      });
     });
   }
 
@@ -126,9 +129,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
               TextField(
                 keyboardType: TextInputType.none,
                 decoration: const InputDecoration(labelText: 'Date'),
-                onTap: () {
-                  _selectDate(context);
-                },
+                readOnly: true,
                 controller: TextEditingController(text: formatDate(startDate)),
               ),
               TextField(

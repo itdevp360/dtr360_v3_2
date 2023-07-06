@@ -80,6 +80,14 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                           children: [
                                             Row(children: [
                                               Text(
+                                                  'Employee Name: ' +
+                                                      document.employeeName,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold))
+                                            ]),
+                                            Row(children: [
+                                              Text(
                                                   'Department: ' +
                                                       document.dept,
                                                   style: TextStyle(

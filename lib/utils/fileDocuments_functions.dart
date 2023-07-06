@@ -30,9 +30,12 @@ fileDocument(FilingDocument file, context) {
     'finalDate': file.finalDate,
     'employeeName': file.employeeName,
     'otfrom': file.otfrom,
+    'isAm': file.isAm,
+    'isHalfday': file.isHalfday,
     'otTo': file.otTo,
     'otType': file.otType,
     'dept': file.dept,
+    'location': file.location,
     'empKey': file.empKey
   }).then((value) => success_box(
       context, 'Your application for ${file.docType} has been filed'));
@@ -109,8 +112,15 @@ fetchEmployeeDocument() async {
         file.date = formatDate(DateTime.parse(value['date'])).toString();
         file.deductLeave = value['deductLeave'];
         file.guid = value['guid'].toString();
+        file.location = value['location'].toString();
         file.hoursNo = value['hoursNo'].toString();
         file.isApproved = value['isApproved'];
+        file.isAm = value['isAm'] == null || value['isAm'] == ''
+            ? false
+            : true;
+        file.isHalfday = value['isHalfday'] == null || value['isHalfday'] == ''
+            ? false
+            : true;
         file.isOut = value['isOut'];
         file.leaveType = value['leaveType'].toString();
         file.noOfDay = value['noOfDay'].toString();
@@ -151,14 +161,27 @@ fetchFilingDocuments() async {
         file.date = formatDate(DateTime.parse(value['date'])).toString();
         file.deductLeave = value['deductLeave'];
         file.guid = value['guid'].toString();
+        file.location = value['location'].toString();
         file.hoursNo = value['hoursNo'].toString();
         file.isApproved = value['isApproved'];
+        file.isAm = value['isAm'] == null || value['isAm'] == ''
+            ? false
+            : true;
+        file.isHalfday = value['isHalfday'] == null || value['isHalfday'] == ''
+            ? false
+            : true;
         file.isOut = value['isOut'];
         file.leaveType = value['leaveType'].toString();
         file.noOfDay = value['noOfDay'].toString();
         file.notifyStatus = value['notifyStatus'].toString();
         file.empKey = value['empKey'].toString();
         file.reason = value['reason'].toString();
+        file.dateFrom = value['dateFrom'] == null || value['dateFrom'] == ''
+            ? ''
+            : formatDate(DateTime.parse(value['dateFrom'])).toString();
+        file.dateTo = value['dateTo'] == null || value['dateTo'] == ''
+            ? ''
+            : formatDate(DateTime.parse(value['dateTo'])).toString();
         if (file.dept == empProfile[1] && !file.isApproved) {
           _listKeys.add(file);
         }
