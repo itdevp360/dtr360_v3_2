@@ -17,7 +17,7 @@ class ApproverListWidget extends StatefulWidget {
 
 class _ApproverListWidgetState extends State<ApproverListWidget> {
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  String? selectedValue = 'Leave';
+  String? selectedValue = 'All';
   List<FilingDocument>? documents;
   var employeeProfile;
   List<String> items = List.generate(20, (index) => 'Item ${index + 1}');
@@ -68,25 +68,46 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               IconButton(
                 icon: Icon(Icons.approval_rounded),
                 onPressed: () async {
-                  var isTrue =
-                      await updateFilingDocs(selectedItems, documents, context);
-                  if (isTrue == true) {
-                    documents!.clear();
-
-                    documents = await fetchFilingDocuments();
-
-                    _listKey.currentState?.setState(() {
-                      documents = documents!
-                          .where((item) => item.docType == selectedValue)
-                          .toList();
-                      selectedItems =
-                          List.generate(documents!.length, (index) => false);
-                    });
-                    setState(() {
-                      selectedIndexes.clear();
-                    });
-                    success_box(context, 'Document approved');
-                  }
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Confirm Approval'),
+                        content: Text('You selected: ' + selectedIndexes.length.toString()),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () async{
+                              var isTrue =
+                                  await updateFilingDocs(selectedItems, documents, context);
+                              if (isTrue == true) {
+                                _listKey.currentState?.setState(() {
+                                  documents = documents!
+                                    .where((item) =>
+                                    item.docType == selectedValue).toList();
+                                  
+                                });
+                                setState(() {
+                                  selectedItems = List.generate(documents!.length,(index) => false);
+                                  selectedIndexes.clear();
+                                });
+                                Navigator.of(context).pop();
+                                _showSecondaryAlertDialog(context);
+                                
+                              }
+                            },
+                            child: Text('Approve All'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  
                 },
               )
           ],
@@ -300,7 +321,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                           _showSecondaryAlertDialog(context);
                                           // await success_box(context, "Document Approved");
                                         },
-                                        child: Text('OK'))
+                                        child: Text('Approve'))
                                   ],
                                 );
                               },

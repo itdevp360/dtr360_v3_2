@@ -217,7 +217,7 @@ class _MyWidgetState extends State<leaveWidget> {
             isHalfday ? DropdownButtonFormField<String>(
               value: isAm,
               decoration: const InputDecoration(
-                labelText: 'AP/PM',
+                labelText: 'AM/PM',
               ),
               onChanged: (newValue) {
                 setState(() {

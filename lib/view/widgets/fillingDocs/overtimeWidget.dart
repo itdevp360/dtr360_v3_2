@@ -20,6 +20,7 @@ class OvertimeWidget extends StatefulWidget {
 class _OvertimeWidgetState extends State<OvertimeWidget> {
   final FilingDocument dataModel = FilingDocument();
   DateTime startDate = DateTime.now();
+  DateTime otDate = DateTime.now();
   var employeeProfile;
   String? selectedOtType;
   TimeOfDay initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
@@ -53,6 +54,21 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
       setState(() {
         startDate = picked;
         dataModel.date = startDate.toString();
+      });
+    }
+  }
+
+  Future<void> _otDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: otDate,
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != otDate) {
+      setState(() {
+        otDate = picked;
+        dataModel.otDate = otDate.toString();
       });
     }
   }
@@ -108,6 +124,12 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
               const SizedBox(
                 height: 20,
               ),
+              TextField(
+                keyboardType: TextInputType.none,
+                decoration: const InputDecoration(labelText: 'Date of Filing'),
+                readOnly: true,
+                controller: TextEditingController(text: formatDate(startDate)),
+              ),
               DropdownButtonFormField<String>(
                 value: selectedOtType,
                 decoration: const InputDecoration(
@@ -126,11 +148,15 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                   );
                 }).toList(),
               ),
+              
               TextField(
                 keyboardType: TextInputType.none,
-                decoration: const InputDecoration(labelText: 'Date'),
-                readOnly: true,
-                controller: TextEditingController(text: formatDate(startDate)),
+                decoration: const InputDecoration(labelText: 'Date of Overtime'),
+                onTap: () {
+                  _otDate(context);
+                },
+                controller:
+                    TextEditingController(text: formatDate(otDate)),
               ),
               TextField(
                 keyboardType: TextInputType.none,
@@ -180,9 +206,19 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                     Icons.file_copy,
                     color: Color.fromARGB(255, 141, 105, 105),
                   ),
-                  onPressed: () {
+                  onPressed: () async{
                     dataModel.docType = 'Overtime';
-                    fileDocument(dataModel, context);
+                    await fileDocument(dataModel, context);
+                    setState(() {
+                      dataModel.resetProperties();
+                      reason.text = '';
+                      startDate = DateTime.now();
+                      otDate = DateTime.now();
+                      initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
+                      initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
+                      totalHours.text = '';
+                    });
+                    
                   },
                   label: const Text(
                     'Submit',

@@ -20,7 +20,9 @@ class DocumentStatusWidget extends StatefulWidget {
 class _MyWidgetState extends State<DocumentStatusWidget> {
   List<FilingDocument>? documents;
   bool loaded = false;
+  bool isSelected = false;
   double screenH = 48.h;
+  String? selectedValue = 'All';
 
   @override
   void initState() {
@@ -43,12 +45,37 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
         ),
         body: Column(
           children: [
+            DropdownButton<String>(
+              value: selectedValue,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedValue = newValue!;
+                  isSelected = true;
+                });
+              },
+              items: <String>[
+                'All',
+                'Leave',
+                'Correction',
+                'Overtime',
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
             Flexible(
                 child: FutureBuilder(
               future: fetchEmployeeDocument(),
               builder: ((context, snapshot) {
                 if (snapshot.hasData) {
                   documents = snapshot.data! as List<FilingDocument>?;
+                  if(selectedValue != 'All'){
+                    documents = documents!
+                      .where((item) => item.docType == selectedValue)
+                      .toList();
+                  }
                   documents = sortDocs(documents!);
                   return ListView.builder(
                     itemCount: documents!.length,

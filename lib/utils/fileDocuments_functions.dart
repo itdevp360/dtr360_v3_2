@@ -36,6 +36,8 @@ fileDocument(FilingDocument file, context) {
     'otType': file.otType,
     'dept': file.dept,
     'location': file.location,
+    'otDate' : file.otDate,
+    'correctDate' : file.correctDate,
     'empKey': file.empKey
   }).then((value) => success_box(
       context, 'Your application for ${file.docType} has been filed'));
@@ -110,6 +112,8 @@ fetchEmployeeDocument() async {
         file.docType = value['docType'].toString();
         file.employeeName = value['employeeName'].toString();
         file.date = formatDate(DateTime.parse(value['date'])).toString();
+        file.otDate = value['otDate'] == null || value['otDate'] == '' ? '' : formatDate(DateTime.parse(value['otDate'])).toString();
+        file.correctDate = value['correctDate'] == null || value['correctDate'] == '' ? '' : formatDate(DateTime.parse(value['correctDate'])).toString();
         file.deductLeave = value['deductLeave'];
         file.guid = value['guid'].toString();
         file.location = value['location'].toString();
@@ -159,6 +163,8 @@ fetchFilingDocuments() async {
         file.docType = value['docType'].toString();
         file.employeeName = value['employeeName'].toString();
         file.date = formatDate(DateTime.parse(value['date'])).toString();
+        file.otDate = value['otDate'] == null || value['otDate'] == '' ? '' : formatDate(DateTime.parse(value['otDate'])).toString();
+        file.correctDate = value['correctDate'] == null || value['correctDate'] == '' ? '' : formatDate(DateTime.parse(value['correctDate'])).toString();
         file.deductLeave = value['deductLeave'];
         file.guid = value['guid'].toString();
         file.location = value['location'].toString();

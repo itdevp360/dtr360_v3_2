@@ -27,10 +27,12 @@ class FilingDocument extends ChangeNotifier {
   bool _deductLeave = true;
 
   //Attendance Correction
+  String _correctDate = '';
   bool _isOut = false;
   String _correctTime = '';
 
   //OT
+  String _otDate = '';
   int _otfrom = 0;
   int _otTo = 0;
   String _otType = '';
@@ -38,6 +40,8 @@ class FilingDocument extends ChangeNotifier {
 
   int get otfrom => _otfrom;
   int get otTo => _otTo;
+  String get correctDate => _correctDate;
+  String get otDate => _otDate;
   String get otType => _otType;
   String get reason => _reason;
   String get guid => _guid;
@@ -84,6 +88,15 @@ class FilingDocument extends ChangeNotifier {
     notifyListeners(); // Notify listeners when the data changes
   }
 
+  set otDate(String newData) {
+    _otDate = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set correctDate(String newData) {
+    _correctDate = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
 
   set otfrom(int newData) {
     _otfrom = newData;
@@ -198,5 +211,43 @@ class FilingDocument extends ChangeNotifier {
   set hoursNo(String newData) {
     _hoursNo = newData;
     notifyListeners(); // Notify listeners when the data changes
+  }
+
+
+  void resetProperties(){
+    reason = '';
+    key = '';
+    guid = '';
+    date = '';
+    employeeName = '';
+    finalDate = 0;
+    isApproved = false;
+    notifyStatus = '';
+    empKey = '';
+    dept = '';
+    //Leaves
+    leaveType = '';
+    dateFrom = '';
+    isHalfday = false;
+    isAm = false;
+    dateTo = '';
+    noOfDay = '';
+    docType = '';
+    location = '';
+    attachmentName = '';
+    fileId = '';
+    deductLeave = true;
+
+    //Attendance Correction
+    isOut = false;
+    correctTime = '';
+
+    //OT
+    otDate = '';
+    otfrom = 0;
+    correctDate = '';
+    otTo = 0;
+    otType = '';
+    hoursNo = '';
   }
 }

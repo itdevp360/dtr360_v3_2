@@ -54,6 +54,7 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
     //
     //Save document file to firebase
     fileDocument(parentData!, context);
+    parentData.resetProperties();
   }
 
   @override
