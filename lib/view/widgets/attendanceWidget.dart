@@ -16,7 +16,7 @@ class AttendanceWidget extends StatefulWidget {
 class _MyWidgetState extends State<AttendanceWidget> {
   List<Attendance>? logs;
   List<Attendance>? ownLogs;
-  DateTime startDate = DateTime.now();
+  DateTime startDate = DateTime.now().subtract(Duration(days: 15));
   DateTime endDate = DateTime.now();
   List<Employees>? employeeList;
   String? dropdownvalue;
@@ -43,10 +43,13 @@ class _MyWidgetState extends State<AttendanceWidget> {
             .where((empList) =>
                 employeeProfile[1].toString().contains(empList.dept!))
             .toList();
+        
       }
 
       setState(() {
+        ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
         loaded = true;
+        
       });
     });
   }
@@ -68,6 +71,7 @@ class _MyWidgetState extends State<AttendanceWidget> {
           ownLogs =
               sortList(getDateRange(dropdownvalue, startDate, endDate, logs!));
         }
+        isDateSelected = true;
       });
     }
   }
@@ -90,6 +94,7 @@ class _MyWidgetState extends State<AttendanceWidget> {
           ownLogs =
               sortList(getDateRange(dropdownvalue, startDate, endDate, logs!));
         }
+        isDateSelected = true;
       });
     }
   }
@@ -122,13 +127,15 @@ class _MyWidgetState extends State<AttendanceWidget> {
                           ownLogs = logs!
                               .where((log) => log.empName == dropdownvalue)
                               .toList();
-                          if (isDateSelected == false) {
-                            ownLogs = sortList(ownLogs!);
-                            isDateSelected = true;
-                          } else {
-                            ownLogs = sortList(getDateRange(
+                          // if (isDateSelected == false) {
+                          //   ownLogs = sortList(ownLogs!);
+                            
+                          // } else {
+                          //   ownLogs = sortList(getDateRange(
+                          //       dropdownvalue, startDate, endDate, ownLogs!));
+                          // }
+                          ownLogs = sortList(getDateRange(
                                 dropdownvalue, startDate, endDate, ownLogs!));
-                          }
                         });
                       },
                     ))),

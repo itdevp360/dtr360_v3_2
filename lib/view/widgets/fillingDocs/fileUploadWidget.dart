@@ -10,6 +10,9 @@ import '../../../utils/firebase_functions.dart';
 import '../../../utils/utilities.dart';
 
 class FilePickerWidget extends StatefulWidget {
+  final VoidCallback resetCallback;
+  FilePickerWidget(this.resetCallback);
+
   @override
   _FilePickerWidgetState createState() => _FilePickerWidgetState();
 }
@@ -54,6 +57,8 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
     //
     //Save document file to firebase
     fileDocument(parentData!, context);
+    parentData.resetProperties();
+    widget.resetCallback();
   }
 
   @override

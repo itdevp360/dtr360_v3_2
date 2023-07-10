@@ -22,6 +22,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
   String? selectedInOrOut;
   var employeeProfile;
   DateTime startDate = DateTime.now();
+  DateTime correctDate = DateTime.now();
   TimeOfDay initialTime = const TimeOfDay(hour: 0, minute: 0);
   TextEditingController reason = TextEditingController();
   List<String> inOrOut = [
@@ -37,6 +38,9 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
       dataModel.dept = employeeProfile[1] ?? '';
       dataModel.empKey = employeeProfile[7] ?? '';
       dataModel.employeeName = employeeProfile[0] ?? '';
+      setState(() {
+        dataModel.date = startDate.toString();
+      });
     });
   }
 
@@ -47,6 +51,21 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
       setState(() {
         initialTime = picked;
         dataModel.correctTime = formatTime(initialTime);
+      });
+    }
+  }
+
+  Future<void> _correctDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: correctDate,
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != correctDate) {
+      setState(() {
+        correctDate = picked;
+        dataModel.correctDate = correctDate.toString();
       });
     }
   }
@@ -81,6 +100,12 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
               const SizedBox(
                 height: 20,
               ),
+              TextField(
+                keyboardType: TextInputType.none,
+                decoration: const InputDecoration(labelText: 'Date of Filing'),
+                readOnly: true,
+                controller: TextEditingController(text: formatDate(startDate)),
+              ),
               DropdownButtonFormField<String>(
                 value: selectedInOrOut,
                 decoration: const InputDecoration(
@@ -101,11 +126,11 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
               ),
               TextField(
                 keyboardType: TextInputType.none,
-                decoration: const InputDecoration(labelText: 'Date'),
+                decoration: const InputDecoration(labelText: 'Correction Date'),
                 onTap: () {
-                  _selectDate(context);
+                  _correctDate(context);
                 },
-                controller: TextEditingController(text: formatDate(startDate)),
+                controller: TextEditingController(text: formatDate(correctDate)),
               ),
               TextField(
                 keyboardType: TextInputType.none,
@@ -137,11 +162,21 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                     Icons.file_copy,
                     color: Color.fromARGB(255, 141, 105, 105),
                   ),
-                  onPressed: () {
+                  onPressed: () async{
                     dataModel.finalDate = convertStringDateToUnix(
                         dataModel.date, dataModel.correctTime, 'Correction');
                     dataModel.docType = 'Correction';
-                    fileDocument(dataModel, context);
+                    await fileDocument(dataModel, context);
+                    setState(() {
+                      dataModel.resetProperties();
+                      reason.text = '';
+                      startDate = DateTime.now();
+                      correctDate = DateTime.now();
+                      dataModel.date = startDate.toString();
+                      dataModel.correctDate = correctDate.toString();
+                      initialTime = const TimeOfDay(hour: 0, minute: 0);
+                    });
+                    
                   },
                   label: const Text(
                     'Submit',

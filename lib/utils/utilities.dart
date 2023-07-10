@@ -121,10 +121,12 @@ fetchLatestWeeks(List<Attendance> logs) {
 }
 
 computeTotalHours(startTIme, endTime) {
-  int difference = endTime - startTIme;
+  DateTime start = DateTime.fromMillisecondsSinceEpoch(int.parse(startTIme.toString()));
+  DateTime end = DateTime.fromMillisecondsSinceEpoch(int.parse(endTime.toString()));
 
-  // Calculate the total hours
-  double totalHours = difference / (1000 * 60 * 60);
+  // Calculate the difference in hours
+  Duration difference = end.difference(start);
+  int totalHours = difference.inHours;
 
   return totalHours.toStringAsFixed(2);
 }
@@ -145,6 +147,9 @@ convertStringDateToUnix(date, selectedTime, docType) {
 
     // Convert to Unix timestamp
     unixTimestamp = dateTime.millisecondsSinceEpoch;
+  }
+  else{
+    
   }
 
   return unixTimestamp;
@@ -178,7 +183,7 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
     String startDateString = formatDate(startDate);
     String endDateString = formatDate(endDate);
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(startDateString);
-    DateTime? endDate1 = DateFormat('MM/dd/yyyy').parse(endDateString);
+    DateTime? endDate1 = DateFormat('MM/dd/yyyy').parse(endDateString).add(const Duration(days:1));
     ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
     if (startDate1 != null && endDate1 != null) {
       List<Attendance> newlogs = [];

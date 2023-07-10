@@ -16,18 +16,23 @@ class FilingDocument extends ChangeNotifier {
   //Leaves
   String _leaveType = '';
   String _dateFrom = '';
+  bool _isHalfday = false;
+  bool _isAm = false;
   String _dateTo = '';
   String _noOfDay = '';
   String _docType = '';
+  String _location = '';
   String _attachmentName = '';
   String _fileId = '';
   bool _deductLeave = true;
 
   //Attendance Correction
+  String _correctDate = '';
   bool _isOut = false;
   String _correctTime = '';
 
   //OT
+  String _otDate = '';
   int _otfrom = 0;
   int _otTo = 0;
   String _otType = '';
@@ -35,6 +40,8 @@ class FilingDocument extends ChangeNotifier {
 
   int get otfrom => _otfrom;
   int get otTo => _otTo;
+  String get correctDate => _correctDate;
+  String get otDate => _otDate;
   String get otType => _otType;
   String get reason => _reason;
   String get guid => _guid;
@@ -43,11 +50,14 @@ class FilingDocument extends ChangeNotifier {
   String get dateTo => _dateTo;
   String get dept => _dept;
   String get empKey => _empKey;
+  String get location => _location;
   String get key => _key;
   String get employeeName => _employeeName;
   String get leaveType => _leaveType;
   String get noOfDay => _noOfDay;
   bool get isApproved => _isApproved;
+  bool get isHalfday => _isHalfday;
+  bool get isAm => _isAm;
   int get finalDate => _finalDate;
   String get notifyStatus => _notifyStatus;
   String get fileId => _fileId;
@@ -70,6 +80,21 @@ class FilingDocument extends ChangeNotifier {
 
   set empKey(String newData) {
     _empKey = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set location(String newData) {
+    _location = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set otDate(String newData) {
+    _otDate = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set correctDate(String newData) {
+    _correctDate = newData;
     notifyListeners(); // Notify listeners when the data changes
   }
 
@@ -163,6 +188,16 @@ class FilingDocument extends ChangeNotifier {
     notifyListeners(); // Notify listeners when the data changes
   }
 
+  set isHalfday(bool newData) {
+    _isHalfday = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set isAm(bool newData) {
+    _isAm = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
   set isOut(bool newData) {
     _isOut = newData;
     notifyListeners(); // Notify listeners when the data changes
@@ -176,5 +211,39 @@ class FilingDocument extends ChangeNotifier {
   set hoursNo(String newData) {
     _hoursNo = newData;
     notifyListeners(); // Notify listeners when the data changes
+  }
+
+
+  void resetProperties(){
+    reason = '';
+    key = '';
+    date = '';
+    finalDate = 0;
+    isApproved = false;
+    notifyStatus = '';
+    //Leaves
+    leaveType = '';
+    dateFrom = '';
+    isHalfday = false;
+    isAm = false;
+    dateTo = '';
+    noOfDay = '';
+    docType = '';
+    location = '';
+    attachmentName = '';
+    fileId = '';
+    deductLeave = true;
+
+    //Attendance Correction
+    isOut = false;
+    correctTime = '';
+
+    //OT
+    otDate = '';
+    otfrom = 0;
+    correctDate = '';
+    otTo = 0;
+    otType = '';
+    hoursNo = '';
   }
 }

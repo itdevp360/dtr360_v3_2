@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/utils/fileDocuments_functions.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,7 +19,7 @@ class ApproverListWidget extends StatefulWidget {
 
 class _ApproverListWidgetState extends State<ApproverListWidget> {
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  String? selectedValue = 'Leave';
+  String? selectedValue = 'All';
   List<FilingDocument>? documents;
   var employeeProfile;
   List<String> items = List.generate(20, (index) => 'Item ${index + 1}');
@@ -40,6 +42,26 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       employeeProfile = await read_employeeProfile();
     });
+  }
+
+  Color _getColorForDocType(String docType) {
+    final Map<String, Color> colorMap = {
+      'Leave': Colors.green,
+      'Correction': Colors.yellow,
+      'Overtime': Colors.red,
+    };
+
+    return colorMap[docType] ?? Colors.grey;
+  }
+
+  IconData _getIconForDocType(String docType) {
+    final Map<String, IconData> iconMap = {
+      'Leave': Icons.checklist_rounded,
+      'Correction': Icons.edit,
+      'Overtime': Icons.timer,
+    };
+
+    return iconMap[docType] ?? Icons.error;
   }
 
   void runFunction() async {}
@@ -68,25 +90,46 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               IconButton(
                 icon: Icon(Icons.approval_rounded),
                 onPressed: () async {
-                  var isTrue =
-                      await updateFilingDocs(selectedItems, documents, context);
-                  if (isTrue == true) {
-                    documents!.clear();
-
-                    documents = await fetchFilingDocuments();
-
-                    _listKey.currentState?.setState(() {
-                      documents = documents!
-                          .where((item) => item.docType == selectedValue)
-                          .toList();
-                      selectedItems =
-                          List.generate(documents!.length, (index) => false);
-                    });
-                    setState(() {
-                      selectedIndexes.clear();
-                    });
-                    success_box(context, 'Document approved');
-                  }
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Confirm Approval'),
+                        content: Text('You selected: ' + selectedIndexes.length.toString()),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () async{
+                              var isTrue =
+                                  await updateFilingDocs(selectedItems, documents, context);
+                              if (isTrue == true) {
+                                _listKey.currentState?.setState(() {
+                                  documents = documents!
+                                    .where((item) =>
+                                    item.docType == selectedValue).toList();
+                                  
+                                });
+                                setState(() {
+                                  selectedItems = List.generate(documents!.length,(index) => false);
+                                  selectedIndexes.clear();
+                                });
+                                Navigator.of(context).pop();
+                                _showSecondaryAlertDialog(context);
+                                
+                              }
+                            },
+                            child: Text('Approve All'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  
                 },
               )
           ],
@@ -102,6 +145,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                 });
               },
               items: <String>[
+                'All',
                 'Leave',
                 'Correction',
                 'Overtime',
@@ -118,9 +162,12 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               builder: ((context, snapshot) {
                 if (snapshot.hasData) {
                   documents = snapshot.data! as List<FilingDocument>?;
-                  documents = documents!
+                  if(selectedValue != 'All'){
+                    documents = documents!
                       .where((item) => item.docType == selectedValue)
                       .toList();
+                  }
+                  
                   documents = sortDocs(documents!);
                   if (isSelected) {
                     selectedItems =
@@ -164,25 +211,238 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                               builder: (context) {
                                 return AlertDialog(
                                   title: Text('Item Pressed'),
-                                  content: SizedBox(
-                                    height: 100,
-                                    width: 60,
-                                    child: Column(
-                                      children: [
-                                        Row(children: [
-                                          Text('Application Type: ' +
-                                              document.docType)
-                                        ]),
-                                        Row(children: [
-                                          Text('Employee Name: ' +
-                                              document.employeeName)
-                                        ])
-                                      ],
-                                    ),
-                                  ),
+                                  content: Builder(
+                                  builder: (BuildContext context) {
+                                    return SingleChildScrollView(
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.4,
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.8,
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Row(children: [
+                                              Flexible(child: Text(
+                                                  'Employee Name: ' +
+                                                      document.employeeName,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)))
+                                              
+                                            ]),
+                                            Row(children: [
+                                              SizedBox(height: 5)                             
+                                            ]),
+                                            Row(children: [
+                                              Flexible(child: Text(
+                                                  'Department: ' +
+                                                      document.dept,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)))                              
+                                            ]),
+                                            Row(children: [
+                                              SizedBox(height: 5)                             
+                                            ]),
+                                            Row(children: [
+                                              Flexible(child: Text(
+                                                  'Date filed: ' +
+                                                      document.date,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)))             
+                                            ]),
+                                            Row(children: [
+                                              SizedBox(height: 5)                             
+                                            ]),
+                                            if(document.isHalfday == true && document.docType == 'Leave')
+                                              Column(children: [
+                                                Row(children: [
+                                                Flexible(child: Text(
+                                                    'Halfday: Yes' 
+                                                        ,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))      
+                                              ]),
+                                              Row(children: [
+                                              SizedBox(height: 5)                             
+                                            ]),
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'AM/PM: ' +
+                                                        (document.isAm ? 'AM' : 'PM'),
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))      
+                                              ]),
+                                              Row(children: [
+                                              SizedBox(height: 5)                             
+                                            ]),
+                                              ],),
+                                            if (document.docType == 'Leave')
+                                              
+                                              Column(children: [
+                                                Row(children: [
+                                                Flexible(child: Text(
+                                                    'Date from: ' +
+                                                        document.dateFrom,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))   
+                                              ]),
+                                              Row(children: [
+                                                SizedBox(height: 5)                             
+                                              ]),
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'Date to: ' +
+                                                        document.dateTo,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))      
+                                              ]),
+                                              Row(children: [
+                                                SizedBox(height: 5)                             
+                                              ]),
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'Leave Type: ' +
+                                                        document.leaveType,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))
+                                                
+                                              ]),
+                                              ],),
+                                              
+                                              Row(children: [
+                                              SizedBox(height: 5)                             
+                                            ]),
+                                            if(document.docType == 'Correction')
+                                              Column(children: [
+                                                Row(children: [
+                                                Flexible(child: Text(
+                                                    'Correction Date: ' +
+                                                        document.correctDate,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))   
+                                              ]),
+                                              Row(children: [
+                                                SizedBox(height: 5)                             
+                                              ]),
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'Correction Time: ' +
+                                                        document.correctTime,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))      
+                                              ]),
+                                              Row(children: [
+                                                SizedBox(height: 5)                             
+                                              ]),
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'Time In/Out: ' +
+                                                        (document.isOut == true ? 'Time Out' : 'Time In'),
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))
+                                                
+                                              ]),
+                                              Row(children: [
+                                                SizedBox(height: 5)                             
+                                              ]),
+                                              ],),
+                                            if(document.docType == 'Overtime')
+                                              Column(children: [
+                                                Row(children: [
+                                                Flexible(child: Text(
+                                                    'OT Type: ' +
+                                                        document.otType,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))   
+                                              ]),
+                                                Row(children: [
+                                                Flexible(child: Text(
+                                                    'OT Date: ' +
+                                                        document.otDate,
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))   
+                                              ]),
+                                              Row(children: [
+                                                SizedBox(height: 5)                             
+                                              ]),
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'Time from: ' +
+                                                        timestampToDateString(document.otfrom, 'hh:mm a'),
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))      
+                                              ]),
+                                              Row(children: [
+                                                Flexible(child: Text(
+                                                    'Time To: ' +
+                                                        timestampToDateString(document.otTo, 'hh:mm a'),
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold)))      
+                                              ]),
+                                              
+                                              Row(children: [
+                                                SizedBox(height: 5)                             
+                                              ]),
+                                              ],),
+                                            Row(children: [
+                                              Flexible(child: Text('Reason: ' + document.reason,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)))
+                                              
+                                            ]),
+                                            Row(children: [
+                                              SizedBox(height: 5)                             
+                                            ]),
+                                            Row(children: [
+                                              Flexible(child: Text(
+                                                'Status: ',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),)
+                                              
+                                              ),
+                                              Text(
+                                                (document.isApproved
+                                                    ? 'Approved'
+                                                    : 'Pending'),
+                                                style: TextStyle(
+                                                    color: document.isApproved
+                                                        ? Colors.green
+                                                        : Colors.red),
+                                              )
+                                            ]),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                                   actions: [
                                     TextButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
                                         child: Text('Cancel')),
                                     TextButton(
                                         onPressed: () async {
@@ -198,18 +458,19 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                     item.docType ==
                                                     selectedValue)
                                                 .toList();
+                                            
+                                          });
+                                          setState(() {
                                             selectedItems = List.generate(
                                                 documents!.length,
                                                 (index) => false);
-                                          });
-                                          setState(() {
                                             selectedIndexes.clear();
                                           });
                                           Navigator.of(context).pop();
                                           _showSecondaryAlertDialog(context);
                                           // await success_box(context, "Document Approved");
                                         },
-                                        child: Text('OK'))
+                                        child: Text('Approve'))
                                   ],
                                 );
                               },
@@ -217,6 +478,15 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                           }
                         },
                         child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: _getColorForDocType(document.docType),
+                            radius: 30,
+                            child: const FittedBox(
+                              child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child:  Icon(Icons.checklist_rounded)),
+                            ),
+                          ),
                           contentPadding: EdgeInsets.all(8),
                           title: Text('Application for ' + document.docType),
                           subtitle: Column(

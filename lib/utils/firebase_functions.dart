@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/model/users.dart';
@@ -59,8 +61,8 @@ updateRemainingLeaves(empKey, noOfDays) async {
   if (snapshot.exists) {
     Map<dynamic, dynamic>? values = snapshot.value as Map?;
     if (values != null && values.containsKey('remainingLeaves')) {
-      int remainingLeave = int.parse(values['remainingLeaves']);
-      remainingLeave = remainingLeave - int.parse(noOfDays);
+      double remainingLeave = values['remainingLeaves'].toDouble();
+      remainingLeave = remainingLeave - double.parse(noOfDays);
       await ref.update({
         'remainingLeaves': remainingLeave,
       });
@@ -106,6 +108,16 @@ updateFilingDocStatus(key, context, empKey) async {
       FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
   await databaseReference.update({
     'isApproved': true,
+  }).then((value) async {
+    // await success_box(context, 'Document approved');
+  });
+}
+
+cancelFilingStatus(key) async{
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
+  await databaseReference.update({
+    'isApproved': false,
   }).then((value) async {
     // await success_box(context, 'Document approved');
   });
