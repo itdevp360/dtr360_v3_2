@@ -54,6 +54,23 @@ class _MyWidgetState extends State<leaveWidget> {
     });
   }
 
+  void resetFields(){
+    setState(() {
+      reason.text = '';
+      location.text = '';
+      noOfDays.text = '';
+      isChecked = false;
+      isHalfday = false;
+      selectedLeaveType = null;
+      startDate = DateTime.now();
+      dateFrom = DateTime.now();
+      dateTo = DateTime.now();
+      dataModel.date = startDate.toString();
+      dataModel.dateFrom = dateFrom.toString();
+      dataModel.dateTo = dateTo.toString();
+    });
+  }
+
   DateTime startDate = DateTime.now();
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -233,7 +250,7 @@ class _MyWidgetState extends State<leaveWidget> {
                 );
               }).toList(),
             ): SizedBox(height: 0),
-            LeaveDataWidget(dataModel: dataModel, child: FilePickerWidget()),
+            LeaveDataWidget(dataModel: dataModel, child: FilePickerWidget(resetFields)),
           ],
         ),
       ),

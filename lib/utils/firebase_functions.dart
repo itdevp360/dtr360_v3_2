@@ -113,6 +113,16 @@ updateFilingDocStatus(key, context, empKey) async {
   });
 }
 
+cancelFilingStatus(key) async{
+  final databaseReference =
+      FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
+  await databaseReference.update({
+    'isApproved': false,
+  }).then((value) async {
+    // await success_box(context, 'Document approved');
+  });
+}
+
 fetchAttendance() async {
   List<Attendance> _listKeys = [];
   DateTime now = DateTime.now();

@@ -183,7 +183,7 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
     String startDateString = formatDate(startDate);
     String endDateString = formatDate(endDate);
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(startDateString);
-    DateTime? endDate1 = DateFormat('MM/dd/yyyy').parse(endDateString);
+    DateTime? endDate1 = DateFormat('MM/dd/yyyy').parse(endDateString).add(const Duration(days:1));
     ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
     if (startDate1 != null && endDate1 != null) {
       List<Attendance> newlogs = [];

@@ -217,14 +217,10 @@ class FilingDocument extends ChangeNotifier {
   void resetProperties(){
     reason = '';
     key = '';
-    guid = '';
     date = '';
-    employeeName = '';
     finalDate = 0;
     isApproved = false;
     notifyStatus = '';
-    empKey = '';
-    dept = '';
     //Leaves
     leaveType = '';
     dateFrom = '';

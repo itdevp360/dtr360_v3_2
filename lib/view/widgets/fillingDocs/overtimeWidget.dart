@@ -214,6 +214,8 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                       reason.text = '';
                       startDate = DateTime.now();
                       otDate = DateTime.now();
+                      dataModel.date = startDate.toString();
+                      dataModel.otDate = otDate.toString();
                       initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
                       initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
                       totalHours.text = '';

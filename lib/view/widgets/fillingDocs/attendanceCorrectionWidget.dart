@@ -172,6 +172,8 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                       reason.text = '';
                       startDate = DateTime.now();
                       correctDate = DateTime.now();
+                      dataModel.date = startDate.toString();
+                      dataModel.correctDate = correctDate.toString();
                       initialTime = const TimeOfDay(hour: 0, minute: 0);
                     });
                     
