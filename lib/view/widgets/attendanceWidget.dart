@@ -47,7 +47,10 @@ class _MyWidgetState extends State<AttendanceWidget> {
       }
 
       setState(() {
-        ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
+        if(employeeProfile[6] == 'Approver'){
+          ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
+        }
+        
         loaded = true;
         
       });

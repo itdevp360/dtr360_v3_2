@@ -52,10 +52,11 @@ updateFilingDocs(selectedItems, documents, context) async {
         print(documents![i].employeeName);
         print(documents![i].docType);
         print(documents![i].date);
-        var selectedData = attendance
-            .where((element) => element.getDateIn == documents![i].date)
-            .toList();
+        
         if (documents![i].docType == 'Correction') {
+          var selectedData = attendance
+            .where((element) => element.getDateIn == documents![i].correctDate)
+            .toList();
           selectedData.isEmpty
               ? await updateFilingDocStatus(
                   documents[i].key, context, documents[i].empKey)
@@ -68,6 +69,9 @@ updateFilingDocs(selectedItems, documents, context) async {
                   context,
                   documents[i].empKey);
         } else if (documents![i].docType == 'Leave') {
+          var selectedData = attendance
+            .where((element) => element.getDateIn == documents![i].date)
+            .toList();
           selectedData.isEmpty
               ? await updateRemainingLeaves(
                       documents[i].empKey, documents[i].noOfDay)
@@ -78,6 +82,9 @@ updateFilingDocs(selectedItems, documents, context) async {
               : await fileLeave(selectedData[0].getKey, documents[i].key,
                   context, documents[i].empKey, documents[i].noOfDay);
         } else {
+          var selectedData = attendance
+            .where((element) => element.getDateIn == documents![i].otDate)
+            .toList();
           selectedData.isEmpty
               ? await updateFilingDocStatus(
                   documents[i].key, context, documents[i].empKey)
