@@ -132,7 +132,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                       text: 'Attendance',
                     ),
                     GButton(
-                      icon: LineIcons.file,
+                      icon: LineIcons.fileUpload,
                       text: 'Applications',
                     ),
                   ],
@@ -213,7 +213,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return const ApprovalListScreen();
+                                return const ApproverListWidget();
                               },
                             ),
                           );

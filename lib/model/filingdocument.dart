@@ -8,8 +8,13 @@ class FilingDocument extends ChangeNotifier {
   String _guid = '';
   String _date = '';
   String _employeeName = '';
+  String _rejectionReason = '';
+  String _approveRejectDate = '';
+  String _cancellationDate = '';
   int _finalDate = 0;
   bool _isApproved = false;
+  bool _isCancelled = false;
+  bool _isRejected = false;
   String _notifyStatus = '';
   String _empKey = '';
   String _dept = '';
@@ -40,6 +45,9 @@ class FilingDocument extends ChangeNotifier {
 
   int get otfrom => _otfrom;
   int get otTo => _otTo;
+  String get rejectionReason => _rejectionReason;
+  String get approveRejectDate => _approveRejectDate;
+  String get cancellationDate => _cancellationDate;
   String get correctDate => _correctDate;
   String get otDate => _otDate;
   String get otType => _otType;
@@ -56,6 +64,8 @@ class FilingDocument extends ChangeNotifier {
   String get leaveType => _leaveType;
   String get noOfDay => _noOfDay;
   bool get isApproved => _isApproved;
+  bool get isCancelled => _isCancelled;
+  bool get isRejected => _isRejected;
   bool get isHalfday => _isHalfday;
   bool get isAm => _isAm;
   int get finalDate => _finalDate;
@@ -75,6 +85,21 @@ class FilingDocument extends ChangeNotifier {
 
   set key(String newData) {
     _key = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set rejectionReason(String newData) {
+    _rejectionReason = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set approveRejectDate(String newData) {
+    _approveRejectDate = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set cancellationDate(String newData) {
+    _cancellationDate = newData;
     notifyListeners(); // Notify listeners when the data changes
   }
 
@@ -163,6 +188,16 @@ class FilingDocument extends ChangeNotifier {
     notifyListeners(); // Notify listeners when the data changes
   }
 
+  set isCancelled(bool newData) {
+    _isCancelled = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set isRejected(bool newData) {
+    _isRejected = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
   set isApproved(bool newData) {
     _isApproved = newData;
     notifyListeners(); // Notify listeners when the data changes
@@ -220,6 +255,7 @@ class FilingDocument extends ChangeNotifier {
     date = '';
     finalDate = 0;
     isApproved = false;
+    isCancelled = false;
     notifyStatus = '';
     //Leaves
     leaveType = '';

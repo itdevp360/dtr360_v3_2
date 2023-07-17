@@ -1,4 +1,5 @@
 import 'package:dtr360_version3_2/model/filingdocument.dart';
+import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:dtr360_version3_2/view/widgets/fillingDocs/leaveDataWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -40,25 +41,31 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
 
   void runFile() async {
     final parentData = LeaveDataWidget.of(context)?.dataModel;
-    var test = fetchFile('16yfuIyvJqjom8etz-TFSMK2XqafYY4p0');
-    // List<String> fileName = [];
-    if (_resultFilePath != null) {
-      final fileName = await uploadToDrive(_resultFilePath!);
-      parentData?.fileId = fileName[0];
-      parentData?.attachmentName = fileName[1];
+    if(parentData!.reason != '' && parentData.leaveType != ''){
+      var test = fetchFile('16yfuIyvJqjom8etz-TFSMK2XqafYY4p0');
+      // List<String> fileName = [];
+      if (_resultFilePath != null) {
+        final fileName = await uploadToDrive(_resultFilePath!);
+        parentData?.fileId = fileName[0];
+        parentData?.attachmentName = fileName[1];
+      }
+
+      parentData?.docType = 'Leave';
+      parentData?.date = (parentData?.date == ''
+          ? DateTime.now().toString()
+          : parentData?.date)!;
+      // parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
+
+      //
+      //Save document file to firebase
+      fileDocument(parentData!, context);
+      parentData.resetProperties();
+      widget.resetCallback();
     }
-
-    parentData?.docType = 'Leave';
-    parentData?.date = (parentData?.date == ''
-        ? DateTime.now().toString()
-        : parentData?.date)!;
-    // parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
-
-    //
-    //Save document file to firebase
-    fileDocument(parentData!, context);
-    parentData.resetProperties();
-    widget.resetCallback();
+    else{
+      warning_box(context, 'Please complete the fields.');
+    }
+    
   }
 
   @override

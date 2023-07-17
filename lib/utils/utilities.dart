@@ -92,6 +92,9 @@ String formatDate(DateTime date) {
   return DateFormat('MM/dd/yyyy').format(date);
 }
 
+String longformatDate(DateTime date) {
+  return DateFormat('EEEE, MMMM d, yyyy').format(date);
+}
 String formatTime(TimeOfDay date) {
   final hour = date.hour.toString().padLeft(2, '0');
   final minute = date.minute.toString().padLeft(2, '0');
@@ -218,12 +221,27 @@ sortList(List<Attendance> attendance) {
 
 sortDocs(List<FilingDocument> docs) {
   docs.sort((a, b) {
-    var dateA = DateFormat("MM/dd/yyyy").parse(a.date!);
-    var dateB = DateFormat("MM/dd/yyyy").parse(b.date!);
+    var dateA = DateFormat("EEEE, MMMM d, yyyy").parse(a.date!);
+    var dateB = DateFormat("EEEE, MMMM d, yyyy").parse(b.date!);
     return dateB.compareTo(dateA);
   });
 
   return docs;
+}
+
+DateTime parseCustomDate(String dateString) {
+  final List<String> months = [
+    '', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+    'September', 'October', 'November', 'December'
+  ];
+
+  final parts = dateString.split(' ');
+  final weekday = parts[0];
+  final month = months.indexOf(parts[1]);
+  final day = int.parse(parts[2].replaceAll(',', ''));
+  final year = int.parse(parts[3]);
+
+  return DateTime(year, month, day);
 }
 
 //Ascending A to Z

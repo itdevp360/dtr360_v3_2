@@ -8,6 +8,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 import '../../../utils/alertbox.dart';
+import '../../../utils/firebase_functions.dart';
 import '../../../utils/utilities.dart';
 
 class ApproverListWidget extends StatefulWidget {
@@ -23,6 +24,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
   List<FilingDocument>? documents;
   var employeeProfile;
   List<String> items = List.generate(20, (index) => 'Item ${index + 1}');
+  TextEditingController rejectionReason = new TextEditingController();
   late List<bool> selectedItems;
   List<int> selectedIndexes = [];
   bool isLoaded = false;
@@ -84,7 +86,10 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                     });
                   },
                 )
-              : null,
+              : IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();}),
           actions: [
             if (selectedIndexes.isNotEmpty)
               IconButton(
@@ -210,7 +215,24 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
-                                  title: Text('Item Pressed'),
+                                  title: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Name:',
+                                        style: TextStyle(
+                                          fontSize: 12.0,
+                                        ),
+                                      ),
+                                      Text(
+                                        document.employeeName,
+                                        style: TextStyle(
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   content: Builder(
                                   builder: (BuildContext context) {
                                     return SingleChildScrollView(
@@ -219,7 +241,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                           maxHeight: MediaQuery.of(context)
                                                   .size
                                                   .height *
-                                              0.4,
+                                              0.6,
                                           maxWidth: MediaQuery.of(context)
                                                   .size
                                                   .width *
@@ -228,191 +250,366 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                         child: Column(
                                           children: [
                                             Row(children: [
-                                              Flexible(child: Text(
-                                                  'Employee Name: ' +
-                                                      document.employeeName,
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold)))
-                                              
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Reason:',
+                                                    style: TextStyle(
+                                                      fontSize: 11.0,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    document.reason,
+                                                    style: TextStyle(
+                                                      fontSize: 15.0,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),                          
                                             ]),
                                             Row(children: [
-                                              SizedBox(height: 5)                             
+                                              SizedBox(height: 15)                             
                                             ]),
                                             Row(children: [
-                                              Flexible(child: Text(
-                                                  'Department: ' +
-                                                      document.dept,
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold)))                              
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Department:',
+                                                    style: TextStyle(
+                                                      fontSize: 11.0,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    document.dept,
+                                                    style: TextStyle(
+                                                      fontSize: 15.0,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),                          
                                             ]),
                                             Row(children: [
-                                              SizedBox(height: 5)                             
+                                              SizedBox(height: 15)                             
                                             ]),
                                             Row(children: [
-                                              Flexible(child: Text(
-                                                  'Date filed: ' +
-                                                      document.date,
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold)))             
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Date Applied:',
+                                                    style: TextStyle(
+                                                      fontSize: 11.0,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    document.date,
+                                                    style: TextStyle(
+                                                      fontSize: 15.0,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),           
                                             ]),
                                             Row(children: [
-                                              SizedBox(height: 5)                             
+                                              SizedBox(height: 15)                             
                                             ]),
                                             if(document.isHalfday == true && document.docType == 'Leave')
                                               Column(children: [
                                                 Row(children: [
-                                                Flexible(child: Text(
-                                                    'Halfday: Yes' 
-                                                        ,
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Halfday:',
                                                     style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))      
-                                              ]),
-                                              Row(children: [
-                                              SizedBox(height: 5)                             
+                                                      fontSize: 11.0,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'Yes',
+                                                    style: TextStyle(
+                                                      fontSize: 15.0,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),           
                                             ]),
                                               Row(children: [
-                                                Flexible(child: Text(
-                                                    'AM/PM: ' +
-                                                        (document.isAm ? 'AM' : 'PM'),
+                                              SizedBox(height: 15)                             
+                                            ]),
+                                            Row(children: [
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'AM/PM:',
                                                     style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))      
-                                              ]),
+                                                      fontSize: 11.0,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    document.isAm ? 'AM' : 'PM',
+                                                    style: TextStyle(
+                                                      fontSize: 15.0,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),           
+                                            ]),
+                                              
                                               Row(children: [
-                                              SizedBox(height: 5)                             
+                                              SizedBox(height: 15)                             
                                             ]),
                                               ],),
                                             if (document.docType == 'Leave')
                                               
                                               Column(children: [
                                                 Row(children: [
-                                                Flexible(child: Text(
-                                                    'Date from: ' +
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Start Date:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(
                                                         document.dateFrom,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))   
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
+                                               
+                                              Row(children: [
+                                                SizedBox(height: 15)                             
                                               ]),
                                               Row(children: [
-                                                SizedBox(height: 5)                             
-                                              ]),
-                                              Row(children: [
-                                                Flexible(child: Text(
-                                                    'Date to: ' +
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'End Date:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(
                                                         document.dateTo,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))      
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
+                                              Row(children: [
+                                                SizedBox(height: 15)                             
                                               ]),
                                               Row(children: [
-                                                SizedBox(height: 5)                             
-                                              ]),
-                                              Row(children: [
-                                                Flexible(child: Text(
-                                                    'Leave Type: ' +
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Leave Type:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(
                                                         document.leaveType,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))
-                                                
-                                              ]),
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
                                               ],),
                                               
-                                              Row(children: [
-                                              SizedBox(height: 5)                             
-                                            ]),
+                                              
                                             if(document.docType == 'Correction')
                                               Column(children: [
                                                 Row(children: [
-                                                Flexible(child: Text(
-                                                    'Correction Date: ' +
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Correction Date:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(
                                                         document.correctDate,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))   
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
+                                              Row(children: [
+                                                SizedBox(height: 15)                             
                                               ]),
                                               Row(children: [
-                                                SizedBox(height: 5)                             
-                                              ]),
-                                              Row(children: [
-                                                Flexible(child: Text(
-                                                    'Correction Time: ' +
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Correct Time:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(
                                                         document.correctTime,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))      
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
+                                              Row(children: [
+                                                SizedBox(height: 15)                             
                                               ]),
                                               Row(children: [
-                                                SizedBox(height: 5)                             
-                                              ]),
-                                              Row(children: [
-                                                Flexible(child: Text(
-                                                    'Time In/Out: ' +
-                                                        (document.isOut == true ? 'Time Out' : 'Time In'),
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))
-                                                
-                                              ]),
-                                              Row(children: [
-                                                SizedBox(height: 5)                             
-                                              ]),
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Time In/Out:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        document.isOut == true ? 'Time Out' : 'Time In',
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
+                                              
+                                              
                                               ],),
+                                              Row(children: [
+                                                SizedBox(height: 15)                             
+                                              ]),
                                             if(document.docType == 'Overtime')
                                               Column(children: [
                                                 Row(children: [
-                                                Flexible(child: Text(
-                                                    'OT Type: ' +
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'OT Type:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(
                                                         document.otType,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))   
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
+                                                Row(children: [
+                                                SizedBox(height: 15)                             
                                               ]),
                                                 Row(children: [
-                                                Flexible(child: Text(
-                                                    'OT Date: ' +
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'OT Date:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(
                                                         document.otDate,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))   
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
+                                              Row(children: [
+                                                SizedBox(height: 15)                             
                                               ]),
                                               Row(children: [
-                                                SizedBox(height: 5)                             
-                                              ]),
-                                              Row(children: [
-                                                Flexible(child: Text(
-                                                    'Time from: ' +
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Time from:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(
                                                         timestampToDateString(document.otfrom, 'hh:mm a'),
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))      
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
+                                                Row(children: [
+                                                SizedBox(height: 15)                             
                                               ]),
                                               Row(children: [
-                                                Flexible(child: Text(
-                                                    'Time To: ' +
-                                                        timestampToDateString(document.otTo, 'hh:mm a'),
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)))      
-                                              ]),
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Time To:',
+                                                        style: TextStyle(
+                                                          fontSize: 11.0,
+                                                        ),
+                                                      ),
+                                                      Text(timestampToDateString(document.otTo, 'hh:mm a'),
+                                                        style: TextStyle(
+                                                          fontSize: 15.0,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),           
+                                                ]),
                                               
-                                              Row(children: [
-                                                SizedBox(height: 5)                             
-                                              ]),
                                               ],),
+                                            
                                             Row(children: [
-                                              Flexible(child: Text('Reason: ' + document.reason,
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold)))
-                                              
-                                            ]),
-                                            Row(children: [
-                                              SizedBox(height: 5)                             
+                                              SizedBox(height: 15)                             
                                             ]),
                                             Row(children: [
                                               Flexible(child: Text(
@@ -444,6 +641,13 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                           Navigator.of(context).pop();
                                         },
                                         child: Text('Cancel')),
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                           _showRejectModal(context, document.key);
+                                          //  _showSecondaryAlertDialog(context);
+                                        },
+                                        child: Text('Reject')),
                                     TextButton(
                                         onPressed: () async {
                                           selectedIndexes.add(index);
@@ -477,17 +681,14 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                             );
                           }
                         },
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: _getColorForDocType(document.docType),
-                            radius: 30,
-                            child: const FittedBox(
-                              child: Padding(
-                                  padding: EdgeInsets.all(10),
-                                  child:  Icon(Icons.checklist_rounded)),
-                            ),
-                          ),
-                          contentPadding: EdgeInsets.all(8),
+                        child: Padding(padding: EdgeInsets.symmetric(vertical: 1, horizontal: 5),
+                        child: Card(child: ListTile(
+                          
+                          leading: Icon(document.docType == 'Leave' ? Icons.time_to_leave_outlined :
+  document.docType == 'Correction' ? Icons.edit_calendar_sharp :
+  document.docType == 'Overtime' ? Icons.access_time_rounded :
+  Icons.check, color: Colors.red, size: 30,),
+                          contentPadding: EdgeInsets.only(left: 15, top: 8, bottom: 8, right: 8),
                           title: Text('Application for ' + document.docType),
                           subtitle: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -505,8 +706,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                               )
                             ],
                           ),
-                          tileColor: selectedItems[index] ? Colors.blue : null,
-                        ),
+                          tileColor: selectedItems[index] ? Colors.blue : Colors.grey[200],
+                        ),),)
                       );
                     },
                   );
@@ -520,6 +721,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
           ],
         ));
   }
+
+
 
   void _showModalPopup(String selectedItem) {
     showDialog(
@@ -539,6 +742,101 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
         );
       },
     );
+  }
+
+  void _showRejectModal(BuildContext context, String selectedItem) {
+    Future.delayed(Duration(milliseconds: 10), () {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Builder(builder: (BuildContext context) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Icon(Icons.assignment_late_outlined, color: Colors.blue),
+                  SizedBox(width: 8),
+                  Text('Confirmation'),
+                ],
+              ),
+              content: 
+              
+              Row(children: [
+                
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Reason',
+                    ),
+                    controller: rejectionReason,
+                  ),
+                ),
+              ]),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      rejectionReason.text = '';
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Text('Close'),
+                ),
+                TextButton(
+                  onPressed: () async{
+                    print(rejectionReason.text);
+                    print(selectedItem);
+                    await rejectApplication(selectedItem, rejectionReason.text);
+                    _listKey.currentState?.setState(() {
+                      documents = documents!.where((item) =>
+                      item.docType ==selectedValue).toList();
+                    });
+                    setState(() {
+                      selectedItems = List.generate(
+                      documents!.length,(index) => false);
+                      selectedIndexes.clear();
+                    });
+                    Navigator.of(context).pop();
+                    _showRejectionSuccess(context);
+                  },
+                  child: Text('Confirm'),
+                ),
+              ],
+            );
+          });
+        },
+      );
+    });
+  }
+
+  void _showRejectionSuccess(BuildContext context) {
+    Future.delayed(Duration(milliseconds: 100), () {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Builder(builder: (BuildContext context) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Icon(Icons.check, color: Colors.green),
+                  SizedBox(width: 8),
+                  Text('Success'),
+                ],
+              ),
+              content: Text('Document Rejected!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop(); // Close the secondary AlertDialog
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          });
+        },
+      );
+    });
   }
 
   void _showSecondaryAlertDialog(BuildContext context) {

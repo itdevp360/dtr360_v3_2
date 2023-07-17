@@ -1,3 +1,4 @@
+import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -38,8 +39,13 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
       dataModel.dept = employeeProfile[1] ?? '';
       dataModel.empKey = employeeProfile[7] ?? '';
       dataModel.employeeName = employeeProfile[0] ?? '';
+      TimeOfDay timeOfDay = TimeOfDay(hour: 0, minute: 0);
+      String formattedTime = DateFormat.Hm().format(DateTime(2023, 1, 1, timeOfDay.hour, timeOfDay.minute));
       setState(() {
+        
         dataModel.date = startDate.toString();
+        dataModel.correctDate = correctDate.toString();
+        dataModel.correctTime = formattedTime;
       });
     });
   }
@@ -164,18 +170,31 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                   ),
                   onPressed: () async{
                     dataModel.finalDate = convertStringDateToUnix(
-                        dataModel.date, dataModel.correctTime, 'Correction');
+                        dataModel.correctDate, dataModel.correctTime, 'Correction');
                     dataModel.docType = 'Correction';
-                    await fileDocument(dataModel, context);
-                    setState(() {
-                      dataModel.resetProperties();
-                      reason.text = '';
-                      startDate = DateTime.now();
-                      correctDate = DateTime.now();
-                      dataModel.date = startDate.toString();
-                      dataModel.correctDate = correctDate.toString();
-                      initialTime = const TimeOfDay(hour: 0, minute: 0);
-                    });
+                    if(reason.text != '' && selectedInOrOut != ''){
+                      bool isValid = await checkIfValidDate(dataModel.correctDate, employeeProfile[4], false);
+                      if(isValid){
+                        await fileDocument(dataModel, context);
+                        setState(() {
+                          dataModel.resetProperties();
+                          reason.text = '';
+                          startDate = DateTime.now();
+                          correctDate = DateTime.now();
+                          dataModel.date = startDate.toString();
+                          dataModel.correctDate = correctDate.toString();
+                          initialTime = const TimeOfDay(hour: 0, minute: 0);
+                        });
+                      }
+                      else{
+                        warning_box(context, 'Invalid date. No attendance.');
+                      }
+                      
+                    }
+                    else{
+                      warning_box(context, 'Please complete the fields.');
+                    }
+                    
                     
                   },
                   label: const Text(

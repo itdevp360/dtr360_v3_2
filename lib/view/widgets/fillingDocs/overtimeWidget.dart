@@ -6,6 +6,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../model/filingdocument.dart';
+import '../../../utils/alertbox.dart';
 import '../../../utils/fileDocuments_functions.dart';
 import '../../../utils/firebase_functions.dart';
 import '../../../utils/utilities.dart';
@@ -39,6 +40,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
       dataModel.employeeName = employeeProfile[0] ?? '';
       setState(() {
         dataModel.date = startDate.toString();
+        dataModel.otDate = otDate.toString();
       });
     });
   }
@@ -208,18 +210,31 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                   ),
                   onPressed: () async{
                     dataModel.docType = 'Overtime';
-                    await fileDocument(dataModel, context);
-                    setState(() {
-                      dataModel.resetProperties();
-                      reason.text = '';
-                      startDate = DateTime.now();
-                      otDate = DateTime.now();
-                      dataModel.date = startDate.toString();
-                      dataModel.otDate = otDate.toString();
-                      initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
-                      initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
-                      totalHours.text = '';
-                    });
+                    var isValid = await checkIfValidDate(dataModel.otDate, employeeProfile[4], true);
+                    if(selectedOtType != '' && reason.text != '' && totalHours.text != '' && totalHours.text != '0'){
+                      if(isValid){
+                        await fileDocument(dataModel, context);
+                        setState(() {
+                          dataModel.resetProperties();
+                          reason.text = '';
+                          startDate = DateTime.now();
+                          otDate = DateTime.now();
+                          dataModel.date = startDate.toString();
+                          dataModel.otDate = otDate.toString();
+                          initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
+                          initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
+                          totalHours.text = '';
+                        });
+                      }
+                      else{
+                        warning_box(context,'Invalid Overtime');
+                      }
+                    }
+                    else{
+                      warning_box(context,'Please complete the fields.');
+                    }
+                    
+                    
                     
                   },
                   label: const Text(

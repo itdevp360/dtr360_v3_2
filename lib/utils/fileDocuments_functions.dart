@@ -102,10 +102,29 @@ updateFilingDocs(selectedItems, documents, context) async {
   return true;
 }
 
+
+//documentStatus widget
 fetchEmployeeDocument() async {
   List<FilingDocument> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('FilingDocuments');
   final empProfile = await read_employeeProfile();
+  DateTime now = DateTime.now();
+  DateTime cutoffStart;
+  DateTime cutoffEnd;
+  DateTime previousCutoffStart;
+  DateTime previousCutoffEnd;
+
+  if (now.day <= 10) {
+    cutoffStart = DateTime(now.year, now.month - 1, 25);
+    cutoffEnd = DateTime(now.year, now.month, 11);
+    previousCutoffStart = DateTime(now.year, now.month - 1, 10);
+    previousCutoffEnd = DateTime(now.year, now.month - 1, 26);
+  } else {
+    cutoffStart = DateTime(now.year, now.month, 10);
+    cutoffEnd = DateTime(now.year, now.month, 26);
+    previousCutoffStart = DateTime(now.year, now.month - 1, 25);
+  previousCutoffEnd = DateTime(now.year, now.month, 11 );
+  }
 
   final snapshot = await ref.get().then((snapshot) {
     if (snapshot.exists) {
@@ -118,24 +137,25 @@ fetchEmployeeDocument() async {
         file.correctTime = value['correctTime'].toString();
         file.docType = value['docType'].toString();
         file.employeeName = value['employeeName'].toString();
-        file.date = formatDate(DateTime.parse(value['date'])).toString();
-        file.otDate = value['otDate'] == null || value['otDate'] == '' ? '' : formatDate(DateTime.parse(value['otDate'])).toString();
+        file.date = longformatDate(DateTime.parse(value['date'])).toString();
+        file.otDate = value['otDate'] == null || value['otDate'] == '' ? '' : longformatDate(DateTime.parse(value['otDate'])).toString();
         file.otType = value['otType'] == null || value['otType'] == '' ? '' : value['otType'].toString();
         file.otfrom = value['otfrom'] is String ? int.tryParse(value['otfrom']) ?? 0 : value['otfrom'] ?? 0;
         file.otTo = value['otTo'] is String ? int.tryParse(value['otTo']) ?? 0 : value['otTo'] ?? 0;
         
-        file.correctDate = value['correctDate'] == null || value['correctDate'] == '' ? '' : formatDate(DateTime.parse(value['correctDate'])).toString();
+        file.correctDate = value['correctDate'] == null || value['correctDate'] == '' ? '' : longformatDate(DateTime.parse(value['correctDate'])).toString();
         file.deductLeave = value['deductLeave'];
+        file.rejectionReason = value['rejectionReason'] ?? '';
+        file.cancellationDate = value['cancellationDate'] == null || value['cancellationDate'] == '' ? '' : longformatDate(DateTime.parse(value['cancellationDate'])).toString();
+        file.approveRejectDate = value['approveRejectDate'] == null || value['approveRejectDate'] == '' ? '' : longformatDate(DateTime.parse(value['approveRejectDate'])).toString();
+        file.isRejected = value['isRejected'] ?? false;
         file.guid = value['guid'].toString();
         file.location = value['location'].toString();
         file.hoursNo = value['hoursNo'].toString();
         file.isApproved = value['isApproved'];
-        file.isAm = value['isAm'] == null || value['isAm'] == ''
-            ? false
-            : true;
-        file.isHalfday = value['isHalfday'] == null || value['isHalfday'] == ''
-            ? false
-            : true;
+        file.isAm = value['isAm'] ?? false;
+        file.isCancelled = value['isCancelled'] ?? false;
+        file.isHalfday = value['isHalfday'] ?? false;
         file.isOut = value['isOut'];
         file.leaveType = value['leaveType'].toString();
         file.noOfDay = value['noOfDay'].toString();
@@ -144,14 +164,16 @@ fetchEmployeeDocument() async {
         file.reason = value['reason'].toString();
         file.dateFrom = value['dateFrom'] == null || value['dateFrom'] == ''
             ? ''
-            : formatDate(DateTime.parse(value['dateFrom'])).toString();
+            : longformatDate(DateTime.parse(value['dateFrom'])).toString();
         file.dateTo = value['dateTo'] == null || value['dateTo'] == ''
             ? ''
-            : formatDate(DateTime.parse(value['dateTo'])).toString();
-        if (file.guid == empProfile[4]) {
+            : longformatDate(DateTime.parse(value['dateTo'])).toString();
+        if (file.guid == empProfile[4] && ((parseCustomDate(file.date).isAfter(cutoffStart) && parseCustomDate(file.date).isBefore(cutoffEnd)) || 
+        (parseCustomDate(file.date).isAfter(previousCutoffStart) && parseCustomDate(file.date).isBefore(previousCutoffEnd)))) {
           _listKeys.add(file);
         }
-        else if(empProfile[6] == 'Approver' && empProfile[1].toString().contains(file.dept)){
+        if(empProfile[6] == 'Approver' && empProfile[1].toString().contains(file.dept) && file.isCancelled == false && (parseCustomDate(file.date).isAfter(cutoffStart) && parseCustomDate(file.date).isBefore(cutoffEnd)) ||
+        (parseCustomDate(file.date).isAfter(previousCutoffStart) && parseCustomDate(file.date).isBefore(previousCutoffEnd))){
           _listKeys.add(file);
         }
       });
@@ -160,6 +182,7 @@ fetchEmployeeDocument() async {
   return _listKeys;
 }
 
+//approverScreen
 fetchFilingDocuments() async {
   List<FilingDocument> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('FilingDocuments');
@@ -176,23 +199,24 @@ fetchFilingDocuments() async {
         file.correctTime = value['correctTime'].toString();
         file.docType = value['docType'].toString();
         file.employeeName = value['employeeName'].toString();
-        file.date = formatDate(DateTime.parse(value['date'])).toString();
-        file.otDate = value['otDate'] == null || value['otDate'] == '' ? '' : formatDate(DateTime.parse(value['otDate'])).toString();
+        file.date = longformatDate(DateTime.parse(value['date'])).toString();
+        file.otDate = value['otDate'] == null || value['otDate'] == '' ? '' : longformatDate(DateTime.parse(value['otDate'])).toString();
         file.otType = value['otType'] == null || value['otType'] == '' ? '' : value['otType'].toString();
         file.otfrom = value['otfrom'] is String ? int.tryParse(value['otfrom']) ?? 0 : value['otfrom'] ?? 0;
         file.otTo = value['otTo'] is String ? int.tryParse(value['otTo']) ?? 0 : value['otTo'] ?? 0;
-        file.correctDate = value['correctDate'] == null || value['correctDate'] == '' ? '' : formatDate(DateTime.parse(value['correctDate'])).toString();
+        file.correctDate = value['correctDate'] == null || value['correctDate'] == '' ? '' : longformatDate(DateTime.parse(value['correctDate'])).toString();
         file.deductLeave = value['deductLeave'];
+        file.rejectionReason = value['rejectionReason'] ?? '';
+        file.approveRejectDate = value['approveRejectDate'] == null || value['approveRejectDate'] == '' ? '' : longformatDate(DateTime.parse(value['approveRejectDate'])).toString();
+        file.cancellationDate = value['cancellationDate'] == null || value['cancellationDate'] == '' ? '' : longformatDate(DateTime.parse(value['cancellationDate'])).toString();
+        file.isRejected = value['isRejected'] ?? false;
         file.guid = value['guid'].toString();
         file.location = value['location'].toString();
         file.hoursNo = value['hoursNo'].toString();
         file.isApproved = value['isApproved'];
-        file.isAm = value['isAm'] == null || value['isAm'] == ''
-            ? false
-            : true;
-        file.isHalfday = value['isHalfday'] == null || value['isHalfday'] == ''
-            ? false
-            : true;
+        file.isAm = value['isAm'] ?? false;
+        file.isCancelled = value['isCancelled'] ?? false;
+        file.isHalfday = value['isHalfday'] ?? false;
         file.isOut = value['isOut'];
         file.leaveType = value['leaveType'].toString();
         file.noOfDay = value['noOfDay'].toString();
@@ -201,11 +225,11 @@ fetchFilingDocuments() async {
         file.reason = value['reason'].toString();
         file.dateFrom = value['dateFrom'] == null || value['dateFrom'] == ''
             ? ''
-            : formatDate(DateTime.parse(value['dateFrom'])).toString();
+            : longformatDate(DateTime.parse(value['dateFrom'])).toString();
         file.dateTo = value['dateTo'] == null || value['dateTo'] == ''
             ? ''
-            : formatDate(DateTime.parse(value['dateTo'])).toString();
-        if (file.dept == empProfile[1] && !file.isApproved) {
+            : longformatDate(DateTime.parse(value['dateTo'])).toString();
+        if (empProfile[1].toString().contains(file.dept) && !file.isApproved && !file.isRejected) {
           _listKeys.add(file);
         }
       });
