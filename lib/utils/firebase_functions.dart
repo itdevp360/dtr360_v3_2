@@ -113,89 +113,110 @@ updateFilingDocStatus(key, context, empKey) async {
   });
 }
 
-cancelFilingStatus(key) async{
+cancelFilingStatus(key) async {
   String today = DateTime.now().toString();
   final databaseReference =
       FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
-  await databaseReference.update({
-    'isCancelled': true,
-    'cancellationDate' : today
-  }).then((value) async {
+  await databaseReference.update(
+      {'isCancelled': true, 'cancellationDate': today}).then((value) async {
     // await success_box(context, 'Document approved');
   });
 }
 
-checkIfValidDate(desiredDate, guid, isOt) async{
+checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo) async {
   Attendance logs = new Attendance();
   DateTime queryDate = DateTime.parse(desiredDate);
+  DateTime dateTimeFrom = DateTime.fromMillisecondsSinceEpoch(timeFrom);
+  DateTime dateTimeTo = DateTime.fromMillisecondsSinceEpoch(timeTo);
+
   int month = queryDate.month;
   int day = queryDate.day;
   int year = queryDate.year;
   int hours = queryDate.hour;
   int second = queryDate.second;
+  int finalTimeFrom =
+      DateTime(year, month, day, dateTimeFrom.hour, dateTimeFrom.minute)
+          .millisecondsSinceEpoch;
+  int finalTimeTo =
+      DateTime(year, month, day, dateTimeTo.hour, dateTimeTo.minute)
+          .millisecondsSinceEpoch;
   bool isValid = false;
   bool isBeyondTime = false;
   final int startTimestamp = queryDate
-    .subtract(Duration(hours: queryDate.hour, minutes: queryDate.minute, seconds: queryDate.second))
-    .millisecondsSinceEpoch;
+      .subtract(Duration(
+          hours: queryDate.hour,
+          minutes: queryDate.minute,
+          seconds: queryDate.second))
+      .millisecondsSinceEpoch;
 
   final int endTimestamp = queryDate
       .add(Duration(days: 1))
-      .subtract(Duration(hours: queryDate.hour, minutes: queryDate.minute, seconds: queryDate.second))
+      .subtract(Duration(
+          hours: queryDate.hour,
+          minutes: queryDate.minute,
+          seconds: queryDate.second))
       .millisecondsSinceEpoch;
 
-  final databaseReference =
-       await FirebaseDatabase.instance.ref().child('Logs').orderByChild('dateTimeIn')
+  final databaseReference = await FirebaseDatabase.instance
+      .ref()
+      .child('Logs')
+      .orderByChild('dateTimeIn')
       .startAt(startTimestamp)
       .endAt(endTimestamp)
-      .get().then((snapshot){
-        if (snapshot.exists) {
-          Map<dynamic, dynamic>? values = snapshot.value as Map?;
-          values!.forEach((key, value) {
-            logs.attendanceKey = key.toString();
-            logs.employeeID = value['employeeID'].toString();
-            logs.employeeName = value['employeeName'].toString();
-            logs.guid = value['guid'].toString();
-            logs.dateTimeIn =
-                timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
-            logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
-            logs.timeOut = value['timeOut'] != null ? timestampToDateString(value['timeOut'], 'hh:mm a') : '';
-            logs.userType = value['usertype'].toString();
-            logs.iswfh = value['isWfh'].toString();
-            if(isOt){
-              if(value['timeOut'] != null && guid == logs.getGuid){
-                int timeOut = value['timeOut'];
-                int desiredTime = DateTime(year, month,day, 17, 00).millisecondsSinceEpoch;
-                isBeyondTime = timeOut > desiredTime;
-              }
+      .get()
+      .then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      values!.forEach((key, value) {
+        logs.attendanceKey = key.toString();
+        logs.employeeID = value['employeeID'].toString();
+        logs.employeeName = value['employeeName'].toString();
+        logs.guid = value['guid'].toString();
+        logs.dateTimeIn =
+            timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
+        logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
+        logs.timeOut = value['timeOut'] != null
+            ? timestampToDateString(value['timeOut'], 'hh:mm a')
+            : '';
+        logs.userType = value['usertype'].toString();
+        logs.iswfh = value['isWfh'].toString();
+        if (isOt) {
+          FilingDocument dataModel = FilingDocument();
+          if (value['timeOut'] != null && guid == logs.getGuid) {
+            int timeOut = value['timeOut'];
+            int desiredTime =
+                DateTime(year, month, day, 18, 00).millisecondsSinceEpoch;
+            if (finalTimeFrom < timeOut && finalTimeTo <= timeOut) {
+              isBeyondTime =
+                  timeOut >= desiredTime && finalTimeTo >= desiredTime;
+            } else {
+              print('test');
             }
-            else{
-              if(guid == logs.getGuid){
-                isBeyondTime = true;
-              }
-            }
-            
-            
-          });
+          }
+        } else {
+          if (guid == logs.getGuid) {
+            isBeyondTime = true;
+          }
         }
+      });
+    }
   });
 
   return isBeyondTime;
 }
 
-rejectApplication(key, reason) async{
+rejectApplication(key, reason) async {
   String today = DateTime.now().toString();
   final databaseReference =
       FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
   await databaseReference.update({
     'isRejected': true,
     'approveRejectDate': today,
-    'rejectionReason' : reason
+    'rejectionReason': reason
   }).then((value) async {
     // await success_box(context, 'Document approved');
   });
 }
-
 
 fetchAttendance() async {
   List<Attendance> _listKeys = [];

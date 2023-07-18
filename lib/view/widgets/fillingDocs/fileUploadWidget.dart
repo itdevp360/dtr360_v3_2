@@ -41,7 +41,7 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
 
   void runFile() async {
     final parentData = LeaveDataWidget.of(context)?.dataModel;
-    if(parentData!.reason != '' && parentData.leaveType != ''){
+    if (parentData!.reason != '' && parentData.leaveType != '') {
       var test = fetchFile('16yfuIyvJqjom8etz-TFSMK2XqafYY4p0');
       // List<String> fileName = [];
       if (_resultFilePath != null) {
@@ -58,14 +58,16 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
 
       //
       //Save document file to firebase
-      fileDocument(parentData!, context);
-      parentData.resetProperties();
-      widget.resetCallback();
-    }
-    else{
+      if (isDateFromBeforeDateTo(parentData.dateFrom, parentData.dateTo)) {
+        await fileDocument(parentData!, context);
+        parentData.resetProperties();
+        widget.resetCallback();
+      } else {
+        warning_box(context, 'Date From should not be greater than Date To');
+      }
+    } else {
       warning_box(context, 'Please complete the fields.');
     }
-    
   }
 
   @override

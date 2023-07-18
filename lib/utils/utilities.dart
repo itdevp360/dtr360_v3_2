@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+import 'package:dtr360_version3_2/model/codeTable.dart';
 import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -95,6 +96,7 @@ String formatDate(DateTime date) {
 String longformatDate(DateTime date) {
   return DateFormat('EEEE, MMMM d, yyyy').format(date);
 }
+
 String formatTime(TimeOfDay date) {
   final hour = date.hour.toString().padLeft(2, '0');
   final minute = date.minute.toString().padLeft(2, '0');
@@ -124,12 +126,23 @@ fetchLatestWeeks(List<Attendance> logs) {
 }
 
 computeTotalHours(startTIme, endTime) {
-  DateTime start = DateTime.fromMillisecondsSinceEpoch(int.parse(startTIme.toString()));
-  DateTime end = DateTime.fromMillisecondsSinceEpoch(int.parse(endTime.toString()));
+  DateTime start =
+      DateTime.fromMillisecondsSinceEpoch(int.parse(startTIme.toString()));
+  DateTime end =
+      DateTime.fromMillisecondsSinceEpoch(int.parse(endTime.toString()));
 
   // Calculate the difference in hours
   Duration difference = end.difference(start);
-  int totalHours = difference.inHours;
+  double totalHours = difference.inHours.toDouble();
+  double remainingMinutes = difference.inMinutes.remainder(60).toDouble();
+  double remainingSeconds = difference.inSeconds.remainder(60).toDouble();
+
+  // Convert the remaining minutes and seconds into fractions of an hour
+  double minutesFraction = remainingMinutes / 60.0;
+  double secondsFraction = remainingSeconds / 3600.0;
+
+  // Add the fractions to the total hours
+  totalHours += (minutesFraction + secondsFraction);
 
   return totalHours.toStringAsFixed(2);
 }
@@ -150,10 +163,7 @@ convertStringDateToUnix(date, selectedTime, docType) {
 
     // Convert to Unix timestamp
     unixTimestamp = dateTime.millisecondsSinceEpoch;
-  }
-  else{
-    
-  }
+  } else {}
 
   return unixTimestamp;
 }
@@ -186,7 +196,9 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
     String startDateString = formatDate(startDate);
     String endDateString = formatDate(endDate);
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(startDateString);
-    DateTime? endDate1 = DateFormat('MM/dd/yyyy').parse(endDateString).add(const Duration(days:1));
+    DateTime? endDate1 = DateFormat('MM/dd/yyyy')
+        .parse(endDateString)
+        .add(const Duration(days: 1));
     ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
     if (startDate1 != null && endDate1 != null) {
       List<Attendance> newlogs = [];
@@ -219,6 +231,35 @@ sortList(List<Attendance> attendance) {
   return attendance;
 }
 
+int? getHighestUniqueId(List<codeTable> itemList) {
+  itemList.sort((a, b) => b.uniqueId!.compareTo(a.uniqueId!));
+  return itemList.isNotEmpty ? itemList.first.uniqueId! + 1 : 1;
+}
+
+bool isDateFromBeforeDateTo(String dateFrom, String dateTo) {
+  final dateFormat = 'MM/dd/yyyy';
+  DateTime from = DateTime.parse(dateFrom);
+  DateTime to = DateTime.parse(dateTo);
+  if (from.isBefore(to) || from.isAtSameMomentAs(to)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool isTimeFromBeforeTimeTo(int dateFrom, int dateTo) {
+  print(dateFrom);
+  return false;
+  // final dateFormat = 'HH:mm';
+  // DateTime from = DateTime.parse(dateFrom);
+  // DateTime to = DateTime.parse(dateTo);
+  // if (from.isBefore(to) || from.isAtSameMomentAs(to)) {
+  //   return true;
+  // } else {
+  //   return false;
+  // }
+}
+
 sortDocs(List<FilingDocument> docs) {
   docs.sort((a, b) {
     var dateA = DateFormat("EEEE, MMMM d, yyyy").parse(a.date!);
@@ -231,8 +272,19 @@ sortDocs(List<FilingDocument> docs) {
 
 DateTime parseCustomDate(String dateString) {
   final List<String> months = [
-    '', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
-    'September', 'October', 'November', 'December'
+    '',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
   ];
 
   final parts = dateString.split(' ');

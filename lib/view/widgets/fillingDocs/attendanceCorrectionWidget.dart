@@ -40,9 +40,9 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
       dataModel.empKey = employeeProfile[7] ?? '';
       dataModel.employeeName = employeeProfile[0] ?? '';
       TimeOfDay timeOfDay = TimeOfDay(hour: 0, minute: 0);
-      String formattedTime = DateFormat.Hm().format(DateTime(2023, 1, 1, timeOfDay.hour, timeOfDay.minute));
+      String formattedTime = DateFormat.Hm()
+          .format(DateTime(2023, 1, 1, timeOfDay.hour, timeOfDay.minute));
       setState(() {
-        
         dataModel.date = startDate.toString();
         dataModel.correctDate = correctDate.toString();
         dataModel.correctTime = formattedTime;
@@ -136,7 +136,8 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                 onTap: () {
                   _correctDate(context);
                 },
-                controller: TextEditingController(text: formatDate(correctDate)),
+                controller:
+                    TextEditingController(text: formatDate(correctDate)),
               ),
               TextField(
                 keyboardType: TextInputType.none,
@@ -168,13 +169,20 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                     Icons.file_copy,
                     color: Color.fromARGB(255, 141, 105, 105),
                   ),
-                  onPressed: () async{
+                  onPressed: () async {
                     dataModel.finalDate = convertStringDateToUnix(
-                        dataModel.correctDate, dataModel.correctTime, 'Correction');
+                        dataModel.correctDate,
+                        dataModel.correctTime,
+                        'Correction');
                     dataModel.docType = 'Correction';
-                    if(reason.text != '' && selectedInOrOut != ''){
-                      bool isValid = await checkIfValidDate(dataModel.correctDate, employeeProfile[4], false);
-                      if(isValid){
+                    if (reason.text != '' && selectedInOrOut != '') {
+                      bool isValid = await checkIfValidDate(
+                          dataModel.correctDate,
+                          employeeProfile[4],
+                          false,
+                          dataModel.otfrom,
+                          dataModel.otTo);
+                      if (isValid) {
                         await fileDocument(dataModel, context);
                         setState(() {
                           dataModel.resetProperties();
@@ -185,17 +193,12 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                           dataModel.correctDate = correctDate.toString();
                           initialTime = const TimeOfDay(hour: 0, minute: 0);
                         });
-                      }
-                      else{
+                      } else {
                         warning_box(context, 'Invalid date. No attendance.');
                       }
-                      
-                    }
-                    else{
+                    } else {
                       warning_box(context, 'Please complete the fields.');
                     }
-                    
-                    
                   },
                   label: const Text(
                     'Submit',

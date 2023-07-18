@@ -150,15 +150,14 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                   );
                 }).toList(),
               ),
-              
               TextField(
                 keyboardType: TextInputType.none,
-                decoration: const InputDecoration(labelText: 'Date of Overtime'),
+                decoration:
+                    const InputDecoration(labelText: 'Date of Overtime'),
                 onTap: () {
                   _otDate(context);
                 },
-                controller:
-                    TextEditingController(text: formatDate(otDate)),
+                controller: TextEditingController(text: formatDate(otDate)),
               ),
               TextField(
                 keyboardType: TextInputType.none,
@@ -208,11 +207,19 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                     Icons.file_copy,
                     color: Color.fromARGB(255, 141, 105, 105),
                   ),
-                  onPressed: () async{
+                  onPressed: () async {
                     dataModel.docType = 'Overtime';
-                    var isValid = await checkIfValidDate(dataModel.otDate, employeeProfile[4], true);
-                    if(selectedOtType != '' && reason.text != '' && totalHours.text != '' && totalHours.text != '0'){
-                      if(isValid){
+                    var isValid = await checkIfValidDate(
+                        dataModel.otDate,
+                        employeeProfile[4],
+                        true,
+                        dataModel.otfrom,
+                        dataModel.otTo);
+                    if (selectedOtType != '' &&
+                        reason.text != '' &&
+                        totalHours.text != '' &&
+                        totalHours.text != '0') {
+                      if (isValid && double.parse(totalHours.text) > 0) {
                         await fileDocument(dataModel, context);
                         setState(() {
                           dataModel.resetProperties();
@@ -225,17 +232,12 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                           initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
                           totalHours.text = '';
                         });
+                      } else {
+                        warning_box(context, 'Invalid Overtime');
                       }
-                      else{
-                        warning_box(context,'Invalid Overtime');
-                      }
+                    } else {
+                      warning_box(context, 'Please complete the fields.');
                     }
-                    else{
-                      warning_box(context,'Please complete the fields.');
-                    }
-                    
-                    
-                    
                   },
                   label: const Text(
                     'Submit',

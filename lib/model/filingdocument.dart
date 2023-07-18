@@ -7,6 +7,7 @@ class FilingDocument extends ChangeNotifier {
   String _key = '';
   String _guid = '';
   String _date = '';
+  String _uniqueId = '';
   String _employeeName = '';
   String _rejectionReason = '';
   String _approveRejectDate = '';
@@ -45,6 +46,7 @@ class FilingDocument extends ChangeNotifier {
 
   int get otfrom => _otfrom;
   int get otTo => _otTo;
+  String get uniqueId => _uniqueId;
   String get rejectionReason => _rejectionReason;
   String get approveRejectDate => _approveRejectDate;
   String get cancellationDate => _cancellationDate;
@@ -86,6 +88,11 @@ class FilingDocument extends ChangeNotifier {
   set key(String newData) {
     _key = newData;
     notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set uniqueId(String newData) {
+    _uniqueId = newData;
+    notifyListeners();
   }
 
   set rejectionReason(String newData) {
@@ -248,8 +255,7 @@ class FilingDocument extends ChangeNotifier {
     notifyListeners(); // Notify listeners when the data changes
   }
 
-
-  void resetProperties(){
+  void resetProperties() {
     reason = '';
     key = '';
     date = '';
