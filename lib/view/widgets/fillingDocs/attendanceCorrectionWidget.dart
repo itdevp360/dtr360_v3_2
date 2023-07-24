@@ -173,26 +173,35 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                     dataModel.finalDate = convertStringDateToUnix(
                         dataModel.correctDate,
                         dataModel.correctTime,
-                        'Correction');
+                        'Correction', false, dataModel.otfrom);
                     dataModel.docType = 'Correction';
+                    var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType, dataModel.guid, dataModel.isOut);
+                    
                     if (reason.text != '' && selectedInOrOut != '') {
                       bool isValid = await checkIfValidDate(
                           dataModel.correctDate,
                           employeeProfile[4],
                           false,
                           dataModel.otfrom,
-                          dataModel.otTo);
+                          dataModel.otTo,
+                          dataModel.isOvernightOt, dataModel.isOut);
                       if (isValid) {
-                        await fileDocument(dataModel, context);
-                        setState(() {
-                          dataModel.resetProperties();
-                          reason.text = '';
-                          startDate = DateTime.now();
-                          correctDate = DateTime.now();
-                          dataModel.date = startDate.toString();
-                          dataModel.correctDate = correctDate.toString();
-                          initialTime = const TimeOfDay(hour: 0, minute: 0);
-                        });
+                        if(!isDupe){
+                          await fileDocument(dataModel, context);
+                          setState(() {
+                            dataModel.resetProperties();
+                            reason.text = '';
+                            startDate = DateTime.now();
+                            correctDate = DateTime.now();
+                            dataModel.date = startDate.toString();
+                            dataModel.correctDate = correctDate.toString();
+                            initialTime = const TimeOfDay(hour: 0, minute: 0);
+                          });
+                        }
+                        else{
+                          warning_box(context, 'There is already an application on this date');
+                        }
+                        
                       } else {
                         warning_box(context, 'Invalid date. No attendance.');
                       }

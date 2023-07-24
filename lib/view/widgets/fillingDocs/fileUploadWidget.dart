@@ -58,10 +58,17 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
 
       //
       //Save document file to firebase
+      var isDupe = await checkIfDuplicate(parentData.dateFrom, parentData.dateTo, parentData.correctDate, parentData.otDate, parentData.docType, parentData.guid, parentData.isOut);
       if (isDateFromBeforeDateTo(parentData.dateFrom, parentData.dateTo)) {
-        await fileDocument(parentData!, context);
-        parentData.resetProperties();
-        widget.resetCallback();
+        if(!isDupe){
+          await fileDocument(parentData!, context);
+          parentData.resetProperties();
+          widget.resetCallback();
+        }
+        else{
+          warning_box(context, 'There is already an application on this date');
+        }
+        
       } else {
         warning_box(context, 'Date From should not be greater than Date To');
       }

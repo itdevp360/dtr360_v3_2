@@ -82,8 +82,26 @@ fileDocument(FilingDocument file, context) async {
     'location': file.location,
     'otDate': file.otDate,
     'correctDate': file.correctDate,
+    'isOvernightOt': file.isOvernightOt,
     'empKey': file.empKey
   }).then((value) => saveId(numId, file.docType, context));
+}
+
+rejectAllDocs(selectedItems, documents, context) async{
+  String today = DateTime.now().toString();
+  for(var i=0; i < selectedItems.length; i++){
+    if(selectedItems[i] != false){
+      final databaseReference =
+      FirebaseDatabase.instance.ref().child('FilingDocuments/' + documents[i].key);
+      await databaseReference.update({
+        'isRejected': true,
+        'approveRejectDate': today,
+      }).then((value) async {
+        // await success_box(context, 'Document approved');
+      });
+    }
+  }
+  return true;
 }
 
 updateFilingDocs(selectedItems, documents, context) async {
@@ -99,11 +117,11 @@ updateFilingDocs(selectedItems, documents, context) async {
         if (documents![i].docType == 'Correction') {
           var selectedData = attendance
               .where(
-                  (element) => element.getDateIn == documents![i].correctDate)
+                  (element) => element.getDateIn == convertDateFormat(documents![i].correctDate))
               .toList();
           selectedData.isEmpty
-              ? await updateFilingDocStatus(
-                  documents[i].key, context, documents[i].empKey)
+              ? await createAttendance(
+                  documents[i].key, context, documents[i].empKey, documents![i].correctDate, documents[i].correctTime, documents[i].isOut)
               : await attendanceCorrection(
                   selectedData[0].getKey,
                   selectedData[0].getDateIn,
@@ -212,6 +230,7 @@ fetchEmployeeDocument() async {
             : longformatDate(DateTime.parse(value['approveRejectDate']))
                 .toString();
         file.isRejected = value['isRejected'] ?? false;
+        file.isOvernightOt = value['isOvernightOt'] ?? false;
         file.guid = value['guid'].toString();
         file.location = value['location'].toString();
         file.hoursNo = value['hoursNo'].toString();
@@ -303,6 +322,7 @@ fetchFilingDocuments() async {
         file.isRejected = value['isRejected'] ?? false;
         file.guid = value['guid'].toString();
         file.location = value['location'].toString();
+        file.isOvernightOt = value['isOvernightOt'] ?? false;
         file.hoursNo = value['hoursNo'].toString();
         file.isApproved = value['isApproved'];
         file.isAm = value['isAm'] ?? false;

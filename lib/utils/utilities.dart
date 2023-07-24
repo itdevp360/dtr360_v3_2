@@ -79,6 +79,16 @@ String timestampToDateString(dynamic timestamp, format) {
   }
 }
 
+String convertDateFormat(String dateString) {
+  // Parse the input date string into a DateTime object
+  DateTime date = DateFormat('EEEE, MMMM d, y').parse(dateString);
+
+  // Format the DateTime object into the desired output format
+  String formattedDate = DateFormat('MM/dd/yyyy').format(date);
+  
+  return formattedDate;
+}
+
 isEmployeeExist(employee, documents) {
   bool isExist = false;
   for (var i = 0; i < documents.length; i++) {
@@ -147,14 +157,18 @@ computeTotalHours(startTIme, endTime) {
   return totalHours.toStringAsFixed(2);
 }
 
-convertStringDateToUnix(date, selectedTime, docType) {
+convertStringDateToUnix(date, selectedTime, docType, isTimeTo, otFrom) {
   int unixTimestamp = 0;
   if (docType == 'Correction' || docType == 'Overtime') {
     DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
     DateFormat timeFormat = DateFormat('HH:mm');
     DateTime time = timeFormat.parse(selectedTime);
+    DateTime otTimeFrom =
+      DateTime.fromMillisecondsSinceEpoch(int.parse(otFrom.toString()));
+    int day = isTimeTo && (otTimeFrom.hour > time.hour) ? dateTime.day + 1 : dateTime.day;
+    
     DateTime convertedTime = DateTime(dateTime.year, dateTime.month,
-        dateTime.day, time.hour, time.minute, time.second);
+        day, time.hour, time.minute, time.second);
 
     // Convert to Unix timestamp
     unixTimestamp = convertedTime.millisecondsSinceEpoch;
@@ -221,11 +235,22 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
 
 sortList(List<Attendance> attendance) {
   attendance.sort((a, b) {
-    var dateA =
-        DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
-    var dateB =
-        DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
-    return dateB.compareTo(dateA);
+   var dateTimeA;
+    var dateTimeB;
+    
+    if (a.timeIn != 'No Data') {
+      dateTimeA = DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
+    } else {
+      dateTimeA = DateFormat("MM/dd/yyyy").parse(a.dateIn!);
+    }
+
+    if (b.timeIn != 'No Data') {
+      dateTimeB = DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
+    } else {
+      dateTimeB = DateFormat("MM/dd/yyyy").parse(b.dateIn!);
+    }
+    
+    return dateTimeB.compareTo(dateTimeA);
   });
 
   return attendance;

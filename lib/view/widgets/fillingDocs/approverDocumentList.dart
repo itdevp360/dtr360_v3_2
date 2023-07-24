@@ -112,6 +112,28 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                           ),
                           TextButton(
                             onPressed: () async {
+                              var isTrue = await rejectAllDocs(
+                                  selectedItems, documents, context);
+                              if (isTrue == true) {
+                                _listKey.currentState?.setState(() {
+                                  documents = documents!
+                                      .where((item) =>
+                                          item.docType == selectedValue)
+                                      .toList();
+                                });
+                                setState(() {
+                                  selectedItems = List.generate(
+                                      documents!.length, (index) => false);
+                                  selectedIndexes.clear();
+                                });
+                                Navigator.of(context).pop();
+                                _showSecondaryAlertDialog(context, 'Documents Rejected');
+                              }
+                            },
+                            child: Text('Reject All'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
                               var isTrue = await updateFilingDocs(
                                   selectedItems, documents, context);
                               if (isTrue == true) {
@@ -127,7 +149,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                   selectedIndexes.clear();
                                 });
                                 Navigator.of(context).pop();
-                                _showSecondaryAlertDialog(context);
+                                _showSecondaryAlertDialog(context, 'Documents Approved');
                               }
                             },
                             child: Text('Approve All'),
@@ -615,6 +637,33 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                                   .start,
                                                           children: [
                                                             Text(
+                                                              'Overnight OT?:',
+                                                              style: TextStyle(
+                                                                fontSize: 11.0,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              document.isOvernightOt ? "Yes" : 'No',
+                                                              style: TextStyle(
+                                                                fontSize: 15.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ]),
+                                                      Row(children: [
+                                                        SizedBox(height: 15)
+                                                      ]),
+                                                      Row(children: [
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
                                                               'OT Date:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -758,7 +807,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                             });
 
                                             Navigator.of(context).pop();
-                                            _showSecondaryAlertDialog(context);
+                                            _showSecondaryAlertDialog(context, 'Document Approved');
                                             // await success_box(context, "Document Approved");
                                           },
                                           child: Text('Approve'))
@@ -942,7 +991,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
     });
   }
 
-  void _showSecondaryAlertDialog(BuildContext context) {
+  void _showSecondaryAlertDialog(BuildContext context, String status) {
     Future.delayed(Duration(milliseconds: 100), () {
       showDialog(
         context: context,
@@ -956,7 +1005,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   Text('Success'),
                 ],
               ),
-              content: Text('Document Approved!'),
+              content: Text(status),
               actions: [
                 TextButton(
                   onPressed: () {

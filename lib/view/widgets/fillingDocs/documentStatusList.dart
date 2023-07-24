@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sizer/sizer.dart';
-
+import 'package:intl/intl.dart';
 import '../../../model/users.dart';
 import '../../../utils/fileDocuments_functions.dart';
 import '../loaderView.dart';
@@ -32,6 +32,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
   double screenH = 48.h;
   String? selectedValue = 'All';
   String? empNames = null;
+  String? currentMonth = DateFormat('MMMM').format(DateTime.now());
 
   @override
   void initState() {
@@ -123,6 +124,23 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                 );
               }).toList(),
             ),
+            DropdownButton<String>(
+              value: currentMonth,
+              onChanged: (String? newValue) {
+                setState(() {
+                  currentMonth = newValue!;
+                });
+              },
+              items: <String>[
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
             isApprover
                 ? FutureBuilder<dynamic>(
                     future: fetchAllEmployees(
@@ -178,27 +196,34 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                         documents = documents!
                             .where((item) =>
                                 item.docType == selectedValue &&
-                                item.employeeName == empNames)
+                                item.employeeName == empNames && item.date.contains(currentMonth!))
                             .toList();
                       } else {
                         documents = documents!
-                            .where((item) => item.docType == selectedValue)
+                            .where((item) => item.docType == selectedValue && item.date.contains(currentMonth!))
                             .toList();
                       }
                     } else {
                       documents = documents!
-                          .where((item) => item.docType == selectedValue)
+                          .where((item) => item.docType == selectedValue && item.date.contains(currentMonth!))
                           .toList();
                     }
                   } else {
                     if (empNames != '' && empNames != null) {
                       if (empNames != 'All') {
                         documents = documents!
-                            .where((item) => item.employeeName == empNames)
+                            .where((item) => item.employeeName == empNames && item.date.contains(currentMonth!))
                             .toList();
                       } else {
-                        documents = documents!;
+                        documents = documents!
+                            .where((item) => item.date.contains(currentMonth!))
+                            .toList();
                       }
+                    }
+                    else{
+                      documents = documents!
+                            .where((item) => item.date.contains(currentMonth!))
+                            .toList();
                     }
                   }
                   documents = sortDocs(documents!);
@@ -602,6 +627,33 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                                   Row(children: [
                                                     SizedBox(height: 15)
                                                   ]),
+                                                  Row(children: [
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              'Overnight OT?:',
+                                                              style: TextStyle(
+                                                                fontSize: 11.0,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              document.isOvernightOt ? "Yes" : 'No',
+                                                              style: TextStyle(
+                                                                fontSize: 15.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ]),
+                                                      Row(children: [
+                                                        SizedBox(height: 15)
+                                                      ]),
                                                   Row(children: [
                                                     Column(
                                                       crossAxisAlignment:
