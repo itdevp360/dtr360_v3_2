@@ -85,14 +85,14 @@ String convertDateFormat(String dateString) {
 
   // Format the DateTime object into the desired output format
   String formattedDate = DateFormat('MM/dd/yyyy').format(date);
-  
+
   return formattedDate;
 }
 
-isEmployeeExist(employee, documents) {
+isEmployeeExist(guid, documents) {
   bool isExist = false;
   for (var i = 0; i < documents.length; i++) {
-    if (documents[i].employeeName == employee) {
+    if (documents[i].guid == guid) {
       isExist = true;
     }
   }
@@ -164,11 +164,13 @@ convertStringDateToUnix(date, selectedTime, docType, isTimeTo, otFrom) {
     DateFormat timeFormat = DateFormat('HH:mm');
     DateTime time = timeFormat.parse(selectedTime);
     DateTime otTimeFrom =
-      DateTime.fromMillisecondsSinceEpoch(int.parse(otFrom.toString()));
-    int day = isTimeTo && (otTimeFrom.hour > time.hour) ? dateTime.day + 1 : dateTime.day;
-    
-    DateTime convertedTime = DateTime(dateTime.year, dateTime.month,
-        day, time.hour, time.minute, time.second);
+        DateTime.fromMillisecondsSinceEpoch(int.parse(otFrom.toString()));
+    int day = isTimeTo && (otTimeFrom.hour > time.hour)
+        ? dateTime.day + 1
+        : dateTime.day;
+
+    DateTime convertedTime = DateTime(dateTime.year, dateTime.month, day,
+        time.hour, time.minute, time.second);
 
     // Convert to Unix timestamp
     unixTimestamp = convertedTime.millisecondsSinceEpoch;
@@ -235,21 +237,23 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
 
 sortList(List<Attendance> attendance) {
   attendance.sort((a, b) {
-   var dateTimeA;
+    var dateTimeA;
     var dateTimeB;
-    
+
     if (a.timeIn != 'No Data') {
-      dateTimeA = DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
+      dateTimeA =
+          DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
     } else {
       dateTimeA = DateFormat("MM/dd/yyyy").parse(a.dateIn!);
     }
 
     if (b.timeIn != 'No Data') {
-      dateTimeB = DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
+      dateTimeB =
+          DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
     } else {
       dateTimeB = DateFormat("MM/dd/yyyy").parse(b.dateIn!);
     }
-    
+
     return dateTimeB.compareTo(dateTimeA);
   });
 
