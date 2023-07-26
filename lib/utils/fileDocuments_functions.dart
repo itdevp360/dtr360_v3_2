@@ -87,12 +87,13 @@ fileDocument(FilingDocument file, context) async {
   }).then((value) => saveId(numId, file.docType, context));
 }
 
-rejectAllDocs(selectedItems, documents, context) async{
+rejectAllDocs(selectedItems, documents, context) async {
   String today = DateTime.now().toString();
-  for(var i=0; i < selectedItems.length; i++){
-    if(selectedItems[i] != false){
-      final databaseReference =
-      FirebaseDatabase.instance.ref().child('FilingDocuments/' + documents[i].key);
+  for (var i = 0; i < selectedItems.length; i++) {
+    if (selectedItems[i] != false) {
+      final databaseReference = FirebaseDatabase.instance
+          .ref()
+          .child('FilingDocuments/' + documents[i].key);
       await databaseReference.update({
         'isRejected': true,
         'approveRejectDate': today,
@@ -116,12 +117,18 @@ updateFilingDocs(selectedItems, documents, context) async {
 
         if (documents![i].docType == 'Correction') {
           var selectedData = attendance
-              .where(
-                  (element) => element.getDateIn == convertDateFormat(documents![i].correctDate))
+              .where((element) =>
+                  element.getDateIn ==
+                  convertDateFormat(documents![i].correctDate))
               .toList();
           selectedData.isEmpty
               ? await createAttendance(
-                  documents[i].key, context, documents[i].empKey, documents![i].correctDate, documents[i].correctTime, documents[i].isOut)
+                  documents[i].key,
+                  context,
+                  documents[i].empKey,
+                  documents![i].correctDate,
+                  documents[i].correctTime,
+                  documents[i].isOut)
               : await attendanceCorrection(
                   selectedData[0].getKey,
                   selectedData[0].getDateIn,
@@ -254,14 +261,12 @@ fetchEmployeeDocument() async {
         if (empProfile[6] == 'Approver' &&
                 empProfile[1].toString().contains(file.dept) &&
                 file.isCancelled == false &&
-                (parseCustomDate(file.date).isAfter(cutoffStart) &&
-                    parseCustomDate(file.date).isBefore(cutoffEnd)) ||
+                (parseCustomDate(file.date).isAfter(cutoffStart)) ||
             (parseCustomDate(file.date).isAfter(previousCutoffStart) &&
                 parseCustomDate(file.date).isBefore(previousCutoffEnd))) {
           _listKeys.add(file);
         } else if (file.guid == empProfile[4] &&
-            ((parseCustomDate(file.date).isAfter(cutoffStart) &&
-                    parseCustomDate(file.date).isBefore(cutoffEnd)) ||
+            ((parseCustomDate(file.date).isAfter(cutoffStart)) ||
                 (parseCustomDate(file.date).isAfter(previousCutoffStart) &&
                     parseCustomDate(file.date).isBefore(previousCutoffEnd)))) {
           _listKeys.add(file);

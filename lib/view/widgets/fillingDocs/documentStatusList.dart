@@ -132,8 +132,18 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                 });
               },
               items: <String>[
-                'January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December'
               ].map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
@@ -196,34 +206,40 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                         documents = documents!
                             .where((item) =>
                                 item.docType == selectedValue &&
-                                item.employeeName == empNames && item.date.contains(currentMonth!))
+                                item.employeeName == empNames &&
+                                item.date.contains(currentMonth!))
                             .toList();
                       } else {
                         documents = documents!
-                            .where((item) => item.docType == selectedValue && item.date.contains(currentMonth!))
+                            .where((item) =>
+                                item.docType == selectedValue &&
+                                item.date.contains(currentMonth!))
                             .toList();
                       }
                     } else {
                       documents = documents!
-                          .where((item) => item.docType == selectedValue && item.date.contains(currentMonth!))
+                          .where((item) =>
+                              item.docType == selectedValue &&
+                              item.date.contains(currentMonth!))
                           .toList();
                     }
                   } else {
                     if (empNames != '' && empNames != null) {
                       if (empNames != 'All') {
                         documents = documents!
-                            .where((item) => item.employeeName == empNames && item.date.contains(currentMonth!))
+                            .where((item) =>
+                                item.employeeName == empNames &&
+                                item.date.contains(currentMonth!))
                             .toList();
                       } else {
                         documents = documents!
                             .where((item) => item.date.contains(currentMonth!))
                             .toList();
                       }
-                    }
-                    else{
+                    } else {
                       documents = documents!
-                            .where((item) => item.date.contains(currentMonth!))
-                            .toList();
+                          .where((item) => item.date.contains(currentMonth!))
+                          .toList();
                     }
                   }
                   documents = sortDocs(documents!);
@@ -628,32 +644,33 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                                     SizedBox(height: 15)
                                                   ]),
                                                   Row(children: [
-                                                        Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              'Overnight OT?:',
-                                                              style: TextStyle(
-                                                                fontSize: 11.0,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              document.isOvernightOt ? "Yes" : 'No',
-                                                              style: TextStyle(
-                                                                fontSize: 15.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                            ),
-                                                          ],
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          'Overnight OT?:',
+                                                          style: TextStyle(
+                                                            fontSize: 11.0,
+                                                          ),
                                                         ),
-                                                      ]),
-                                                      Row(children: [
-                                                        SizedBox(height: 15)
-                                                      ]),
+                                                        Text(
+                                                          document.isOvernightOt
+                                                              ? "Yes"
+                                                              : 'No',
+                                                          style: TextStyle(
+                                                            fontSize: 15.0,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ]),
+                                                  Row(children: [
+                                                    SizedBox(height: 15)
+                                                  ]),
                                                   Row(children: [
                                                     Column(
                                                       crossAxisAlignment:
