@@ -28,7 +28,14 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
   TimeOfDay initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
   TextEditingController reason = TextEditingController();
   TextEditingController totalHours = TextEditingController();
-  List<String> otType = ['Regular', 'Rest Day', 'Holiday'];
+  List<String> otType = [
+    'Regular',
+    'Rest Day',
+    'Regular Holiday',
+    'Special Non-working Holiday',
+    'Rest Day Regular Holiday',
+    'Rest Day Special Non Working Holiday'
+  ];
   bool isOvernightOt = false;
 
   void initState() {
@@ -82,8 +89,8 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
     if (picked != null && picked != initialTimeFrom) {
       setState(() {
         initialTimeFrom = picked;
-        dataModel.otfrom = convertStringDateToUnix(
-            dataModel.otDate, formatTime(initialTimeFrom), 'Overtime', false, dataModel.otfrom);
+        dataModel.otfrom = convertStringDateToUnix(dataModel.otDate,
+            formatTime(initialTimeFrom), 'Overtime', false, dataModel.otfrom);
         if (dataModel.otfrom != null && dataModel.otTo != null) {
           String totalNoHours =
               computeTotalHours(dataModel.otfrom, dataModel.otTo);
@@ -100,8 +107,8 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
     if (picked != null && picked != initialTimeTo) {
       setState(() {
         initialTimeTo = picked;
-        dataModel.otTo = convertStringDateToUnix(
-            dataModel.otDate, formatTime(initialTimeTo), 'Overtime', true, dataModel.otfrom);
+        dataModel.otTo = convertStringDateToUnix(dataModel.otDate,
+            formatTime(initialTimeTo), 'Overtime', true, dataModel.otfrom);
         if (dataModel.otfrom != '' && dataModel.otTo != '') {
           String totalNoHours =
               computeTotalHours(dataModel.otfrom, dataModel.otTo);
@@ -226,19 +233,30 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                   ),
                   onPressed: () async {
                     dataModel.docType = 'Overtime';
-                    var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType, dataModel.guid, dataModel.isOut);
+                    var isDupe = await checkIfDuplicate(
+                        dataModel.dateFrom,
+                        dataModel.dateTo,
+                        dataModel.correctDate,
+                        dataModel.otDate,
+                        dataModel.docType,
+                        dataModel.guid,
+                        dataModel.isOut);
                     var isValid = await checkIfValidDate(
                         dataModel.otDate,
                         employeeProfile[4],
                         true,
                         dataModel.otfrom,
-                        dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut);
+                        dataModel.otTo,
+                        dataModel.isOvernightOt,
+                        dataModel.isOut);
                     if (selectedOtType != '' &&
                         reason.text != '' &&
                         totalHours.text != '' &&
                         totalHours.text != '0') {
-                      if (isValid && (double.parse(totalHours.text) > 0 || isOvernightOt)) {
-                        if(!isDupe){
+                      if (isValid &&
+                          (double.parse(totalHours.text) > 0 ||
+                              isOvernightOt)) {
+                        if (!isDupe) {
                           await fileDocument(dataModel, context);
                           setState(() {
                             dataModel.resetProperties();
@@ -247,15 +265,15 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                             otDate = DateTime.now();
                             dataModel.date = startDate.toString();
                             dataModel.otDate = otDate.toString();
-                            initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
+                            initialTimeFrom =
+                                const TimeOfDay(hour: 0, minute: 0);
                             initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
                             totalHours.text = '';
                           });
+                        } else {
+                          warning_box(context,
+                              'There is already an application on this date');
                         }
-                        else{
-                          warning_box(context, 'There is already an application on this date');
-                        }
-                        
                       } else {
                         warning_box(context, 'Invalid Overtime');
                       }

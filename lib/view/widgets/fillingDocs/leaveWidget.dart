@@ -28,7 +28,8 @@ class _MyWidgetState extends State<leaveWidget> {
     'Sick Leave',
     'Maternity Leave',
     'Paternity Leave',
-    'Birthday Leave'
+    'Birthday Leave',
+    'Others'
   ];
   List<String> amPmList = [
     'AM',
@@ -54,7 +55,7 @@ class _MyWidgetState extends State<leaveWidget> {
     });
   }
 
-  void resetFields(){
+  void resetFields() {
     setState(() {
       reason.text = '';
       location.text = '';
@@ -173,15 +174,16 @@ class _MyWidgetState extends State<leaveWidget> {
               }).toList(),
             ),
             dataModel!.leaveType == 'Vacation'
-            ? TextField(
-              decoration: const InputDecoration(labelText: 'Location'),
-              controller: location,
-              onChanged: (value) {
-                setState(() {
-                  dataModel.location = value;
-                });
-              },
-            ): SizedBox(height: 0),
+                ? TextField(
+                    decoration: const InputDecoration(labelText: 'Location'),
+                    controller: location,
+                    onChanged: (value) {
+                      setState(() {
+                        dataModel.location = value;
+                      });
+                    },
+                  )
+                : SizedBox(height: 0),
             TextField(
               decoration: const InputDecoration(labelText: 'Reason'),
               controller: reason,
@@ -206,16 +208,18 @@ class _MyWidgetState extends State<leaveWidget> {
                 )
               ],
             ),
-            isChecked ? TextField(
-              decoration: const InputDecoration(labelText: 'No. of days'),
-              controller: noOfDays,
-              onChanged: (value) {
-                setState(() {
-                  dataModel.noOfDay = value;
-                });
-              },
-            ): SizedBox(height: 0),
-             Row(
+            isChecked
+                ? TextField(
+                    decoration: const InputDecoration(labelText: 'No. of days'),
+                    controller: noOfDays,
+                    onChanged: (value) {
+                      setState(() {
+                        dataModel.noOfDay = value;
+                      });
+                    },
+                  )
+                : SizedBox(height: 0),
+            Row(
               children: [
                 Checkbox(
                     value: isHalfday,
@@ -231,26 +235,28 @@ class _MyWidgetState extends State<leaveWidget> {
                 )
               ],
             ),
-            isHalfday ? DropdownButtonFormField<String>(
-              value: isAm,
-              decoration: const InputDecoration(
-                labelText: 'AM/PM',
-              ),
-              onChanged: (newValue) {
-                setState(() {
-                
-                  isAm = newValue as String;
-                  dataModel.isAm = isAm == 'AM' ? true : false;
-                });
-              },
-              items: amPmList.map((leaveType) {
-                return DropdownMenuItem<String>(
-                  value: leaveType,
-                  child: Text(leaveType),
-                );
-              }).toList(),
-            ): SizedBox(height: 0),
-            LeaveDataWidget(dataModel: dataModel, child: FilePickerWidget(resetFields)),
+            isHalfday
+                ? DropdownButtonFormField<String>(
+                    value: isAm,
+                    decoration: const InputDecoration(
+                      labelText: 'AM/PM',
+                    ),
+                    onChanged: (newValue) {
+                      setState(() {
+                        isAm = newValue as String;
+                        dataModel.isAm = isAm == 'AM' ? true : false;
+                      });
+                    },
+                    items: amPmList.map((leaveType) {
+                      return DropdownMenuItem<String>(
+                        value: leaveType,
+                        child: Text(leaveType),
+                      );
+                    }).toList(),
+                  )
+                : SizedBox(height: 0),
+            LeaveDataWidget(
+                dataModel: dataModel, child: FilePickerWidget(resetFields)),
           ],
         ),
       ),
