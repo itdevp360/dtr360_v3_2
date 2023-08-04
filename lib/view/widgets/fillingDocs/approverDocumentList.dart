@@ -135,7 +135,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                           TextButton(
                             onPressed: () async {
                               var isTrue = await updateFilingDocs(
-                                  selectedItems, documents, context);
+                                  selectedItems, documents, context, employeeProfile[0]);
                               if (isTrue == true) {
                                 _listKey.currentState?.setState(() {
                                   documents = documents!
@@ -791,7 +791,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                             var result = await updateFilingDocs(
                                                 selectedItems,
                                                 documents,
-                                                context);
+                                                context, employeeProfile[0]);
                                             _listKey.currentState?.setState(() {
                                               documents = documents!
                                                   .where((item) =>
@@ -935,7 +935,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   onPressed: () async {
                     print(rejectionReason.text);
                     print(selectedItem);
-                    await rejectApplication(selectedItem, rejectionReason.text);
+                    await rejectApplication(selectedItem, rejectionReason.text, employeeProfile[0]);
                     _listKey.currentState?.setState(() {
                       documents = documents!
                           .where((item) => item.docType == selectedValue)

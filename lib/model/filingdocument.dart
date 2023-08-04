@@ -11,6 +11,7 @@ class FilingDocument extends ChangeNotifier {
   String _employeeName = '';
   String _rejectionReason = '';
   String _approveRejectDate = '';
+  String _approveRejectBy = '';
   String _cancellationDate = '';
   int _finalDate = 0;
   bool _isApproved = false;
@@ -50,6 +51,7 @@ class FilingDocument extends ChangeNotifier {
   String get uniqueId => _uniqueId;
   String get rejectionReason => _rejectionReason;
   String get approveRejectDate => _approveRejectDate;
+  String get approveRejectBy => _approveRejectBy;
   String get cancellationDate => _cancellationDate;
   String get correctDate => _correctDate;
   String get otDate => _otDate;
@@ -104,6 +106,11 @@ class FilingDocument extends ChangeNotifier {
 
   set approveRejectDate(String newData) {
     _approveRejectDate = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set approveRejectBy(String newData) {
+    _approveRejectBy = newData;
     notifyListeners(); // Notify listeners when the data changes
   }
 
@@ -269,6 +276,7 @@ class FilingDocument extends ChangeNotifier {
     finalDate = 0;
     isApproved = false;
     isCancelled = false;
+    approveRejectBy = '';
     notifyStatus = '';
     //Leaves
     leaveType = '';

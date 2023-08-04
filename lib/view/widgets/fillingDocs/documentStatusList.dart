@@ -786,6 +786,82 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
+                                                      'Rejected by:',
+                                                      style: TextStyle(
+                                                        fontSize: 11.0,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      document
+                                                          .approveRejectBy,
+                                                      style: TextStyle(
+                                                        fontSize: 15.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ]),
+                                            if (document.isApproved && !document.isCancelled)
+                                              Row(children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Approved by:',
+                                                      style: TextStyle(
+                                                        fontSize: 11.0,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      document
+                                                          .approveRejectBy,
+                                                      style: TextStyle(
+                                                        fontSize: 15.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ]),
+                                            Row(children: [
+                                              SizedBox(height: 15)
+                                            ]),
+                                            if (document.isApproved && !document.isCancelled)
+                                              Row(children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Date Approved:',
+                                                      style: TextStyle(
+                                                        fontSize: 11.0,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      document
+                                                          .approveRejectDate,
+                                                      style: TextStyle(
+                                                        fontSize: 15.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ]),
+                                            
+                                            if (document.isRejected)
+                                              Row(children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
                                                       'Date Rejected:',
                                                       style: TextStyle(
                                                         fontSize: 11.0,

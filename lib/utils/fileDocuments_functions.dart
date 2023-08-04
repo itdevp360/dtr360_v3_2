@@ -104,7 +104,7 @@ rejectAllDocs(selectedItems, documents, context) async{
   return true;
 }
 
-updateFilingDocs(selectedItems, documents, context) async {
+updateFilingDocs(selectedItems, documents, context, approverName) async {
   List<Attendance> attendance =
       await fetchSelectedEmployeesAttendance(documents);
   if (selectedItems.isNotEmpty) {
@@ -121,7 +121,7 @@ updateFilingDocs(selectedItems, documents, context) async {
               .toList();
           selectedData.isEmpty
               ? await createAttendance(
-                  documents[i].key, context, documents[i].empKey, documents![i].correctDate, documents[i].correctTime, documents[i].isOut)
+                  documents[i].key, context, documents[i].empKey, documents![i].correctDate, documents[i].correctTime, documents[i].isOut, approverName)
               : await attendanceCorrection(
                   selectedData[0].getKey,
                   selectedData[0].getDateIn,
@@ -129,7 +129,7 @@ updateFilingDocs(selectedItems, documents, context) async {
                   documents[i].isOut,
                   documents[i].key,
                   context,
-                  documents[i].empKey);
+                  documents[i].empKey, approverName);
         } else if (documents![i].docType == 'Leave') {
           var selectedData = attendance
               .where((element) => element.getDateIn == documents![i].date)
@@ -139,24 +139,24 @@ updateFilingDocs(selectedItems, documents, context) async {
                       documents[i].empKey, documents[i].noOfDay)
                   .then((value) async {
                   await updateFilingDocStatus(
-                      documents[i].key, context, documents[i].empKey);
+                      documents[i].key, context, documents[i].empKey, approverName);
                 })
               : await fileLeave(selectedData[0].getKey, documents[i].key,
-                  context, documents[i].empKey, documents[i].noOfDay);
+                  context, documents[i].empKey, documents[i].noOfDay, approverName);
         } else {
           var selectedData = attendance
               .where((element) => element.getDateIn == documents![i].otDate)
               .toList();
           selectedData.isEmpty
               ? await updateFilingDocStatus(
-                  documents[i].key, context, documents[i].empKey)
+                  documents[i].key, context, documents[i].empKey, approverName)
               : await fileOvertime(
                   selectedData[0].getKey,
                   documents[i].key,
                   context,
                   documents[i].otType,
                   documents[i].hoursNo,
-                  documents[i].empKey);
+                  documents[i].empKey, approverName);
         }
       }
     }
@@ -244,6 +244,7 @@ fetchEmployeeDocument() async {
         file.notifyStatus = value['notifyStatus'].toString();
         file.empKey = value['empKey'].toString();
         file.reason = value['reason'].toString();
+        file.approveRejectBy = value['approveRejectBy'].toString();
         file.dateFrom = value['dateFrom'] == null || value['dateFrom'] == ''
             ? ''
             : longformatDate(DateTime.parse(value['dateFrom'])).toString();

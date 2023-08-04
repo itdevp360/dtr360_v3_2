@@ -43,14 +43,14 @@ fetchSelectedEmployeesAttendance(documents) async {
   return _listKeys;
 }
 
-fileLeave(key, filingDocKey, context, empKey, noOfDays) async {
+fileLeave(key, filingDocKey, context, empKey, noOfDays, approverName) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
   await databaseReference.update({
     'isLeave': true,
   }).then((value) async {
     await updateRemainingLeaves(empKey, noOfDays).then((value) async {
-      await updateFilingDocStatus(filingDocKey, context, empKey);
+      await updateFilingDocStatus(filingDocKey, context, empKey, approverName);
     });
   });
 }
@@ -70,17 +70,17 @@ updateRemainingLeaves(empKey, noOfDays) async {
   }
 }
 
-fileOvertime(key, filingDocKey, context, otType, hoursNo, empKey) async {
+fileOvertime(key, filingDocKey, context, otType, hoursNo, empKey, approverName) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
   await databaseReference.update(
       {'otType': otType, 'hoursNo': hoursNo, 'isOt': true}).then((value) async {
-    await updateFilingDocStatus(filingDocKey, context, empKey);
+    await updateFilingDocStatus(filingDocKey, context, empKey, approverName);
   });
 }
 
 attendanceCorrection(
-    key, date, time, isOut, filingDocKey, context, empKey) async {
+    key, date, time, isOut, filingDocKey, context, empKey, approverName) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
   String dateTimeString = '$date $time';
@@ -92,28 +92,31 @@ attendanceCorrection(
     await databaseReference.update({
       'timeOut': unixTimestamp,
     }).then((value) async {
-      await updateFilingDocStatus(filingDocKey, context, empKey);
+      await updateFilingDocStatus(filingDocKey, context, empKey, approverName);
     });
   } else {
     await databaseReference.update({
       'timeIn': unixTimestamp,
     }).then((value) async {
-      await updateFilingDocStatus(filingDocKey, context, empKey);
+      await updateFilingDocStatus(filingDocKey, context, empKey, approverName);
     });
   }
 }
 
-updateFilingDocStatus(key, context, empKey) async {
+updateFilingDocStatus(key, context, empKey, approverName) async {
+  String today = DateTime.now().toString();
   final databaseReference =
       FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
   await databaseReference.update({
     'isApproved': true,
+    'approveRejectDate': today,
+    'approveRejectBy': approverName 
   }).then((value) async {
     // await success_box(context, 'Document approved');
   });
 }
 
-createAttendance(key, context, empKey, correctDate, correctTime, isOut) async{
+createAttendance(key, context, empKey, correctDate, correctTime, isOut, approverName) async{
   var emp = await read_employeeProfile();
   final databaseReference = FirebaseDatabase.instance.ref().child('Logs');
   DateTime selectedDate = DateFormat("EEEE, MMMM dd, yyyy").parse(correctDate);
@@ -131,7 +134,7 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut) async{
       'userType': emp[6],
       'isWfh': false,
     }).then((value) {
-      updateFilingDocStatus(key, context, empKey);
+      updateFilingDocStatus(key, context, empKey, approverName);
     },);
   }
   else{
@@ -145,7 +148,7 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut) async{
       'userType': emp[6],
       'isWfh': false,
     }).then((value) {
-      updateFilingDocStatus(key, context, empKey);
+      updateFilingDocStatus(key, context, empKey, approverName);
     },);
   }
  
@@ -260,14 +263,15 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
   return isBeyondTime;
 }
 
-rejectApplication(key, reason) async {
+rejectApplication(key, reason, approverName) async {
   String today = DateTime.now().toString();
   final databaseReference =
       FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
   await databaseReference.update({
     'isRejected': true,
     'approveRejectDate': today,
-    'rejectionReason': reason
+    'rejectionReason': reason,
+    'approveRejectBy': approverName
   }).then((value) async {
     // await success_box(context, 'Document approved');
   });
