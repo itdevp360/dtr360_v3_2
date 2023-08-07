@@ -1,3 +1,4 @@
+import 'package:dtr360_version3_2/controllers/user_edit_controller.dart';
 import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,15 +28,12 @@ List<String>? list = <String>[
 ];
 
 class _MyWidgetState extends State<UserEditWidget> {
-  TextEditingController employeeId = TextEditingController();
-  TextEditingController employeeName = TextEditingController();
-  TextEditingController department = TextEditingController();
-  TextEditingController approver = TextEditingController();
-  TextEditingController absences = TextEditingController();
+  UserController userEdit = UserController();
+
 
   List<Employees>? approverList;
   Employees selectedApprover = Employees();
-  String? approverDropdownValue;
+  String? approverDropdownValue = null;
   String? approverName;
   List<Employees>? employeeList;
   Employees selectedEmployee = new Employees();
@@ -101,6 +99,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                 child: DropdownButton<String>(
                   isExpanded: true,
                   value: dropdownValue,
+                  hint: Text('Employee Name'),
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
                   style:
@@ -116,20 +115,18 @@ class _MyWidgetState extends State<UserEditWidget> {
                       selectedEmployee = employeeList!
                           .where((element) => element.guid == dropdownValue)
                           .first;
-                      employeeName =
-                          TextEditingController(text: selectedEmployee.empName);
-                      employeeId =
-                          TextEditingController(text: selectedEmployee.empId);
-                      department =
-                          TextEditingController(text: selectedEmployee.dept);
-                      absences = TextEditingController(
-                          text: selectedEmployee.absences);
+                      userEdit.employeeName.controller.text = selectedEmployee.empName!;
+                      userEdit.employeeId.controller.text = selectedEmployee.empId!;
+                      userEdit.department.controller.text  = selectedEmployee.dept!;
+                      userEdit.absences.controller.text  = selectedEmployee.absences!;
                       _isWfh = selectedEmployee.wfh == 'null' ||
                               selectedEmployee.wfh == ''
                           ? false
                           : true;
                       userTypeDropdown = selectedEmployee.usrType;
-                      approverDropdownValue = selectedEmployee.appId;
+                      if(selectedEmployee.appId != null && selectedEmployee.appId != "null"){
+                        approverDropdownValue = selectedEmployee.appId;
+                      }
                       print(selectedEmployee.key);
                     });
                   },
@@ -153,6 +150,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                 child: DropdownButton<String>(
                   isExpanded: true,
                   value: userTypeDropdown,
+                  hint: Text('Role'),
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
                   style: const TextStyle(
@@ -185,7 +183,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                   bottom: 0,
                 ),
                 child: TextField(
-                  controller: employeeName,
+                  controller: userEdit.employeeName.controller,
                   decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                       prefixIcon: Icon(Icons.drive_file_rename_outline),
@@ -201,7 +199,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                   bottom: 0,
                 ),
                 child: TextField(
-                  controller: employeeId,
+                  controller: userEdit.employeeId.controller ,
                   decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                       prefixIcon: Icon(Icons.badge),
@@ -217,7 +215,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                   bottom: 0,
                 ),
                 child: TextField(
-                  controller: department,
+                  controller: userEdit.department.controller ,
                   decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                       prefixIcon: Icon(Icons.corporate_fare),
@@ -234,12 +232,12 @@ class _MyWidgetState extends State<UserEditWidget> {
                 ),
                 child: TextField(
                   keyboardType: TextInputType.number,
-                  controller: absences,
+                  controller: userEdit.absences.controller ,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                     prefixIcon: Icon(Icons.person_remove),
                     border: OutlineInputBorder(),
-                    labelText: 'Absences',
+                    labelText: 'Remaining Leaves',
                   ),
                 ),
               ),
@@ -252,6 +250,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                 ),
                 child: DropdownButton<String>(
                   isExpanded: true,
+                  hint: Text('Approver Name'),
                   value: approverDropdownValue,
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
@@ -319,25 +318,25 @@ class _MyWidgetState extends State<UserEditWidget> {
                     color: Colors.white,
                   ),
                   onPressed: () async {
-                    if (employeeName.text != '' &&
-                        employeeId.text != '' &&
-                        department.text != '') {
+                    if (userEdit.employeeName.controller.text != '' &&
+                        userEdit.employeeId.controller.text != '' &&
+                        userEdit.department.controller.text != '') {
                       updateEmployeeDetails(
                           selectedEmployee.key,
-                          department.text,
-                          employeeId.text,
-                          employeeName.text,
+                          userEdit.department.controller.text,
+                          userEdit.employeeId.controller.text,
+                          userEdit.employeeName.controller.text,
                           _isWfh,
                           userTypeDropdown,
                           approverDropdownValue,
                           selectedApprover.empName,
-                          absences.text);
+                          userEdit.absences.controller.text);
                       success_box(context, "Employee profile updated.");
                       employeeList = await fetchAllEmployees(false);
                       sortListAlphabetical(employeeList!);
-                      department.text = '';
-                      employeeId.text = '';
-                      employeeName.text = '';
+                      userEdit.department.controller.text = '';
+                      userEdit.employeeId.controller.text = '';
+                      userEdit.employeeName.controller.text = '';
                       FocusScope.of(context).unfocus();
                     } else {
                       warning_box(context, "Please complete all the fields");

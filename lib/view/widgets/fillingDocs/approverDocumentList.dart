@@ -164,8 +164,23 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
         ),
         body: Column(
           children: [
-            DropdownButton<String>(
+            Padding(
+                padding: const EdgeInsets.only(
+                  left: 28.0,
+                  right: 28.0,
+                  top: 10,
+                  bottom: 0,
+                ),
+                child: DropdownButton<String>(
               value: selectedValue,
+              isExpanded: true,
+                icon: const Icon(Icons.arrow_downward),
+                elevation: 16,
+                style:const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
+                underline: Container(
+                  height: 2,
+                  color: Color.fromARGB(255, 57, 57, 231),
+                ),
               onChanged: (String? newValue) {
                 setState(() {
                   selectedValue = newValue!;
@@ -183,7 +198,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   child: Text(value),
                 );
               }).toList(),
-            ),
+            ),),
+            
             Flexible(
                 child: FutureBuilder(
               future: fetchFilingDocuments(),

@@ -211,7 +211,7 @@ class _RegisterWidget extends State<RegisterWidget> {
                 contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                 prefixIcon: Icon(Icons.person_remove),
                 border: OutlineInputBorder(),
-                labelText: 'Absences',
+                labelText: 'Remaining Leaves',
               ),
             ),
           ),
