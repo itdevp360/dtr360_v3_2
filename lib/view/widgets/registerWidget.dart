@@ -88,7 +88,6 @@ class _RegisterWidget extends State<RegisterWidget> {
                 // This is called when the user selects an item.
                 setState(() {
                   dropdownValue = value!;
-                  print(dropdownValue);
                 });
               },
               items: list.map<DropdownMenuItem<String>>((String value) {
@@ -230,7 +229,7 @@ class _RegisterWidget extends State<RegisterWidget> {
               style: const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
               underline: Container(
                 height: 2,
-                color: Color.fromARGB(255, 57, 57, 231),
+                color: const Color.fromARGB(255, 57, 57, 231),
               ),
               onChanged: (String? value) {
                 // This is called when the user selects an item.
@@ -239,7 +238,6 @@ class _RegisterWidget extends State<RegisterWidget> {
                   selectedApprover = approverList!
                       .where((element) => element.guid == approverDropdownValue)
                       .first;
-                  print(selectedApprover.key);
                 });
               },
               items: approverList != null
@@ -266,11 +264,10 @@ class _RegisterWidget extends State<RegisterWidget> {
                     onChanged: (value) {
                       setState(() {
                         _isChecked = value!;
-                        print(_isChecked);
                       });
                     },
                   ),
-                  Text('Work from Home'),
+                  const Text('Work from Home'),
                 ],
               )),
           Container(
@@ -279,7 +276,7 @@ class _RegisterWidget extends State<RegisterWidget> {
             decoration: BoxDecoration(
                 color: Colors.orange, borderRadius: BorderRadius.circular(20)),
             child: TextButton.icon(
-              icon: Icon(
+              icon: const Icon(
                 Icons.person_add,
                 color: Colors.white,
               ),

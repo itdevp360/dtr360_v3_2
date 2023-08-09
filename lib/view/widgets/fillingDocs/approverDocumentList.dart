@@ -73,11 +73,11 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
     var dropdownValue;
     return Scaffold(
         appBar: AppBar(
-          title: Text('Approver Page'),
+          title: const Text('Approver Page'),
           backgroundColor: Colors.redAccent,
           leading: selectedIndexes.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                   onPressed: () {
                     setState(() {
                       selectedIndexes.clear();
@@ -87,28 +87,28 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   },
                 )
               : IconButton(
-                  icon: Icon(Icons.arrow_back),
+                  icon: const Icon(Icons.arrow_back),
                   onPressed: () {
                     Navigator.of(context).pop();
                   }),
           actions: [
             if (selectedIndexes.isNotEmpty)
               IconButton(
-                icon: Icon(Icons.approval_rounded),
+                icon: const Icon(Icons.approval_rounded),
                 onPressed: () async {
                   showDialog(
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        title: Text('Confirm Approval'),
-                        content: Text('You selected: ' +
-                            selectedIndexes.length.toString()),
+                        title: const Text('Confirm Approval'),
+                        content:
+                            Text('You selected: ${selectedIndexes.length}'),
                         actions: [
                           TextButton(
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            child: Text('Cancel'),
+                            child: const Text('Cancel'),
                           ),
                           TextButton(
                             onPressed: () async {
@@ -127,15 +127,16 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                   selectedIndexes.clear();
                                 });
                                 Navigator.of(context).pop();
-                                _showSecondaryAlertDialog(context, 'Documents Rejected');
+                                _showSecondaryAlertDialog(
+                                    context, 'Documents Rejected');
                               }
                             },
-                            child: Text('Reject All'),
+                            child: const Text('Reject All'),
                           ),
                           TextButton(
                             onPressed: () async {
-                              var isTrue = await updateFilingDocs(
-                                  selectedItems, documents, context, employeeProfile[0]);
+                              var isTrue = await updateFilingDocs(selectedItems,
+                                  documents, context, employeeProfile[0]);
                               if (isTrue == true) {
                                 _listKey.currentState?.setState(() {
                                   documents = documents!
@@ -149,10 +150,11 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                   selectedIndexes.clear();
                                 });
                                 Navigator.of(context).pop();
-                                _showSecondaryAlertDialog(context, 'Documents Approved');
+                                _showSecondaryAlertDialog(
+                                    context, 'Documents Approved');
                               }
                             },
-                            child: Text('Approve All'),
+                            child: const Text('Approve All'),
                           ),
                         ],
                       );
@@ -165,41 +167,41 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
         body: Column(
           children: [
             Padding(
-                padding: const EdgeInsets.only(
-                  left: 28.0,
-                  right: 28.0,
-                  top: 10,
-                  bottom: 0,
-                ),
-                child: DropdownButton<String>(
-              value: selectedValue,
-              isExpanded: true,
+              padding: const EdgeInsets.only(
+                left: 28.0,
+                right: 28.0,
+                top: 10,
+                bottom: 0,
+              ),
+              child: DropdownButton<String>(
+                value: selectedValue,
+                isExpanded: true,
                 icon: const Icon(Icons.arrow_downward),
                 elevation: 16,
-                style:const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
+                style: const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
                 underline: Container(
                   height: 2,
-                  color: Color.fromARGB(255, 57, 57, 231),
+                  color: const Color.fromARGB(255, 57, 57, 231),
                 ),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedValue = newValue!;
-                  isSelected = true;
-                });
-              },
-              items: <String>[
-                'All',
-                'Leave',
-                'Correction',
-                'Overtime',
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),),
-            
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedValue = newValue!;
+                    isSelected = true;
+                  });
+                },
+                items: <String>[
+                  'All',
+                  'Leave',
+                  'Correction',
+                  'Overtime',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ),
             Flexible(
                 child: FutureBuilder(
               future: fetchFilingDocuments(),
@@ -260,14 +262,14 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                       children: [
                                         Text(
                                           'AP No. ' + document.uniqueId,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 18.0,
                                           ),
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 10,
                                         ),
-                                        Text(
+                                        const Text(
                                           'Name:',
                                           style: TextStyle(
                                             fontSize: 12.0,
@@ -275,7 +277,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                         ),
                                         Text(
                                           document.employeeName,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 18.0,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -304,7 +306,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                         CrossAxisAlignment
                                                             .start,
                                                     children: [
-                                                      Text(
+                                                      const Text(
                                                         'Reason:',
                                                         style: TextStyle(
                                                           fontSize: 11.0,
@@ -312,7 +314,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                       ),
                                                       Text(
                                                         document.reason,
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                           fontSize: 15.0,
                                                           fontWeight:
                                                               FontWeight.bold,
@@ -321,7 +323,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                     ],
                                                   ),
                                                 ]),
-                                                Row(children: [
+                                                Row(children: const [
                                                   SizedBox(height: 15)
                                                 ]),
                                                 Row(children: [
@@ -330,7 +332,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                         CrossAxisAlignment
                                                             .start,
                                                     children: [
-                                                      Text(
+                                                      const Text(
                                                         'Department:',
                                                         style: TextStyle(
                                                           fontSize: 11.0,
@@ -338,7 +340,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                       ),
                                                       Text(
                                                         document.dept,
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                           fontSize: 15.0,
                                                           fontWeight:
                                                               FontWeight.bold,
@@ -347,7 +349,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                     ],
                                                   ),
                                                 ]),
-                                                Row(children: [
+                                                Row(children: const [
                                                   SizedBox(height: 15)
                                                 ]),
                                                 Row(children: [
@@ -356,7 +358,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                         CrossAxisAlignment
                                                             .start,
                                                     children: [
-                                                      Text(
+                                                      const Text(
                                                         'Date Applied:',
                                                         style: TextStyle(
                                                           fontSize: 11.0,
@@ -364,7 +366,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                       ),
                                                       Text(
                                                         document.date,
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                           fontSize: 15.0,
                                                           fontWeight:
                                                               FontWeight.bold,
@@ -373,7 +375,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                     ],
                                                   ),
                                                 ]),
-                                                Row(children: [
+                                                Row(children: const [
                                                   SizedBox(height: 15)
                                                 ]),
                                                 if (document.isHalfday ==
@@ -386,7 +388,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
                                                                   .start,
-                                                          children: [
+                                                          children: const [
                                                             Text(
                                                               'Halfday:',
                                                               style: TextStyle(
@@ -405,7 +407,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                       Row(children: [
@@ -414,7 +416,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'AM/PM:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -424,7 +426,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               document.isAm
                                                                   ? 'AM'
                                                                   : 'PM',
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -434,7 +437,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                     ],
@@ -448,7 +451,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'Start Date:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -456,7 +459,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                             ),
                                                             Text(
                                                               document.dateFrom,
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -466,7 +470,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                       Row(children: [
@@ -475,7 +479,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'End Date:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -483,7 +487,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                             ),
                                                             Text(
                                                               document.dateTo,
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -493,7 +498,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                       Row(children: [
@@ -502,7 +507,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'Leave Type:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -511,7 +516,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                             Text(
                                                               document
                                                                   .leaveType,
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -533,7 +539,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'Correction Date:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -542,7 +548,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                             Text(
                                                               document
                                                                   .correctDate,
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -552,7 +559,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                       Row(children: [
@@ -561,7 +568,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'Correct Time:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -570,7 +577,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                             Text(
                                                               document
                                                                   .correctTime,
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -580,7 +588,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                       Row(children: [
@@ -589,7 +597,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'Time In/Out:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -600,7 +608,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                                       true
                                                                   ? 'Time Out'
                                                                   : 'Time In',
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -612,7 +621,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                       ]),
                                                     ],
                                                   ),
-                                                Row(children: [
+                                                Row(children: const [
                                                   SizedBox(height: 15)
                                                 ]),
                                                 if (document.docType ==
@@ -625,7 +634,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'OT Type:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -633,7 +642,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                             ),
                                                             Text(
                                                               document.otType,
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -643,7 +653,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                       Row(children: [
@@ -652,15 +662,18 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'Overnight OT?:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
                                                               ),
                                                             ),
                                                             Text(
-                                                              document.isOvernightOt ? "Yes" : 'No',
-                                                              style: TextStyle(
+                                                              document.isOvernightOt
+                                                                  ? "Yes"
+                                                                  : 'No',
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -670,7 +683,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                       Row(children: [
@@ -679,7 +692,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'OT Date:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -687,7 +700,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                             ),
                                                             Text(
                                                               document.otDate,
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -697,7 +711,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                       Row(children: [
@@ -706,7 +720,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'Time from:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -717,7 +731,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                                   document
                                                                       .otfrom,
                                                                   'hh:mm a'),
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -727,7 +742,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                           ],
                                                         ),
                                                       ]),
-                                                      Row(children: [
+                                                      Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
                                                       Row(children: [
@@ -736,7 +751,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text(
+                                                            const Text(
                                                               'Time To:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
@@ -746,7 +761,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               timestampToDateString(
                                                                   document.otTo,
                                                                   'hh:mm a'),
-                                                              style: TextStyle(
+                                                              style:
+                                                                  const TextStyle(
                                                                 fontSize: 15.0,
                                                                 fontWeight:
                                                                     FontWeight
@@ -758,11 +774,11 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                       ]),
                                                     ],
                                                   ),
-                                                Row(children: [
+                                                Row(children: const [
                                                   SizedBox(height: 15)
                                                 ]),
                                                 Row(children: [
-                                                  Flexible(
+                                                  const Flexible(
                                                       child: Text(
                                                     'Status: ',
                                                     style: TextStyle(
@@ -791,7 +807,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                           onPressed: () {
                                             Navigator.of(context).pop();
                                           },
-                                          child: Text('Cancel')),
+                                          child: const Text('Cancel')),
                                       TextButton(
                                           onPressed: () {
                                             Navigator.of(context).pop();
@@ -799,7 +815,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                 context, document.key);
                                             //  _showSecondaryAlertDialog(context);
                                           },
-                                          child: Text('Reject')),
+                                          child: const Text('Reject')),
                                       TextButton(
                                           onPressed: () async {
                                             selectedIndexes.add(index);
@@ -807,7 +823,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                             var result = await updateFilingDocs(
                                                 selectedItems,
                                                 documents,
-                                                context, employeeProfile[0]);
+                                                context,
+                                                employeeProfile[0]);
                                             _listKey.currentState?.setState(() {
                                               documents = documents!
                                                   .where((item) =>
@@ -823,10 +840,11 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                             });
 
                                             Navigator.of(context).pop();
-                                            _showSecondaryAlertDialog(context, 'Document Approved');
+                                            _showSecondaryAlertDialog(
+                                                context, 'Document Approved');
                                             // await success_box(context, "Document Approved");
                                           },
-                                          child: Text('Approve'))
+                                          child: const Text('Approve'))
                                     ],
                                   );
                                 },
@@ -834,7 +852,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                             }
                           },
                           child: Padding(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 1, horizontal: 5),
                             child: Card(
                               child: ListTile(
@@ -849,7 +867,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                   color: Colors.red,
                                   size: 30,
                                 ),
-                                contentPadding: EdgeInsets.only(
+                                contentPadding: const EdgeInsets.only(
                                     left: 15, top: 8, bottom: 8, right: 8),
                                 title: Text('AP No. ' + document.uniqueId),
                                 subtitle: Column(
@@ -885,7 +903,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
               }),
             ))
@@ -898,14 +916,14 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Selected Item'),
+          title: const Text('Selected Item'),
           content: Text('You selected: $selectedItem'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Close'),
+              child: const Text('Close'),
             ),
           ],
         );
@@ -914,14 +932,14 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
   }
 
   void _showRejectModal(BuildContext context, String selectedItem) {
-    Future.delayed(Duration(milliseconds: 10), () {
+    Future.delayed(const Duration(milliseconds: 10), () {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return Builder(builder: (BuildContext context) {
             return AlertDialog(
               title: Row(
-                children: [
+                children: const [
                   Icon(Icons.assignment_late_outlined, color: Colors.blue),
                   SizedBox(width: 8),
                   Text('Confirmation'),
@@ -930,7 +948,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               content: Row(children: [
                 Expanded(
                   child: TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Reason',
                     ),
                     controller: rejectionReason,
@@ -945,13 +963,14 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                     });
                     Navigator.pop(context);
                   },
-                  child: Text('Close'),
+                  child: const Text('Close'),
                 ),
                 TextButton(
                   onPressed: () async {
                     print(rejectionReason.text);
                     print(selectedItem);
-                    await rejectApplication(selectedItem, rejectionReason.text, employeeProfile[0]);
+                    await rejectApplication(
+                        selectedItem, rejectionReason.text, employeeProfile[0]);
                     _listKey.currentState?.setState(() {
                       documents = documents!
                           .where((item) => item.docType == selectedValue)
@@ -966,7 +985,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                     Navigator.of(context).pop();
                     _showRejectionSuccess(context);
                   },
-                  child: Text('Confirm'),
+                  child: const Text('Confirm'),
                 ),
               ],
             );
@@ -977,27 +996,27 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
   }
 
   void _showRejectionSuccess(BuildContext context) {
-    Future.delayed(Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return Builder(builder: (BuildContext context) {
             return AlertDialog(
               title: Row(
-                children: [
+                children: const [
                   Icon(Icons.check, color: Colors.green),
                   SizedBox(width: 8),
                   Text('Success'),
                 ],
               ),
-              content: Text('Document Rejected!'),
+              content: const Text('Document Rejected!'),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context)
                         .pop(); // Close the secondary AlertDialog
                   },
-                  child: Text('OK'),
+                  child: const Text('OK'),
                 ),
               ],
             );
@@ -1008,14 +1027,14 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
   }
 
   void _showSecondaryAlertDialog(BuildContext context, String status) {
-    Future.delayed(Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return Builder(builder: (BuildContext context) {
             return AlertDialog(
               title: Row(
-                children: [
+                children: const [
                   Icon(Icons.check, color: Colors.green),
                   SizedBox(width: 8),
                   Text('Success'),
@@ -1028,7 +1047,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                     Navigator.of(context)
                         .pop(); // Close the secondary AlertDialog
                   },
-                  child: Text('OK'),
+                  child: const Text('OK'),
                 ),
               ],
             );
@@ -1043,12 +1062,12 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Delete Items'),
+          title: const Text('Delete Items'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Are you sure you want to delete the selected items?'),
-              SizedBox(height: 16),
+              const Text('Are you sure you want to delete the selected items?'),
+              const SizedBox(height: 16),
               Text('Selected items: ${selectedItems.join(", ")}'),
             ],
           ),
@@ -1059,13 +1078,13 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                 // ...
                 Navigator.pop(context);
               },
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );

@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/model/users.dart';
@@ -8,16 +6,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
-import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
 import 'package:intl/intl.dart';
+
+import '../model/approver.dart';
 
 fetchSelectedEmployeesAttendance(documents) async {
   List<Attendance> _listKeys = [];
-  DateTime now = DateTime.now();
-  DateTime start = now.subtract(Duration(days: 15));
   final logRef = FirebaseDatabase.instance.ref().child('Logs');
 
-  final ss = await logRef.get().then((snapshot) {
+  await logRef.get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
@@ -70,7 +67,8 @@ updateRemainingLeaves(empKey, noOfDays) async {
   }
 }
 
-fileOvertime(key, filingDocKey, context, otType, hoursNo, empKey, approverName) async {
+fileOvertime(
+    key, filingDocKey, context, otType, hoursNo, empKey, approverName) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Logs/' + key);
   await databaseReference.update(
@@ -110,21 +108,23 @@ updateFilingDocStatus(key, context, empKey, approverName) async {
   await databaseReference.update({
     'isApproved': true,
     'approveRejectDate': today,
-    'approveRejectBy': approverName 
+    'approveRejectBy': approverName
   }).then((value) async {
     // await success_box(context, 'Document approved');
   });
 }
 
-createAttendance(key, context, empKey, correctDate, correctTime, isOut, approverName) async{
+createAttendance(
+    key, context, empKey, correctDate, correctTime, isOut, approverName) async {
   var emp = await read_employeeProfile();
   final databaseReference = FirebaseDatabase.instance.ref().child('Logs');
   DateTime selectedDate = DateFormat("EEEE, MMMM dd, yyyy").parse(correctDate);
   DateTime selectedTime = DateFormat("HH:mm").parse(correctTime);
-  DateTime combinedDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, selectedTime.hour, selectedTime.minute);
+  DateTime combinedDate = DateTime(selectedDate.year, selectedDate.month,
+      selectedDate.day, selectedTime.hour, selectedTime.minute);
   int timestamp = combinedDate.millisecondsSinceEpoch;
-  if(isOut){
-     databaseReference.push().set({
+  if (isOut) {
+    databaseReference.push().set({
       'dateTimeIn': timestamp,
       'department': emp[1],
       'employeeID': emp[8],
@@ -133,12 +133,13 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
       'timeOut': timestamp,
       'userType': emp[6],
       'isWfh': false,
-    }).then((value) {
-      updateFilingDocStatus(key, context, empKey, approverName);
-    },);
-  }
-  else{
-     databaseReference.push().set({
+    }).then(
+      (value) {
+        updateFilingDocStatus(key, context, empKey, approverName);
+      },
+    );
+  } else {
+    databaseReference.push().set({
       'dateTimeIn': timestamp,
       'department': emp[1],
       'employeeID': emp[8],
@@ -147,11 +148,12 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
       'timeIn': timestamp,
       'userType': emp[6],
       'isWfh': false,
-    }).then((value) {
-      updateFilingDocStatus(key, context, empKey, approverName);
-    },);
+    }).then(
+      (value) {
+        updateFilingDocStatus(key, context, empKey, approverName);
+      },
+    );
   }
- 
 }
 
 cancelFilingStatus(key) async {
@@ -164,7 +166,8 @@ cancelFilingStatus(key) async {
   });
 }
 
-checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut) async {
+checkIfValidDate(
+    desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut) async {
   Attendance logs = new Attendance();
   DateTime queryDate = DateTime.parse(desiredDate);
   DateTime dateTimeFrom = DateTime.fromMillisecondsSinceEpoch(timeFrom);
@@ -173,15 +176,12 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
   int month = queryDate.month;
   int day = queryDate.day;
   int year = queryDate.year;
-  int hours = queryDate.hour;
-  int second = queryDate.second;
   int finalTimeFrom =
       DateTime(year, month, day, dateTimeFrom.hour, dateTimeFrom.minute)
           .millisecondsSinceEpoch;
   int finalTimeTo =
       DateTime(year, month, dateTimeTo.day, dateTimeTo.hour, dateTimeTo.minute)
           .millisecondsSinceEpoch;
-  bool isValid = false;
   bool isBeyondTime = false;
   final int startTimestamp = queryDate
       .subtract(Duration(
@@ -225,26 +225,31 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
           FilingDocument dataModel = FilingDocument();
           if (value['timeOut'] != null && guid == logs.getGuid) {
             int timeOut = value['timeOut'];
-            DateTime convertedTimeOut = DateTime.fromMillisecondsSinceEpoch(timeOut);
+            DateTime convertedTimeOut =
+                DateTime.fromMillisecondsSinceEpoch(timeOut);
             int timeIn = value['timeIn'];
-            DateTime convertedTimeIn = DateTime.fromMillisecondsSinceEpoch(timeIn);
+            DateTime convertedTimeIn =
+                DateTime.fromMillisecondsSinceEpoch(timeIn);
             int desiredTime =
                 DateTime(year, month, day, 18, 00).millisecondsSinceEpoch;
-            int finalDay = convertedTimeOut.day > convertedTimeIn.day ? convertedTimeIn.day + 1 : convertedTimeIn.day;
-            int finalTimeOut = DateTime(convertedTimeOut.year, convertedTimeOut.month, finalDay, convertedTimeOut.hour, convertedTimeOut.minute)
-                      .millisecondsSinceEpoch;    
+            int finalDay = convertedTimeOut.day > convertedTimeIn.day
+                ? convertedTimeIn.day + 1
+                : convertedTimeIn.day;
+            int finalTimeOut = DateTime(
+                    convertedTimeOut.year,
+                    convertedTimeOut.month,
+                    finalDay,
+                    convertedTimeOut.hour,
+                    convertedTimeOut.minute)
+                .millisecondsSinceEpoch;
             if (finalTimeFrom < finalTimeOut && finalTimeTo <= finalTimeOut) {
-              if(isOvernightOt){
+              if (isOvernightOt) {
                 isBeyondTime = true;
-              }
-              else{
+              } else {
                 isBeyondTime =
-                  timeOut >= desiredTime && finalTimeTo >= desiredTime;
+                    timeOut >= desiredTime && finalTimeTo >= desiredTime;
               }
-              
-            } else {
-              print('test');
-            }
+            } else {}
           }
         } else {
           if (guid == logs.getGuid) {
@@ -252,9 +257,8 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
           }
         }
       });
-    }
-    else{
-      if(!isOt){
+    } else {
+      if (!isOt) {
         isBeyondTime = true;
       }
     }
@@ -277,73 +281,92 @@ rejectApplication(key, reason, approverName) async {
   });
 }
 
-
-checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut) async{
+checkIfDuplicate(
+    dateFrom, dateTo, correctDate, otDate, docType, guid, isOut) async {
   var isDuplicate = false;
-  if(docType == 'Leave'){
+  if (docType == 'Leave') {
     final databaseReference = await FirebaseDatabase.instance
-      .ref()
-      .child('FilingDocuments').orderByChild('dateFrom').endAt(dateTo).get().then((snapshot) {
-        if (snapshot.exists) {
-          DateTime selectedDate = DateTime.parse(dateFrom);
-          Map<dynamic, dynamic>? values = snapshot.value as Map?;
-          values!.forEach((key, value) {
-            var isRejected = value['isRejected'] ?? false;
-            var isCancelled = value['isCancelled'] ?? false;
-            
-            String dateFromString = value['dateFrom'] == null || value['dateFrom'] == ''
-            ? ''
-            : longformatDate(DateTime.parse(value['dateFrom'])).toString();
-            
-            if(value['guid'] == guid && (isCancelled == false && isRejected == false) && dateFromString != '' && value['docType'] == 'Leave'){
-              DateTime dateFromData = DateTime.parse(value['dateFrom']);
-              DateTime dateFromTo = DateTime.parse(value['dateTo']);
-              if(selectedDate.isAfter(dateFromData) && selectedDate.isBefore(dateFromTo.add(Duration(days: 1)))){
-                isDuplicate = true;
-              }
-              else if(selectedDate.isAtSameMomentAs(dateFromData)){
-                isDuplicate = true;
-              }
-              
-            }
-          });
-        }
-      });
-  }
-  else if(docType == 'Correction'){
-    final databaseReference = await FirebaseDatabase.instance
-      .ref()
-      .child('FilingDocuments').orderByChild('correctDate').equalTo(correctDate).get().then((snapshot) {
-        if (snapshot.exists) {
-          Map<dynamic, dynamic>? values = snapshot.value as Map?;
-          values!.forEach((key, value) {
-            var isRejected = value['isRejected'] ?? false;
-            var isCancelled = value['isCancelled'] ?? false;
-            var isApproved = value['isApproved'] ?? false;
-            var isOutData = value['isOut'] ?? false;
-            if(value['guid'] == guid && ((!isApproved && !isRejected) || (isApproved && !isCancelled)) && value['docType'] == 'Correction' && isOut == isOutData){
+        .ref()
+        .child('FilingDocuments')
+        .orderByChild('dateFrom')
+        .endAt(dateTo)
+        .get()
+        .then((snapshot) {
+      if (snapshot.exists) {
+        DateTime selectedDate = DateTime.parse(dateFrom);
+        Map<dynamic, dynamic>? values = snapshot.value as Map?;
+        values!.forEach((key, value) {
+          var isRejected = value['isRejected'] ?? false;
+          var isCancelled = value['isCancelled'] ?? false;
+
+          String dateFromString = value['dateFrom'] == null ||
+                  value['dateFrom'] == ''
+              ? ''
+              : longformatDate(DateTime.parse(value['dateFrom'])).toString();
+
+          if (value['guid'] == guid &&
+              (isCancelled == false && isRejected == false) &&
+              dateFromString != '' &&
+              value['docType'] == 'Leave') {
+            DateTime dateFromData = DateTime.parse(value['dateFrom']);
+            DateTime dateFromTo = DateTime.parse(value['dateTo']);
+            if (selectedDate.isAfter(dateFromData) &&
+                selectedDate.isBefore(dateFromTo.add(Duration(days: 1)))) {
+              isDuplicate = true;
+            } else if (selectedDate.isAtSameMomentAs(dateFromData)) {
               isDuplicate = true;
             }
-          });
-        }
-      });
-  }
-  else{
+          }
+        });
+      }
+    });
+  } else if (docType == 'Correction') {
     final databaseReference = await FirebaseDatabase.instance
-      .ref()
-      .child('FilingDocuments').orderByChild('otDate').equalTo(otDate).get().then((snapshot) {
-        if (snapshot.exists) {
-          Map<dynamic, dynamic>? values = snapshot.value as Map?;
-          values!.forEach((key, value) {
-            print("OT Dateee: " + value['otDate']);
-            var isRejected = value['isRejected'] ?? false;
-            var isCancelled = value['isCancelled'] ?? false;
-            if(value['guid'] == guid && (isCancelled == false && isRejected == false && value['docType'] == 'Overtime')){
-              isDuplicate = true;
-            }
-          });
-        }
-      });
+        .ref()
+        .child('FilingDocuments')
+        .orderByChild('correctDate')
+        .equalTo(correctDate)
+        .get()
+        .then((snapshot) {
+      if (snapshot.exists) {
+        Map<dynamic, dynamic>? values = snapshot.value as Map?;
+        values!.forEach((key, value) {
+          var isRejected = value['isRejected'] ?? false;
+          var isCancelled = value['isCancelled'] ?? false;
+          var isApproved = value['isApproved'] ?? false;
+          var isOutData = value['isOut'] ?? false;
+          if (value['guid'] == guid &&
+              ((!isApproved && !isRejected) || (isApproved && !isCancelled)) &&
+              value['docType'] == 'Correction' &&
+              isOut == isOutData) {
+            isDuplicate = true;
+          }
+        });
+      }
+    });
+  } else {
+    final databaseReference = await FirebaseDatabase.instance
+        .ref()
+        .child('FilingDocuments')
+        .orderByChild('otDate')
+        .equalTo(otDate)
+        .get()
+        .then((snapshot) {
+      if (snapshot.exists) {
+        Map<dynamic, dynamic>? values = snapshot.value as Map?;
+        values!.forEach((key, value) {
+          print("OT Dateee: " + value['otDate']);
+          var isRejected = value['isRejected'] ?? false;
+          var isCancelled = value['isCancelled'] ?? false;
+          if (value['guid'] == guid &&
+              (isCancelled == false &&
+                  isRejected == false &&
+                  value['docType'] == 'Overtime')) {
+            isDuplicate = true;
+          }
+        });
+      }
+    });
   }
 
   return isDuplicate;
@@ -495,7 +518,7 @@ fetchApprover() async {
 }
 
 updateEmployeeDetails(key, department, employeeID, employeeName, isWfh,
-    userType, approver, approverName, absences) async {
+    userType, approver, approverName, absences, approvers) async {
   final databaseReference =
       FirebaseDatabase.instance.ref().child('Employee/' + key);
   await databaseReference.update({
@@ -507,7 +530,43 @@ updateEmployeeDetails(key, department, employeeID, employeeName, isWfh,
     'approverName': approverName,
     'remainingLeaves': absences,
     'isWfh': isWfh == true ? 'Work from Home' : '',
+  }).then((value) async {
+    final dbRef = FirebaseDatabase.instance.ref().child('Approver');
+    var approverList = dbRef.orderByChild('empKey').equalTo(key);
+    final snapshot =
+        await dbRef.orderByChild('empKey').equalTo(key).get().then((snapshot) {
+      if (snapshot.exists) {
+        Map<dynamic, dynamic>? values = snapshot.value as Map?;
+        values!.forEach((key, value) {
+          dbRef.child(key).remove();
+        });
+      }
+    });
+    for (approver in approvers) {
+      await dbRef.push().set({
+        'empKey': key,
+        'guid': approver.guid,
+      });
+    }
   });
+}
+
+fetchApprovers() async {
+  final dbRef = FirebaseDatabase.instance.ref().child('Approver');
+  List<Approver> approvers = [];
+  final snapshot = await dbRef.get().then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      values!.forEach((key, value) {
+        Approver approverDetails = new Approver();
+        approverDetails.setKey(key);
+        approverDetails.setEmpKey(value['empKey'] ?? '');
+        approverDetails.setGuid(value['guid'] ?? '');
+        approvers.add(approverDetails);
+      });
+    }
+  });
+  return approvers;
 }
 
 insertNewEmployee(department, email, employeeID, employeeName, guid,
@@ -632,13 +691,13 @@ updateAttendance(guid, context, isTimeIn, Employees emp) async {
   //result = newLogs![0].getKey;
   if (newLogs!.length > 0) {
     if (isTimeIn == true) {
-      if (newLogs![0].timeOut != 'No Data') {
+      if (newLogs[0].timeOut != 'No Data') {
         String message = await insertAttendance(context, 'No', emp);
         success_box(context, message);
       } else {
-        if (getDateDiff(newLogs![0].dateIn.toString() +
+        if (getDateDiff(newLogs[0].dateIn.toString() +
             ' ' +
-            newLogs![0].timeIn.toString())) {
+            newLogs[0].timeIn.toString())) {
           warning_box(context, 'Please time out first.');
         } else {
           String message = await insertAttendance(context, 'No', emp);
@@ -646,13 +705,13 @@ updateAttendance(guid, context, isTimeIn, Employees emp) async {
         }
       }
     } else {
-      if (newLogs![0].timeOut == 'No Data') {
-        var resultKey = newLogs![0].getKey;
+      if (newLogs[0].timeOut == 'No Data') {
+        var resultKey = newLogs[0].getKey;
         var timeToday = await updateTimeOut(resultKey);
         success_box(context, 'Successfully timed out: ' + timeToday);
       } else {
         error_box(
-            context, 'Already timed out: ' + newLogs![0].timeOut.toString());
+            context, 'Already timed out: ' + newLogs[0].timeOut.toString());
       }
     }
   } else {

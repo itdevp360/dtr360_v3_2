@@ -123,7 +123,13 @@ updateFilingDocs(selectedItems, documents, context, approverName) async {
               .toList();
           selectedData.isEmpty
               ? await createAttendance(
-                  documents[i].key, context, documents[i].empKey, documents![i].correctDate, documents[i].correctTime, documents[i].isOut, approverName)
+                  documents[i].key,
+                  context,
+                  documents[i].empKey,
+                  documents![i].correctDate,
+                  documents[i].correctTime,
+                  documents[i].isOut,
+                  approverName)
               : await attendanceCorrection(
                   selectedData[0].getKey,
                   selectedData[0].getDateIn,
@@ -131,7 +137,8 @@ updateFilingDocs(selectedItems, documents, context, approverName) async {
                   documents[i].isOut,
                   documents[i].key,
                   context,
-                  documents[i].empKey, approverName);
+                  documents[i].empKey,
+                  approverName);
         } else if (documents![i].docType == 'Leave') {
           var selectedData = attendance
               .where((element) => element.getDateIn == documents![i].date)
@@ -140,11 +147,16 @@ updateFilingDocs(selectedItems, documents, context, approverName) async {
               ? await updateRemainingLeaves(
                       documents[i].empKey, documents[i].noOfDay)
                   .then((value) async {
-                  await updateFilingDocStatus(
-                      documents[i].key, context, documents[i].empKey, approverName);
+                  await updateFilingDocStatus(documents[i].key, context,
+                      documents[i].empKey, approverName);
                 })
-              : await fileLeave(selectedData[0].getKey, documents[i].key,
-                  context, documents[i].empKey, documents[i].noOfDay, approverName);
+              : await fileLeave(
+                  selectedData[0].getKey,
+                  documents[i].key,
+                  context,
+                  documents[i].empKey,
+                  documents[i].noOfDay,
+                  approverName);
         } else {
           var selectedData = attendance
               .where((element) => element.getDateIn == documents![i].otDate)
@@ -158,7 +170,8 @@ updateFilingDocs(selectedItems, documents, context, approverName) async {
                   context,
                   documents[i].otType,
                   documents[i].hoursNo,
-                  documents[i].empKey, approverName);
+                  documents[i].empKey,
+                  approverName);
         }
       }
     }
@@ -188,7 +201,20 @@ fetchEmployeeDocument() async {
     previousCutoffStart = DateTime(now.year, now.month - 1, 25);
     previousCutoffEnd = DateTime(now.year, now.month, 11);
   }
-
+  final dbRef = FirebaseDatabase.instance.ref().child('Approver');
+  List<String> empKeys = [];
+  final empApprover = await dbRef
+      .orderByChild('guid')
+      .equalTo(empProfile[4])
+      .get()
+      .then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      values!.forEach((key, value) {
+        empKeys.add(value['empKey'] ?? '');
+      });
+    }
+  });
   final snapshot = await ref.get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
@@ -255,11 +281,11 @@ fetchEmployeeDocument() async {
             : longformatDate(DateTime.parse(value['dateTo'])).toString();
 
         if (empProfile[6] == 'Approver' &&
-                empProfile[1].toString().contains(file.dept) &&
-                file.isCancelled == false &&
-                (parseCustomDate(file.date).isAfter(cutoffStart)) ||
-            (parseCustomDate(file.date).isAfter(previousCutoffStart) &&
-                parseCustomDate(file.date).isBefore(previousCutoffEnd))) {
+            empKeys.contains(file.empKey) &&
+            file.isCancelled == false &&
+            ((parseCustomDate(file.date).isAfter(cutoffStart)) ||
+                (parseCustomDate(file.date).isAfter(previousCutoffStart) &&
+                    parseCustomDate(file.date).isBefore(previousCutoffEnd)))) {
           _listKeys.add(file);
         } else if (file.guid == empProfile[4] &&
             ((parseCustomDate(file.date).isAfter(cutoffStart)) ||
@@ -278,7 +304,20 @@ fetchFilingDocuments() async {
   List<FilingDocument> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('FilingDocuments');
   final empProfile = await read_employeeProfile();
-
+  final dbRef = FirebaseDatabase.instance.ref().child('Approver');
+  List<String> empKeys = [];
+  final empApprover = await dbRef
+      .orderByChild('guid')
+      .equalTo(empProfile[4])
+      .get()
+      .then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      values!.forEach((key, value) {
+        empKeys.add(value['empKey'] ?? '');
+      });
+    }
+  });
   final snapshot = await ref.get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
@@ -341,7 +380,7 @@ fetchFilingDocuments() async {
         file.dateTo = value['dateTo'] == null || value['dateTo'] == ''
             ? ''
             : longformatDate(DateTime.parse(value['dateTo'])).toString();
-        if (empProfile[1].toString().contains(file.dept) &&
+        if (empKeys.contains(file.empKey) &&
             !file.isApproved &&
             !file.isRejected) {
           _listKeys.add(file);
