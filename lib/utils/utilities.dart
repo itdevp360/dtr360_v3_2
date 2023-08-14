@@ -42,7 +42,7 @@ save_employeeProfile(
     employeeID,
     approver,
     approverName,
-    remainingLeaves) async {
+    remainingLeaves, shiftTimeIn, shiftTimeOut, monday,tuesday,wednesday,thursday,friday,saturday,sunday) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setStringList('employeeCredentials', <String>[
     employeeName,
@@ -56,7 +56,7 @@ save_employeeProfile(
     employeeID,
     approverName,
     approver,
-    remainingLeaves
+    remainingLeaves, shiftTimeIn, shiftTimeOut, monday,tuesday,wednesday,thursday,friday,saturday,sunday
   ]);
 }
 
@@ -202,7 +202,7 @@ getDateDiff(dateTime) {
 logoutUser(context) {
   FirebaseAuth.instance.signOut();
   save_credentials_pref('', '');
-  save_employeeProfile('', '', '', '', '', '', '', '', '', '', '', '');
+  save_employeeProfile('', '', '', '', '', '', '', '', '', '', '', '','','','','','','','','','');
   Navigator.pushReplacementNamed(context, 'Login');
 }
 

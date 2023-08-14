@@ -140,24 +140,24 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                 readOnly: true,
                 controller: TextEditingController(text: formatDate(startDate)),
               ),
-              DropdownButtonFormField<String>(
-                value: selectedOtType,
-                decoration: const InputDecoration(
-                  labelText: 'OT Type',
-                ),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedOtType = newValue;
-                    dataModel.otType = newValue!;
-                  });
-                },
-                items: otType.map((dropdownValue) {
-                  return DropdownMenuItem<String>(
-                    value: dropdownValue,
-                    child: Text(dropdownValue),
-                  );
-                }).toList(),
-              ),
+              // DropdownButtonFormField<String>(
+              //   value: selectedOtType,
+              //   decoration: const InputDecoration(
+              //     labelText: 'OT Type',
+              //   ),
+              //   onChanged: (newValue) {
+              //     setState(() {
+              //       selectedOtType = newValue;
+              //       dataModel.otType = newValue!;
+              //     });
+              //   },
+              //   items: otType.map((dropdownValue) {
+              //     return DropdownMenuItem<String>(
+              //       value: dropdownValue,
+              //       child: Text(dropdownValue),
+              //     );
+              //   }).toList(),
+              // ),
               TextField(
                 keyboardType: TextInputType.none,
                 decoration:
@@ -249,8 +249,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                         dataModel.otTo,
                         dataModel.isOvernightOt,
                         dataModel.isOut);
-                    if (selectedOtType != '' &&
-                        reason.text != '' &&
+                    if (reason.text != '' &&
                         totalHours.text != '' &&
                         totalHours.text != '0') {
                       if (isValid &&

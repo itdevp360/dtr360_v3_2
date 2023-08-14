@@ -172,7 +172,7 @@ checkIfValidDate(
   DateTime queryDate = DateTime.parse(desiredDate);
   DateTime dateTimeFrom = DateTime.fromMillisecondsSinceEpoch(timeFrom);
   DateTime dateTimeTo = DateTime.fromMillisecondsSinceEpoch(timeTo);
-
+  final empProfile = await read_employeeProfile();
   int month = queryDate.month;
   int day = queryDate.day;
   int year = queryDate.year;
@@ -183,8 +183,14 @@ checkIfValidDate(
       DateTime(year, month, dateTimeTo.day, dateTimeTo.hour, dateTimeTo.minute)
           .millisecondsSinceEpoch;
   bool isBeyondTime = false;
-  final int startTimestamp = queryDate
+  final int startTimestamp = !isOvernightOt ? queryDate
       .subtract(Duration(
+          hours: queryDate.hour,
+          minutes: queryDate.minute,
+          seconds: queryDate.second))
+      .millisecondsSinceEpoch : queryDate
+      .subtract(Duration(
+          days: 1,
           hours: queryDate.hour,
           minutes: queryDate.minute,
           seconds: queryDate.second))
@@ -222,6 +228,7 @@ checkIfValidDate(
         logs.userType = value['usertype'].toString();
         logs.iswfh = value['isWfh'].toString();
         if (isOt) {
+          
           FilingDocument dataModel = FilingDocument();
           if (value['timeOut'] != null && guid == logs.getGuid) {
             int timeOut = value['timeOut'];
@@ -251,7 +258,8 @@ checkIfValidDate(
               }
             } else {}
           }
-        } else {
+        } 
+        else {
           if (guid == logs.getGuid) {
             isBeyondTime = true;
           }
@@ -478,6 +486,15 @@ fetchEmployees() async {
         emp.appId = value['approver'].toString();
         emp.appName = value['approverName'].toString();
         emp.absences = value['remainingLeaves'].toString();
+        emp.timeIn = value['shiftTimeIn'].toString();
+        emp.timeOut = value['shiftTimeOut'].toString();
+        emp.mon = value['monday'].toString();
+        emp.tues = value['tuesday'].toString();
+        emp.wed = value['wednesday'].toString();
+        emp.thurs = value['thursday'].toString();
+        emp.fri = value['friday'].toString();
+        emp.sat = value['saturday'].toString();
+        emp.sun = value['sunday'].toString();
         _listKeys.add(emp);
       });
     }
@@ -570,10 +587,11 @@ fetchApprovers() async {
 }
 
 insertNewEmployee(department, email, employeeID, employeeName, guid,
-    imageString, userType, approver, approverName, absences, _isChecked) {
+    imageString, userType, approver, approverName, absences, _isChecked, approvers) {
   final databaseReference = FirebaseDatabase.instance.ref().child('Employee');
-
-  databaseReference.push().set({
+  final DatabaseReference newRef = databaseReference.push();
+  var newKey = newRef.key;
+  newRef.set({
     'department': department,
     'email': email,
     'employeeID': employeeID,
@@ -585,7 +603,16 @@ insertNewEmployee(department, email, employeeID, employeeName, guid,
     'approverName': approverName,
     'remainingLeaves': absences,
     'isWfh': _isChecked == true ? 'Work from Home' : '',
-  }).then((value) => print('success saving'));
+  }).then((value) async {
+    final dbRef = FirebaseDatabase.instance.ref().child('Approver');
+
+    for (approver in approvers) {
+      await dbRef.push().set({
+        'empKey': newKey,
+        'guid': approver.guid,
+      });
+    }
+  });
 }
 
 registerWithEmailAndPassword(String email, String password) async {

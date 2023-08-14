@@ -87,7 +87,7 @@ fileDocument(FilingDocument file, context) async {
   }).then((value) => saveId(numId, file.docType, context));
 }
 
-rejectAllDocs(selectedItems, documents, context) async {
+rejectAllDocs(selectedItems, documents, context, reason, rejectedBy) async {
   String today = DateTime.now().toString();
   for (var i = 0; i < selectedItems.length; i++) {
     if (selectedItems[i] != false) {
@@ -96,7 +96,9 @@ rejectAllDocs(selectedItems, documents, context) async {
           .child('FilingDocuments/' + documents[i].key);
       await databaseReference.update({
         'isRejected': true,
+        'rejectionReason': reason,
         'approveRejectDate': today,
+        'approveRejectBy': rejectedBy
       }).then((value) async {
         // await success_box(context, 'Document approved');
       });

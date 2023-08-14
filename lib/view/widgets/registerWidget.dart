@@ -5,8 +5,10 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
 import 'package:lottie/lottie.dart';
+import 'package:multi_dropdown/multiselect_dropdown.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../model/approver.dart';
 import '../../model/users.dart';
 import '../../utils/firebase_functions.dart';
 
@@ -28,8 +30,9 @@ class _RegisterWidget extends State<RegisterWidget> {
   TextEditingController confirmpass = TextEditingController();
   TextEditingController approver = TextEditingController();
   TextEditingController absences = TextEditingController();
-
+  List<ValueItem> selectedApprovers = [];
   List<Employees>? approverList;
+  List<Approver> empApprovers = [];
   Employees selectedApprover = Employees();
   String? approverDropdownValue;
 
@@ -221,34 +224,51 @@ class _RegisterWidget extends State<RegisterWidget> {
               top: 20,
               bottom: 0,
             ),
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: approverDropdownValue,
-              icon: const Icon(Icons.arrow_downward),
-              elevation: 16,
-              style: const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
-              underline: Container(
-                height: 2,
-                color: const Color.fromARGB(255, 57, 57, 231),
-              ),
-              onChanged: (String? value) {
-                // This is called when the user selects an item.
-                setState(() {
-                  approverDropdownValue = value!;
-                  selectedApprover = approverList!
-                      .where((element) => element.guid == approverDropdownValue)
-                      .first;
-                });
-              },
-              items: approverList != null
-                  ? approverList!.map((e) {
-                      return DropdownMenuItem<String>(
-                        value: e.guid!,
-                        child: Text(e.empName!),
-                      );
-                    }).toList()
-                  : [],
-            ),
+            child: MultiSelectDropDown(
+                    onOptionSelected: (List<ValueItem> selectedOptions) {
+                      selectedApprovers = selectedOptions;
+                    },
+                    options: approverList != null
+                        ? approverList!
+                            .map((e) =>
+                                ValueItem(label: e.empName!, value: e.guid))
+                            .toList()
+                        : [],
+                    selectionType: SelectionType.multi,
+                    selectedOptions: selectedApprovers,
+                    chipConfig: const ChipConfig(wrapType: WrapType.scroll),
+                    dropdownHeight: 300,
+                    optionTextStyle: const TextStyle(fontSize: 16),
+                    selectedOptionIcon: const Icon(Icons.check_circle),
+            )
+            // child: DropdownButton<String>(
+            //   isExpanded: true,
+            //   value: approverDropdownValue,
+            //   icon: const Icon(Icons.arrow_downward),
+            //   elevation: 16,
+            //   style: const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
+            //   underline: Container(
+            //     height: 2,
+            //     color: const Color.fromARGB(255, 57, 57, 231),
+            //   ),
+            //   onChanged: (String? value) {
+            //     // This is called when the user selects an item.
+            //     setState(() {
+            //       approverDropdownValue = value!;
+            //       selectedApprover = approverList!
+            //           .where((element) => element.guid == approverDropdownValue)
+            //           .first;
+            //     });
+            //   },
+            //   items: approverList != null
+            //       ? approverList!.map((e) {
+            //           return DropdownMenuItem<String>(
+            //             value: e.guid!,
+            //             child: Text(e.empName!),
+            //           );
+            //         }).toList()
+            //       : [],
+            // ),
           ),
           Padding(
               padding: const EdgeInsets.only(
@@ -291,6 +311,12 @@ class _RegisterWidget extends State<RegisterWidget> {
                       email.text, password.text);
                   String guId = generateGUID();
                   String data = await generateQRBase64String(guId);
+                  List<Approver> approverObject = [];
+                  approverObject = selectedApprovers.map((e) {
+                    Approver aprvr = new Approver();
+                    aprvr.setGuid(e.value.toString());
+                    return aprvr;
+                  }).toList();
                   if (message == 'Account successfully created') {
                     insertNewEmployee(
                       department.text,
@@ -304,6 +330,7 @@ class _RegisterWidget extends State<RegisterWidget> {
                       selectedApprover.employeeName,
                       absences.text,
                       _isChecked,
+                      approverObject
                     );
                     success_box(context, message);
                     department.text = '';

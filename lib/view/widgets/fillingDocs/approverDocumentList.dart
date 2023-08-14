@@ -112,24 +112,9 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                           ),
                           TextButton(
                             onPressed: () async {
-                              var isTrue = await rejectAllDocs(
-                                  selectedItems, documents, context);
-                              if (isTrue == true) {
-                                _listKey.currentState?.setState(() {
-                                  documents = documents!
-                                      .where((item) =>
-                                          item.docType == selectedValue)
-                                      .toList();
-                                });
-                                setState(() {
-                                  selectedItems = List.generate(
-                                      documents!.length, (index) => false);
-                                  selectedIndexes.clear();
-                                });
-                                Navigator.of(context).pop();
-                                _showSecondaryAlertDialog(
-                                    context, 'Documents Rejected');
-                              }
+                              Navigator.of(context).pop();
+                                            _showRejectAllModal(context);
+                              
                             },
                             child: const Text('Reject All'),
                           ),
@@ -929,6 +914,66 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
         );
       },
     );
+  }
+  void _showRejectAllModal(BuildContext context) {
+    Future.delayed(const Duration(milliseconds: 10), () {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Builder(builder: (BuildContext context) {
+            return AlertDialog(
+              title: Row(
+                children: const [
+                  Icon(Icons.assignment_late_outlined, color: Colors.blue),
+                  SizedBox(width: 8),
+                  Text('Confirmation'),
+                ],
+              ),
+              content: Row(children: [
+                Expanded(
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Reason',
+                    ),
+                    controller: rejectionReason,
+                  ),
+                ),
+              ]),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      rejectionReason.text = '';
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Close'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    var isTrue = await rejectAllDocs(selectedItems, documents, context, rejectionReason.text,employeeProfile[0]);
+                    if (isTrue == true) {
+                      _listKey.currentState?.setState(() {
+                        documents = documents!.where((item) =>  item.docType == selectedValue).toList();
+                      });
+                    setState(() {
+                      selectedItems = List.generate(documents!.length, (index) => false);
+                      selectedIndexes.clear();
+                      rejectionReason.clear();
+                    });
+                    Navigator.of(context).pop();
+                    _showRejectionSuccess(context);
+                    }
+                    
+                  },
+                  child: const Text('Confirm'),
+                ),
+              ],
+            );
+          });
+        },
+      );
+    });
   }
 
   void _showRejectModal(BuildContext context, String selectedItem) {

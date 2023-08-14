@@ -55,7 +55,16 @@ class _MyHomeWidgetState extends State<HomeWidget> {
             emp.empId,
             emp.appId,
             emp.appName,
-            emp.absences);
+            emp.absences,
+            emp.timeIn,
+            emp.timeOut,
+            emp.mon,
+            emp.tues,
+            emp.wed,
+            emp.thurs,
+            emp.fri,
+            emp.sat,
+            emp.sun);
         // if(employeeProfile != null && employeeProfile[0] != ''){
         //   emp.empName = employeeProfile[0] ?? '';
         //   emp.dept = employeeProfile[1] ?? '';
