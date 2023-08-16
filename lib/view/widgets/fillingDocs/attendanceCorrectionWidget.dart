@@ -40,8 +40,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
       dataModel.empKey = employeeProfile[7] ?? '';
       dataModel.employeeName = employeeProfile[0] ?? '';
       TimeOfDay timeOfDay = TimeOfDay(hour: 0, minute: 0);
-      String formattedTime = DateFormat.Hm()
-          .format(DateTime(2023, 1, 1, timeOfDay.hour, timeOfDay.minute));
+      String formattedTime = DateFormat.Hm().format(DateTime(2023, 1, 1, timeOfDay.hour, timeOfDay.minute));
       setState(() {
         dataModel.date = startDate.toString();
         dataModel.correctDate = correctDate.toString();
@@ -51,8 +50,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
   }
 
   Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: initialTime);
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTime);
     if (picked != null && picked != initialTime) {
       setState(() {
         initialTime = picked;
@@ -136,8 +134,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                 onTap: () {
                   _correctDate(context);
                 },
-                controller:
-                    TextEditingController(text: formatDate(correctDate)),
+                controller: TextEditingController(text: formatDate(correctDate)),
               ),
               TextField(
                 keyboardType: TextInputType.none,
@@ -145,8 +142,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                 onTap: () {
                   _selectTime(context);
                 },
-                controller:
-                    TextEditingController(text: formatTime(initialTime)),
+                controller: TextEditingController(text: formatTime(initialTime)),
               ),
               TextField(
                 decoration: const InputDecoration(labelText: 'Reason'),
@@ -161,32 +157,23 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
               Container(
                 height: 6.h,
                 width: 80.w,
-                decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(20)),
                 child: TextButton.icon(
                   icon: const Icon(
                     Icons.file_copy,
                     color: Color.fromARGB(255, 141, 105, 105),
                   ),
                   onPressed: () async {
-                    dataModel.finalDate = convertStringDateToUnix(
-                        dataModel.correctDate,
-                        dataModel.correctTime,
-                        'Correction', false, dataModel.otfrom);
+                    dataModel.finalDate = convertStringDateToUnix(dataModel.correctDate, dataModel.correctTime, 'Correction', false, dataModel.otfrom);
                     dataModel.docType = 'Correction';
-                    var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType, dataModel.guid, dataModel.isOut);
-                    
+                    var isDupe = await checkIfDuplicate(
+                        dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType, dataModel.guid, dataModel.isOut);
+
                     if (reason.text != '' && selectedInOrOut != '') {
                       bool isValid = await checkIfValidDate(
-                          dataModel.correctDate,
-                          employeeProfile[4],
-                          false,
-                          dataModel.otfrom,
-                          dataModel.otTo,
-                          dataModel.isOvernightOt, dataModel.isOut);
+                          dataModel.correctDate, employeeProfile[4], false, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true);
                       if (isValid) {
-                        if(!isDupe){
+                        if (!isDupe) {
                           await fileDocument(dataModel, context);
                           setState(() {
                             dataModel.resetProperties();
@@ -197,11 +184,9 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                             dataModel.correctDate = correctDate.toString();
                             initialTime = const TimeOfDay(hour: 0, minute: 0);
                           });
-                        }
-                        else{
+                        } else {
                           warning_box(context, 'There is already an application on this date');
                         }
-                        
                       } else {
                         warning_box(context, 'Invalid date. No attendance.');
                       }

@@ -30,19 +30,8 @@ read_employeeProfile() async {
   return items;
 }
 
-save_employeeProfile(
-    employeeName,
-    department,
-    email,
-    password,
-    guid,
-    imageString,
-    userType,
-    key,
-    employeeID,
-    approver,
-    approverName,
-    remainingLeaves, shiftTimeIn, shiftTimeOut, monday,tuesday,wednesday,thursday,friday,saturday,sunday) async {
+save_employeeProfile(employeeName, department, email, password, guid, imageString, userType, key, employeeID, approver, approverName, remainingLeaves,
+    shiftTimeIn, shiftTimeOut, monday, tuesday, wednesday, thursday, friday, saturday, sunday) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setStringList('employeeCredentials', <String>[
     employeeName,
@@ -56,13 +45,21 @@ save_employeeProfile(
     employeeID,
     approverName,
     approver,
-    remainingLeaves, shiftTimeIn, shiftTimeOut, monday,tuesday,wednesday,thursday,friday,saturday,sunday
+    remainingLeaves,
+    shiftTimeIn,
+    shiftTimeOut,
+    monday,
+    tuesday,
+    wednesday,
+    thursday,
+    friday,
+    saturday,
+    sunday
   ]);
 }
 
 Image imageFromBase64String(String base64String) {
-  return Image.memory(
-      base64Decode(base64String.replaceAll(RegExp(r'\s+'), '')));
+  return Image.memory(base64Decode(base64String.replaceAll(RegExp(r'\s+'), '')));
 }
 
 String timestampToDateString(dynamic timestamp, format) {
@@ -77,6 +74,11 @@ String timestampToDateString(dynamic timestamp, format) {
   } else {
     return 'No Data';
   }
+}
+
+String getDayOfWeek(int dayNumber) {
+  List<String> days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  return days[dayNumber - 1];
 }
 
 String convertDateFormat(String dateString) {
@@ -123,8 +125,7 @@ fetchLatestWeeks(List<Attendance> logs) {
 
   return logs.where((element) {
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(element.dateIn!);
-    final date =
-        DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
+    final date = DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
     //.add(Duration(hours: 8));
     Duration difference = now.difference(date);
     if (difference <= Duration(days: 15)) {
@@ -136,10 +137,8 @@ fetchLatestWeeks(List<Attendance> logs) {
 }
 
 computeTotalHours(startTIme, endTime) {
-  DateTime start =
-      DateTime.fromMillisecondsSinceEpoch(int.parse(startTIme.toString()));
-  DateTime end =
-      DateTime.fromMillisecondsSinceEpoch(int.parse(endTime.toString()));
+  DateTime start = DateTime.fromMillisecondsSinceEpoch(int.parse(startTIme.toString()));
+  DateTime end = DateTime.fromMillisecondsSinceEpoch(int.parse(endTime.toString()));
 
   // Calculate the difference in hours
   Duration difference = end.difference(start);
@@ -163,14 +162,10 @@ convertStringDateToUnix(date, selectedTime, docType, isTimeTo, otFrom) {
     DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
     DateFormat timeFormat = DateFormat('HH:mm');
     DateTime time = timeFormat.parse(selectedTime);
-    DateTime otTimeFrom =
-        DateTime.fromMillisecondsSinceEpoch(int.parse(otFrom.toString()));
-    int day = isTimeTo && (otTimeFrom.hour > time.hour)
-        ? dateTime.day + 1
-        : dateTime.day;
+    DateTime otTimeFrom = DateTime.fromMillisecondsSinceEpoch(int.parse(otFrom.toString()));
+    int day = isTimeTo && (otTimeFrom.hour > time.hour) ? dateTime.day + 1 : dateTime.day;
 
-    DateTime convertedTime = DateTime(dateTime.year, dateTime.month, day,
-        time.hour, time.minute, time.second);
+    DateTime convertedTime = DateTime(dateTime.year, dateTime.month, day, time.hour, time.minute, time.second);
 
     // Convert to Unix timestamp
     unixTimestamp = convertedTime.millisecondsSinceEpoch;
@@ -186,10 +181,8 @@ convertStringDateToUnix(date, selectedTime, docType, isTimeTo, otFrom) {
 
 getDateDiff(dateTime) {
   DateTime now = DateTime.now();
-  DateTime? startDate1 =
-      DateFormat('MM/dd/yyyy HH:mm a').parse(dateTime.toString());
-  final date =
-      DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
+  DateTime? startDate1 = DateFormat('MM/dd/yyyy HH:mm a').parse(dateTime.toString());
+  final date = DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
   //.add(Duration(hours: 8));
   final difference = now.difference(date).abs();
   if (difference <= Duration(days: 1)) {
@@ -202,7 +195,7 @@ getDateDiff(dateTime) {
 logoutUser(context) {
   FirebaseAuth.instance.signOut();
   save_credentials_pref('', '');
-  save_employeeProfile('', '', '', '', '', '', '', '', '', '', '', '','','','','','','','','','');
+  save_employeeProfile('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
   Navigator.pushReplacementNamed(context, 'Login');
 }
 
@@ -212,19 +205,14 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
     String startDateString = formatDate(startDate);
     String endDateString = formatDate(endDate);
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(startDateString);
-    DateTime? endDate1 = DateFormat('MM/dd/yyyy')
-        .parse(endDateString)
-        .add(const Duration(days: 1));
+    DateTime? endDate1 = DateFormat('MM/dd/yyyy').parse(endDateString).add(const Duration(days: 1));
     ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
     if (startDate1 != null && endDate1 != null) {
       List<Attendance> newlogs = [];
       for (var attendance in ownLogs!) {
         if (attendance.dateIn != null) {
-          var attendanceDate =
-              DateFormat('MM/dd/yyyy').parse(attendance.dateIn!);
-          if (attendanceDate != null &&
-              attendanceDate.isAfter(startDate1!) &&
-              attendanceDate.isBefore(endDate1!)) {
+          var attendanceDate = DateFormat('MM/dd/yyyy').parse(attendance.dateIn!);
+          if (attendanceDate != null && attendanceDate.isAfter(startDate1!) && attendanceDate.isBefore(endDate1!)) {
             newlogs.add(attendance);
           }
         }
@@ -241,15 +229,13 @@ sortList(List<Attendance> attendance) {
     var dateTimeB;
 
     if (a.timeIn != 'No Data') {
-      dateTimeA =
-          DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
+      dateTimeA = DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
     } else {
       dateTimeA = DateFormat("MM/dd/yyyy").parse(a.dateIn!);
     }
 
     if (b.timeIn != 'No Data') {
-      dateTimeB =
-          DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
+      dateTimeB = DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
     } else {
       dateTimeB = DateFormat("MM/dd/yyyy").parse(b.dateIn!);
     }
@@ -300,21 +286,7 @@ sortDocs(List<FilingDocument> docs) {
 }
 
 DateTime parseCustomDate(String dateString) {
-  final List<String> months = [
-    '',
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ];
+  final List<String> months = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   final parts = dateString.split(' ');
   final weekday = parts[0];

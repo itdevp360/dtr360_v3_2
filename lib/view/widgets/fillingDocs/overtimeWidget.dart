@@ -84,16 +84,13 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
   }
 
   Future<void> _selectTimeFrom(BuildContext context) async {
-    final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: initialTimeFrom);
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTimeFrom);
     if (picked != null && picked != initialTimeFrom) {
       setState(() {
         initialTimeFrom = picked;
-        dataModel.otfrom = convertStringDateToUnix(dataModel.otDate,
-            formatTime(initialTimeFrom), 'Overtime', false, dataModel.otfrom);
+        dataModel.otfrom = convertStringDateToUnix(dataModel.otDate, formatTime(initialTimeFrom), 'Overtime', false, dataModel.otfrom);
         if (dataModel.otfrom != null && dataModel.otTo != null) {
-          String totalNoHours =
-              computeTotalHours(dataModel.otfrom, dataModel.otTo);
+          String totalNoHours = computeTotalHours(dataModel.otfrom, dataModel.otTo);
           totalHours.text = totalNoHours;
           dataModel.hoursNo = totalNoHours;
         }
@@ -102,16 +99,13 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
   }
 
   Future<void> _selectTimeTo(BuildContext context) async {
-    final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: initialTimeTo);
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTimeTo);
     if (picked != null && picked != initialTimeTo) {
       setState(() {
         initialTimeTo = picked;
-        dataModel.otTo = convertStringDateToUnix(dataModel.otDate,
-            formatTime(initialTimeTo), 'Overtime', true, dataModel.otfrom);
+        dataModel.otTo = convertStringDateToUnix(dataModel.otDate, formatTime(initialTimeTo), 'Overtime', true, dataModel.otfrom);
         if (dataModel.otfrom != '' && dataModel.otTo != '') {
-          String totalNoHours =
-              computeTotalHours(dataModel.otfrom, dataModel.otTo);
+          String totalNoHours = computeTotalHours(dataModel.otfrom, dataModel.otTo);
           totalHours.text = totalNoHours;
           dataModel.hoursNo = totalNoHours;
         }
@@ -160,8 +154,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
               // ),
               TextField(
                 keyboardType: TextInputType.none,
-                decoration:
-                    const InputDecoration(labelText: 'Date of Overtime'),
+                decoration: const InputDecoration(labelText: 'Date of Overtime'),
                 onTap: () {
                   _otDate(context);
                 },
@@ -173,8 +166,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                 onTap: () {
                   _selectTimeFrom(context);
                 },
-                controller:
-                    TextEditingController(text: formatTime(initialTimeFrom)),
+                controller: TextEditingController(text: formatTime(initialTimeFrom)),
               ),
               TextField(
                 keyboardType: TextInputType.none,
@@ -182,8 +174,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                 onTap: () {
                   _selectTimeTo(context);
                 },
-                controller:
-                    TextEditingController(text: formatTime(initialTimeTo)),
+                controller: TextEditingController(text: formatTime(initialTimeTo)),
               ),
               TextField(
                 decoration: const InputDecoration(labelText: 'Total Hours'),
@@ -223,9 +214,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
               Container(
                 height: 6.h,
                 width: 80.w,
-                decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(20)),
                 child: TextButton.icon(
                   icon: const Icon(
                     Icons.file_copy,
@@ -234,28 +223,15 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                   onPressed: () async {
                     dataModel.docType = 'Overtime';
                     var isDupe = await checkIfDuplicate(
-                        dataModel.dateFrom,
-                        dataModel.dateTo,
-                        dataModel.correctDate,
-                        dataModel.otDate,
-                        dataModel.docType,
-                        dataModel.guid,
-                        dataModel.isOut);
+                        dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType, dataModel.guid, dataModel.isOut);
                     var isValid = await checkIfValidDate(
-                        dataModel.otDate,
-                        employeeProfile[4],
-                        true,
-                        dataModel.otfrom,
-                        dataModel.otTo,
-                        dataModel.isOvernightOt,
-                        dataModel.isOut);
-                    if (reason.text != '' &&
-                        totalHours.text != '' &&
-                        totalHours.text != '0') {
-                      if (isValid &&
-                          (double.parse(totalHours.text) > 0 ||
-                              isOvernightOt)) {
+                        dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true);
+                    if (reason.text != '' && totalHours.text != '' && totalHours.text != '0') {
+                      if (isValid && (double.parse(totalHours.text) > 0 || isOvernightOt)) {
                         if (!isDupe) {
+                          var otType = await checkIfValidDate(
+                              dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, false);
+                          dataModel.otType = otType;
                           await fileDocument(dataModel, context);
                           setState(() {
                             dataModel.resetProperties();
@@ -264,14 +240,12 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                             otDate = DateTime.now();
                             dataModel.date = startDate.toString();
                             dataModel.otDate = otDate.toString();
-                            initialTimeFrom =
-                                const TimeOfDay(hour: 0, minute: 0);
+                            initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
                             initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
                             totalHours.text = '';
                           });
                         } else {
-                          warning_box(context,
-                              'There is already an application on this date');
+                          warning_box(context, 'There is already an application on this date');
                         }
                       } else {
                         warning_box(context, 'Invalid Overtime');

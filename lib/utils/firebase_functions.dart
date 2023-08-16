@@ -1,5 +1,6 @@
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/model/filingdocument.dart';
+import 'package:dtr360_version3_2/model/holidays.dart';
 import 'package:dtr360_version3_2/model/users.dart';
 import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,14 +24,12 @@ fetchSelectedEmployeesAttendance(documents) async {
         logs.employeeID = value['employeeID'].toString();
         logs.employeeName = value['employeeName'].toString();
         logs.guid = value['guid'].toString();
-        logs.dateTimeIn =
-            timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
+        logs.dateTimeIn = timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
         logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
         logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
-        logs.userType = value['usertype'].toString();
+        logs.userType = value['userType'].toString();
         logs.iswfh = value['isWfh'].toString();
-        if (isEmployeeExist(logs.empName, documents) &&
-            value['usertype'].toString() != 'Former Employee') {
+        if (isEmployeeExist(logs.getGuid, documents) && value['userType'].toString() != 'Former Employee') {
           _listKeys.add(logs);
         }
       });
@@ -41,8 +40,7 @@ fetchSelectedEmployeesAttendance(documents) async {
 }
 
 fileLeave(key, filingDocKey, context, empKey, noOfDays, approverName) async {
-  final databaseReference =
-      FirebaseDatabase.instance.ref().child('Logs/' + key);
+  final databaseReference = FirebaseDatabase.instance.ref().child('Logs/' + key);
   await databaseReference.update({
     'isLeave': true,
   }).then((value) async {
@@ -67,20 +65,15 @@ updateRemainingLeaves(empKey, noOfDays) async {
   }
 }
 
-fileOvertime(
-    key, filingDocKey, context, otType, hoursNo, empKey, approverName) async {
-  final databaseReference =
-      FirebaseDatabase.instance.ref().child('Logs/' + key);
-  await databaseReference.update(
-      {'otType': otType, 'hoursNo': hoursNo, 'isOt': true}).then((value) async {
+fileOvertime(key, filingDocKey, context, otType, hoursNo, empKey, approverName) async {
+  final databaseReference = FirebaseDatabase.instance.ref().child('Logs/' + key);
+  await databaseReference.update({'otType': otType, 'hoursNo': hoursNo, 'isOt': true}).then((value) async {
     await updateFilingDocStatus(filingDocKey, context, empKey, approverName);
   });
 }
 
-attendanceCorrection(
-    key, date, time, isOut, filingDocKey, context, empKey, approverName) async {
-  final databaseReference =
-      FirebaseDatabase.instance.ref().child('Logs/' + key);
+attendanceCorrection(key, date, time, isOut, filingDocKey, context, empKey, approverName) async {
+  final databaseReference = FirebaseDatabase.instance.ref().child('Logs/' + key);
   String dateTimeString = '$date $time';
   DateFormat dateFormat = DateFormat('MM/dd/yyyy HH:mm');
   DateTime dateTime = dateFormat.parse(dateTimeString);
@@ -103,35 +96,28 @@ attendanceCorrection(
 
 updateFilingDocStatus(key, context, empKey, approverName) async {
   String today = DateTime.now().toString();
-  final databaseReference =
-      FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
-  await databaseReference.update({
-    'isApproved': true,
-    'approveRejectDate': today,
-    'approveRejectBy': approverName
-  }).then((value) async {
+  final databaseReference = FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
+  await databaseReference.update({'isApproved': true, 'approveRejectDate': today, 'approveRejectBy': approverName}).then((value) async {
     // await success_box(context, 'Document approved');
   });
 }
 
-createAttendance(
-    key, context, empKey, correctDate, correctTime, isOut, approverName) async {
-  var emp = await read_employeeProfile();
+createAttendance(key, context, empKey, correctDate, correctTime, isOut, approverName) async {
+  Employees emp = await fetchEmployeeByKey(empKey);
   final databaseReference = FirebaseDatabase.instance.ref().child('Logs');
   DateTime selectedDate = DateFormat("EEEE, MMMM dd, yyyy").parse(correctDate);
   DateTime selectedTime = DateFormat("HH:mm").parse(correctTime);
-  DateTime combinedDate = DateTime(selectedDate.year, selectedDate.month,
-      selectedDate.day, selectedTime.hour, selectedTime.minute);
+  DateTime combinedDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, selectedTime.hour, selectedTime.minute);
   int timestamp = combinedDate.millisecondsSinceEpoch;
   if (isOut) {
     databaseReference.push().set({
       'dateTimeIn': timestamp,
-      'department': emp[1],
-      'employeeID': emp[8],
-      'employeeName': emp[0],
-      'guid': emp[4],
+      'department': emp.dept,
+      'employeeID': emp.empId,
+      'employeeName': emp.empName,
+      'guid': emp.guid,
       'timeOut': timestamp,
-      'userType': emp[6],
+      'userType': emp.usrType,
       'isWfh': false,
     }).then(
       (value) {
@@ -141,12 +127,12 @@ createAttendance(
   } else {
     databaseReference.push().set({
       'dateTimeIn': timestamp,
-      'department': emp[1],
-      'employeeID': emp[8],
-      'employeeName': emp[0],
-      'guid': emp[4],
+      'department': emp.dept,
+      'employeeID': emp.empId,
+      'employeeName': emp.empName,
+      'guid': emp.guid,
       'timeIn': timestamp,
-      'userType': emp[6],
+      'userType': emp.usrType,
       'isWfh': false,
     }).then(
       (value) {
@@ -158,60 +144,36 @@ createAttendance(
 
 cancelFilingStatus(key) async {
   String today = DateTime.now().toString();
-  final databaseReference =
-      FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
-  await databaseReference.update(
-      {'isCancelled': true, 'cancellationDate': today}).then((value) async {
+  final databaseReference = FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
+  await databaseReference.update({'isCancelled': true, 'cancellationDate': today}).then((value) async {
     // await success_box(context, 'Document approved');
   });
 }
 
-checkIfValidDate(
-    desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut) async {
+checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut, isValidateDate) async {
   Attendance logs = new Attendance();
   DateTime queryDate = DateTime.parse(desiredDate);
   DateTime dateTimeFrom = DateTime.fromMillisecondsSinceEpoch(timeFrom);
   DateTime dateTimeTo = DateTime.fromMillisecondsSinceEpoch(timeTo);
+  String dayOfWeek = getDayOfWeek(dateTimeTo.weekday);
   final empProfile = await read_employeeProfile();
+  final holidays = await fetchHolidays();
   int month = queryDate.month;
   int day = queryDate.day;
   int year = queryDate.year;
-  int finalTimeFrom =
-      DateTime(year, month, day, dateTimeFrom.hour, dateTimeFrom.minute)
-          .millisecondsSinceEpoch;
-  int finalTimeTo =
-      DateTime(year, month, dateTimeTo.day, dateTimeTo.hour, dateTimeTo.minute)
-          .millisecondsSinceEpoch;
+  int finalTimeFrom = DateTime(year, month, day, dateTimeFrom.hour, dateTimeFrom.minute).millisecondsSinceEpoch;
+  int finalTimeTo = DateTime(year, month, dateTimeTo.day, dateTimeTo.hour, dateTimeTo.minute).millisecondsSinceEpoch;
   bool isBeyondTime = false;
-  final int startTimestamp = !isOvernightOt ? queryDate
-      .subtract(Duration(
-          hours: queryDate.hour,
-          minutes: queryDate.minute,
-          seconds: queryDate.second))
-      .millisecondsSinceEpoch : queryDate
-      .subtract(Duration(
-          days: 1,
-          hours: queryDate.hour,
-          minutes: queryDate.minute,
-          seconds: queryDate.second))
-      .millisecondsSinceEpoch;
+  var finalValue;
+  final int startTimestamp = !isOvernightOt
+      ? queryDate.subtract(Duration(hours: queryDate.hour, minutes: queryDate.minute, seconds: queryDate.second)).millisecondsSinceEpoch
+      : queryDate.subtract(Duration(days: 1, hours: queryDate.hour, minutes: queryDate.minute, seconds: queryDate.second)).millisecondsSinceEpoch;
 
-  final int endTimestamp = queryDate
-      .add(Duration(days: 1))
-      .subtract(Duration(
-          hours: queryDate.hour,
-          minutes: queryDate.minute,
-          seconds: queryDate.second))
-      .millisecondsSinceEpoch;
+  final int endTimestamp =
+      queryDate.add(Duration(days: 1)).subtract(Duration(hours: queryDate.hour, minutes: queryDate.minute, seconds: queryDate.second)).millisecondsSinceEpoch;
 
-  final databaseReference = await FirebaseDatabase.instance
-      .ref()
-      .child('Logs')
-      .orderByChild('dateTimeIn')
-      .startAt(startTimestamp)
-      .endAt(endTimestamp)
-      .get()
-      .then((snapshot) {
+  final databaseReference =
+      await FirebaseDatabase.instance.ref().child('Logs').orderByChild('dateTimeIn').startAt(startTimestamp).endAt(endTimestamp).get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
@@ -219,87 +181,98 @@ checkIfValidDate(
         logs.employeeID = value['employeeID'].toString();
         logs.employeeName = value['employeeName'].toString();
         logs.guid = value['guid'].toString();
-        logs.dateTimeIn =
-            timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
+        logs.dateTimeIn = timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
         logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
-        logs.timeOut = value['timeOut'] != null
-            ? timestampToDateString(value['timeOut'], 'hh:mm a')
-            : '';
+        logs.timeOut = value['timeOut'] != null ? timestampToDateString(value['timeOut'], 'hh:mm a') : '';
         logs.userType = value['usertype'].toString();
         logs.iswfh = value['isWfh'].toString();
         if (isOt) {
-          
           FilingDocument dataModel = FilingDocument();
           if (value['timeOut'] != null && guid == logs.getGuid) {
             int timeOut = value['timeOut'];
-            DateTime convertedTimeOut =
-                DateTime.fromMillisecondsSinceEpoch(timeOut);
+            DateTime convertedTimeOut = DateTime.fromMillisecondsSinceEpoch(timeOut);
             int timeIn = value['timeIn'];
-            DateTime convertedTimeIn =
-                DateTime.fromMillisecondsSinceEpoch(timeIn);
-            int desiredTime =
-                DateTime(year, month, day, 18, 00).millisecondsSinceEpoch;
-            int finalDay = convertedTimeOut.day > convertedTimeIn.day
-                ? convertedTimeIn.day + 1
-                : convertedTimeIn.day;
-            int finalTimeOut = DateTime(
-                    convertedTimeOut.year,
-                    convertedTimeOut.month,
-                    finalDay,
-                    convertedTimeOut.hour,
-                    convertedTimeOut.minute)
-                .millisecondsSinceEpoch;
+            DateTime convertedTimeIn = DateTime.fromMillisecondsSinceEpoch(timeIn);
+            int desiredTime = DateTime(year, month, day, 18, 00).millisecondsSinceEpoch;
+            int finalDay = convertedTimeOut.day > convertedTimeIn.day ? convertedTimeIn.day + 1 : convertedTimeIn.day;
+            int finalTimeOut =
+                DateTime(convertedTimeOut.year, convertedTimeOut.month, finalDay, convertedTimeOut.hour, convertedTimeOut.minute).millisecondsSinceEpoch;
             if (finalTimeFrom < finalTimeOut && finalTimeTo <= finalTimeOut) {
               if (isOvernightOt) {
-                isBeyondTime = true;
+                finalValue = true;
               } else {
-                isBeyondTime =
-                    timeOut >= desiredTime && finalTimeTo >= desiredTime;
+                if ((dayOfWeek == 'Monday' && (empProfile[14] == '0')) ||
+                    (dayOfWeek == 'Tuesday' && (empProfile[15] == '0')) ||
+                    (dayOfWeek == 'Wednesday' && (empProfile[16] == '0')) ||
+                    (dayOfWeek == 'Thursday' && (empProfile[17] == '0')) ||
+                    (dayOfWeek == 'Friday' && (empProfile[18] == '0')) ||
+                    (dayOfWeek == 'Saturday' && (empProfile[19] == '0')) ||
+                    (dayOfWeek == 'Sunday' && (empProfile[20] == '0'))) {
+                  if (isValidateDate) {
+                    finalValue = true;
+                  } else {
+                    var stringTimeOut = timestampToDateString(timeTo, 'MM/dd/yyyy');
+                    var holidayType = '';
+                    for (var i = 0; i < holidays.length; i++) {
+                      if (holidays[i].holidayDate == stringTimeOut) {
+                        finalValue = 'Rest Day ' + holidays[i].holidayType;
+                      }
+                    }
+                  }
+                } else {
+                  if (isValidateDate) {
+                    var shiftIn = empProfile[12].toString().split(':');
+                    var shiftOut = empProfile[13].toString().split(':');
+                    int unixShiftIn = DateTime(year, month, day, int.parse(shiftIn[0]), int.parse(shiftIn[1])).millisecondsSinceEpoch;
+                    int unixShiftOut = DateTime(year, month, day, int.parse(shiftOut[0]), int.parse(shiftOut[1])).millisecondsSinceEpoch;
+                    if (unixShiftOut <= finalTimeFrom && timeOut >= desiredTime) {
+                      finalValue = true;
+                    } else {
+                      finalValue = false;
+                    }
+                  } else {
+                    var stringTimeOut = timestampToDateString(timeTo, 'MM/dd/yyyy');
+                    finalValue = 'Regular Overtime';
+                    for (var i = 0; i < holidays.length; i++) {
+                      if (holidays[i].holidayDate == stringTimeOut) {
+                        finalValue = holidays[i].holidayType;
+                      }
+                    }
+                  }
+                  // isBeyondTime = timeOut >= desiredTime && finalTimeTo >= desiredTime;
+                }
               }
             } else {}
           }
-        } 
-        else {
+        } else {
           if (guid == logs.getGuid) {
-            isBeyondTime = true;
+            finalValue = true;
           }
         }
       });
     } else {
       if (!isOt) {
-        isBeyondTime = true;
+        finalValue = true;
       }
     }
   });
 
-  return isBeyondTime;
+  return finalValue;
 }
 
 rejectApplication(key, reason, approverName) async {
   String today = DateTime.now().toString();
-  final databaseReference =
-      FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
-  await databaseReference.update({
-    'isRejected': true,
-    'approveRejectDate': today,
-    'rejectionReason': reason,
-    'approveRejectBy': approverName
-  }).then((value) async {
+  final databaseReference = FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
+  await databaseReference
+      .update({'isRejected': true, 'approveRejectDate': today, 'rejectionReason': reason, 'approveRejectBy': approverName}).then((value) async {
     // await success_box(context, 'Document approved');
   });
 }
 
-checkIfDuplicate(
-    dateFrom, dateTo, correctDate, otDate, docType, guid, isOut) async {
+checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut) async {
   var isDuplicate = false;
   if (docType == 'Leave') {
-    final databaseReference = await FirebaseDatabase.instance
-        .ref()
-        .child('FilingDocuments')
-        .orderByChild('dateFrom')
-        .endAt(dateTo)
-        .get()
-        .then((snapshot) {
+    final databaseReference = await FirebaseDatabase.instance.ref().child('FilingDocuments').orderByChild('dateFrom').endAt(dateTo).get().then((snapshot) {
       if (snapshot.exists) {
         DateTime selectedDate = DateTime.parse(dateFrom);
         Map<dynamic, dynamic>? values = snapshot.value as Map?;
@@ -307,19 +280,12 @@ checkIfDuplicate(
           var isRejected = value['isRejected'] ?? false;
           var isCancelled = value['isCancelled'] ?? false;
 
-          String dateFromString = value['dateFrom'] == null ||
-                  value['dateFrom'] == ''
-              ? ''
-              : longformatDate(DateTime.parse(value['dateFrom'])).toString();
+          String dateFromString = value['dateFrom'] == null || value['dateFrom'] == '' ? '' : longformatDate(DateTime.parse(value['dateFrom'])).toString();
 
-          if (value['guid'] == guid &&
-              (isCancelled == false && isRejected == false) &&
-              dateFromString != '' &&
-              value['docType'] == 'Leave') {
+          if (value['guid'] == guid && (isCancelled == false && isRejected == false) && dateFromString != '' && value['docType'] == 'Leave') {
             DateTime dateFromData = DateTime.parse(value['dateFrom']);
             DateTime dateFromTo = DateTime.parse(value['dateTo']);
-            if (selectedDate.isAfter(dateFromData) &&
-                selectedDate.isBefore(dateFromTo.add(Duration(days: 1)))) {
+            if (selectedDate.isAfter(dateFromData) && selectedDate.isBefore(dateFromTo.add(Duration(days: 1)))) {
               isDuplicate = true;
             } else if (selectedDate.isAtSameMomentAs(dateFromData)) {
               isDuplicate = true;
@@ -329,13 +295,8 @@ checkIfDuplicate(
       }
     });
   } else if (docType == 'Correction') {
-    final databaseReference = await FirebaseDatabase.instance
-        .ref()
-        .child('FilingDocuments')
-        .orderByChild('correctDate')
-        .equalTo(correctDate)
-        .get()
-        .then((snapshot) {
+    final databaseReference =
+        await FirebaseDatabase.instance.ref().child('FilingDocuments').orderByChild('correctDate').equalTo(correctDate).get().then((snapshot) {
       if (snapshot.exists) {
         Map<dynamic, dynamic>? values = snapshot.value as Map?;
         values!.forEach((key, value) {
@@ -353,23 +314,14 @@ checkIfDuplicate(
       }
     });
   } else {
-    final databaseReference = await FirebaseDatabase.instance
-        .ref()
-        .child('FilingDocuments')
-        .orderByChild('otDate')
-        .equalTo(otDate)
-        .get()
-        .then((snapshot) {
+    final databaseReference = await FirebaseDatabase.instance.ref().child('FilingDocuments').orderByChild('otDate').equalTo(otDate).get().then((snapshot) {
       if (snapshot.exists) {
         Map<dynamic, dynamic>? values = snapshot.value as Map?;
         values!.forEach((key, value) {
           print("OT Dateee: " + value['otDate']);
           var isRejected = value['isRejected'] ?? false;
           var isCancelled = value['isCancelled'] ?? false;
-          if (value['guid'] == guid &&
-              (isCancelled == false &&
-                  isRejected == false &&
-                  value['docType'] == 'Overtime')) {
+          if (value['guid'] == guid && (isCancelled == false && isRejected == false && value['docType'] == 'Overtime')) {
             isDuplicate = true;
           }
         });
@@ -395,8 +347,7 @@ fetchAttendance() async {
         logs.employeeID = value['employeeID'].toString();
         logs.employeeName = value['employeeName'].toString();
         logs.guid = value['guid'].toString();
-        logs.dateTimeIn =
-            timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
+        logs.dateTimeIn = timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
         logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
         logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
         logs.userType = value['usertype'].toString();
@@ -404,6 +355,26 @@ fetchAttendance() async {
         if (value['usertype'].toString() != 'Former Employee') {
           _listKeys.add(logs);
         }
+      });
+    }
+  });
+
+  return _listKeys;
+}
+
+fetchHolidays() async {
+  List<Holidays> _listKeys = [];
+  final holidayRef = FirebaseDatabase.instance.ref().child('Holidays');
+
+  final ss = await holidayRef.get().then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      values!.forEach((key, value) {
+        Holidays logs = Holidays();
+        logs.key = key.toString();
+        logs.holidayDate = DateFormat('MM/dd/yyyy').format(DateFormat('MM/dd/yyyy').parse(value['holidayDate'].toString()));
+        logs.holidayType = value['holidayType'].toString();
+        _listKeys.add(logs);
       });
     }
   });
@@ -503,6 +474,22 @@ fetchEmployees() async {
   return _listKeys;
 }
 
+fetchEmployeeByKey(empkey) async {
+  final ref = FirebaseDatabase.instance.ref().child('Employee/' + empkey);
+  Employees emp = Employees();
+  final snapshot = await ref.get().then((snapshot) {
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? values = snapshot.value as Map?;
+      emp.employeeID = values!['employeeID'].toString();
+      emp.department = values['department'].toString();
+      emp.employeeName = values['employeeName'].toString();
+      emp.setguid = values['guid'].toString();
+      emp.usertype = values['usertype'].toString();
+    }
+  });
+  return emp;
+}
+
 fetchApprover() async {
   List<Employees> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('Employee');
@@ -534,10 +521,8 @@ fetchApprover() async {
   return _listKeys;
 }
 
-updateEmployeeDetails(key, department, employeeID, employeeName, isWfh,
-    userType, approver, approverName, absences, approvers) async {
-  final databaseReference =
-      FirebaseDatabase.instance.ref().child('Employee/' + key);
+updateEmployeeDetails(key, department, employeeID, employeeName, isWfh, userType, approver, approverName, absences, approvers) async {
+  final databaseReference = FirebaseDatabase.instance.ref().child('Employee/' + key);
   await databaseReference.update({
     'department': department,
     'employeeID': employeeID,
@@ -550,8 +535,7 @@ updateEmployeeDetails(key, department, employeeID, employeeName, isWfh,
   }).then((value) async {
     final dbRef = FirebaseDatabase.instance.ref().child('Approver');
     var approverList = dbRef.orderByChild('empKey').equalTo(key);
-    final snapshot =
-        await dbRef.orderByChild('empKey').equalTo(key).get().then((snapshot) {
+    final snapshot = await dbRef.orderByChild('empKey').equalTo(key).get().then((snapshot) {
       if (snapshot.exists) {
         Map<dynamic, dynamic>? values = snapshot.value as Map?;
         values!.forEach((key, value) {
@@ -586,8 +570,7 @@ fetchApprovers() async {
   return approvers;
 }
 
-insertNewEmployee(department, email, employeeID, employeeName, guid,
-    imageString, userType, approver, approverName, absences, _isChecked, approvers) {
+insertNewEmployee(department, email, employeeID, employeeName, guid, imageString, userType, approver, approverName, absences, _isChecked, approvers) {
   final databaseReference = FirebaseDatabase.instance.ref().child('Employee');
   final DatabaseReference newRef = databaseReference.push();
   var newKey = newRef.key;
@@ -637,14 +620,12 @@ registerWithEmailAndPassword(String email, String password) async {
 changeCredential(empKey, newEmail, context, choice, password) async {
   var credentials = await read_credentials_pref();
   FirebaseAuth auth = FirebaseAuth.instance;
-  final credential = await auth.signInWithEmailAndPassword(
-      email: credentials[0], password: credentials[1]);
+  final credential = await auth.signInWithEmailAndPassword(email: credentials[0], password: credentials[1]);
   var user = await FirebaseAuth.instance.currentUser;
 
   if (choice == 1 || choice == 3) {
     user?.updateEmail(newEmail).then((_) async {
-      final databaseReference =
-          FirebaseDatabase.instance.ref().child('Employee/' + empKey);
+      final databaseReference = FirebaseDatabase.instance.ref().child('Employee/' + empKey);
       await databaseReference.update({
         'email': newEmail,
       });
@@ -688,13 +669,11 @@ insertAttendance(iswfh, context, Employees emp) async {
     'userType': emp.usrType,
     'isWfh': iswfh.toString(),
   });
-  return 'Successfully timed in at: ' +
-      timestampToDateString(timestamp, 'hh:mm a');
+  return 'Successfully timed in at: ' + timestampToDateString(timestamp, 'hh:mm a');
 }
 
 updateTimeOut(key) async {
-  final databaseReference =
-      FirebaseDatabase.instance.ref().child('Logs/' + key);
+  final databaseReference = FirebaseDatabase.instance.ref().child('Logs/' + key);
   DateTime today = DateTime.now();
   int timestamp = today.millisecondsSinceEpoch;
 
@@ -708,12 +687,7 @@ updateTimeOut(key) async {
 updateAttendance(guid, context, isTimeIn, Employees emp) async {
   List<Attendance>? logs = await fetchAttendance();
   List<Attendance>? newLogs = [];
-  newLogs = sortList(logs!
-      .where((element) =>
-          (element.guID == guid) ||
-          (element.empName == guid) ||
-          (element.empId == guid))
-      .toList());
+  newLogs = sortList(logs!.where((element) => (element.guID == guid) || (element.empName == guid) || (element.empId == guid)).toList());
   var result;
   //result = newLogs![0].getKey;
   if (newLogs!.length > 0) {
@@ -722,9 +696,7 @@ updateAttendance(guid, context, isTimeIn, Employees emp) async {
         String message = await insertAttendance(context, 'No', emp);
         success_box(context, message);
       } else {
-        if (getDateDiff(newLogs[0].dateIn.toString() +
-            ' ' +
-            newLogs[0].timeIn.toString())) {
+        if (getDateDiff(newLogs[0].dateIn.toString() + ' ' + newLogs[0].timeIn.toString())) {
           warning_box(context, 'Please time out first.');
         } else {
           String message = await insertAttendance(context, 'No', emp);
@@ -737,8 +709,7 @@ updateAttendance(guid, context, isTimeIn, Employees emp) async {
         var timeToday = await updateTimeOut(resultKey);
         success_box(context, 'Successfully timed out: ' + timeToday);
       } else {
-        error_box(
-            context, 'Already timed out: ' + newLogs[0].timeOut.toString());
+        error_box(context, 'Already timed out: ' + newLogs[0].timeOut.toString());
       }
     }
   } else {
