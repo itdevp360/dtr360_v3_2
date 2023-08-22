@@ -173,7 +173,7 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
       queryDate.add(Duration(days: 1)).subtract(Duration(hours: queryDate.hour, minutes: queryDate.minute, seconds: queryDate.second)).millisecondsSinceEpoch;
 
   final databaseReference =
-      await FirebaseDatabase.instance.ref().child('Logs').orderByChild('dateTimeIn').startAt(startTimestamp).endAt(endTimestamp).get().then((snapshot) {
+      await FirebaseDatabase.instance.ref().child('Logs').orderByChild('timeOut').startAt(startTimestamp).endAt(endTimestamp).get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
@@ -245,7 +245,7 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
             } else {}
           }
         } else {
-          if (guid == logs.getGuid) {
+          if (!isOt) {
             finalValue = true;
           }
         }
