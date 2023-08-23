@@ -51,24 +51,21 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
       }
 
       parentData?.docType = 'Leave';
-      parentData?.date = (parentData?.date == ''
-          ? DateTime.now().toString()
-          : parentData?.date)!;
+      parentData?.date = (parentData?.date == '' ? DateTime.now().toString() : parentData?.date)!;
       // parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
 
       //
       //Save document file to firebase
-      var isDupe = await checkIfDuplicate(parentData.dateFrom, parentData.dateTo, parentData.correctDate, parentData.otDate, parentData.docType, parentData.guid, parentData.isOut);
+      var isDupe = await checkIfDuplicate(parentData.dateFrom, parentData.dateTo, parentData.correctDate, parentData.otDate, parentData.docType,
+          parentData.guid, parentData.isOut, parentData.otfrom);
       if (isDateFromBeforeDateTo(parentData.dateFrom, parentData.dateTo)) {
-        if(!isDupe){
+        if (!isDupe) {
           await fileDocument(parentData!, context);
           parentData.resetProperties();
           widget.resetCallback();
-        }
-        else{
+        } else {
           warning_box(context, 'There is already an application on this date');
         }
-        
       } else {
         warning_box(context, 'Date From should not be greater than Date To');
       }
@@ -95,15 +92,12 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
                 ),
               )
             : SizedBox(height: 16),
-        parentData!.leaveType == 'Sick Leave'
-            ? Text('Selected File: $_fileName')
-            : SizedBox(height: 16),
+        parentData!.leaveType == 'Sick Leave' ? Text('Selected File: $_fileName') : SizedBox(height: 16),
         SizedBox(height: 16),
         Container(
           height: 6.h,
           width: 80.w,
-          decoration: BoxDecoration(
-              color: Colors.orange, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(20)),
           child: TextButton.icon(
             icon: const Icon(
               Icons.file_copy,

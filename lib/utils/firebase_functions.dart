@@ -197,6 +197,9 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
             int finalDay = convertedTimeOut.day > convertedTimeIn.day ? convertedTimeIn.day + 1 : convertedTimeIn.day;
             int finalTimeOut =
                 DateTime(convertedTimeOut.year, convertedTimeOut.month, finalDay, convertedTimeOut.hour, convertedTimeOut.minute).millisecondsSinceEpoch;
+            //Final Time from = OT From
+            //Final Time Out = Attendance time out
+            //Final Time To = OT To
             if (finalTimeFrom < finalTimeOut && finalTimeTo <= finalTimeOut) {
               if (isOvernightOt) {
                 finalValue = true;
@@ -212,7 +215,7 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
                     finalValue = true;
                   } else {
                     var stringTimeOut = timestampToDateString(timeTo, 'MM/dd/yyyy');
-                    var holidayType = '';
+                    finalValue = 'Rest Day';
                     for (var i = 0; i < holidays.length; i++) {
                       if (holidays[i].holidayDate == stringTimeOut) {
                         finalValue = 'Rest Day ' + holidays[i].holidayType;
@@ -225,7 +228,7 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
                     var shiftOut = empProfile[13].toString().split(':');
                     int unixShiftIn = DateTime(year, month, day, int.parse(shiftIn[0]), int.parse(shiftIn[1])).millisecondsSinceEpoch;
                     int unixShiftOut = DateTime(year, month, day, int.parse(shiftOut[0]), int.parse(shiftOut[1])).millisecondsSinceEpoch;
-                    if (unixShiftOut <= finalTimeFrom && timeOut >= desiredTime) {
+                    if ((unixShiftOut <= finalTimeFrom || timeFrom < unixShiftIn) && timeOut >= timeTo) {
                       finalValue = true;
                     } else {
                       finalValue = false;
@@ -269,7 +272,7 @@ rejectApplication(key, reason, approverName) async {
   });
 }
 
-checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut) async {
+checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut, otFrom) async {
   var isDuplicate = false;
   if (docType == 'Leave') {
     final databaseReference = await FirebaseDatabase.instance.ref().child('FilingDocuments').orderByChild('dateFrom').endAt(dateTo).get().then((snapshot) {
@@ -320,8 +323,12 @@ checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut) as
         values!.forEach((key, value) {
           print("OT Dateee: " + value['otDate']);
           var isRejected = value['isRejected'] ?? false;
+          //Fetched OT From
+          DateTime dateOtFrom = DateTime.fromMillisecondsSinceEpoch(value['otfrom']);
+          //Current OT From
+          DateTime filedOtFrom = DateTime.fromMillisecondsSinceEpoch(otFrom);
           var isCancelled = value['isCancelled'] ?? false;
-          if (value['guid'] == guid && (isCancelled == false && isRejected == false && value['docType'] == 'Overtime')) {
+          if (value['guid'] == guid && (isCancelled == false && isRejected == false && value['docType'] == 'Overtime') && dateOtFrom.hour == filedOtFrom.hour) {
             isDuplicate = true;
           }
         });

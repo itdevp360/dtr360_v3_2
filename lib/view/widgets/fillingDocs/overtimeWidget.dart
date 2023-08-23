@@ -222,8 +222,8 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                   ),
                   onPressed: () async {
                     dataModel.docType = 'Overtime';
-                    var isDupe = await checkIfDuplicate(
-                        dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType, dataModel.guid, dataModel.isOut);
+                    var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType,
+                        dataModel.guid, dataModel.isOut, dataModel.otfrom);
                     var isValid = await checkIfValidDate(
                         dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true);
                     if (reason.text != '' && totalHours.text != '' && totalHours.text != '0') {

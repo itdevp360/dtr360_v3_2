@@ -166,8 +166,8 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                   onPressed: () async {
                     dataModel.finalDate = convertStringDateToUnix(dataModel.correctDate, dataModel.correctTime, 'Correction', false, dataModel.otfrom);
                     dataModel.docType = 'Correction';
-                    var isDupe = await checkIfDuplicate(
-                        dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType, dataModel.guid, dataModel.isOut);
+                    var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType,
+                        dataModel.guid, dataModel.isOut, dataModel.otfrom);
 
                     if (reason.text != '' && selectedInOrOut != '') {
                       bool isValid = await checkIfValidDate(
