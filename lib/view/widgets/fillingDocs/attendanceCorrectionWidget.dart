@@ -171,7 +171,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
 
                     if (reason.text != '' && selectedInOrOut != '') {
                       bool isValid = await checkIfValidDate(
-                          dataModel.correctDate, employeeProfile[4], false, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true);
+                          dataModel.correctDate, employeeProfile[4], false, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true, dataModel.isFlexi);
                       if (isValid) {
                         if (!isDupe) {
                           await fileDocument(dataModel, context);

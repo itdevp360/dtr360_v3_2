@@ -45,6 +45,7 @@ class FilingDocument extends ChangeNotifier {
   String _otType = '';
   String _hoursNo = '';
   bool _isOvernightOt = false;
+  bool _isFlexi = false;
 
   int get otfrom => _otfrom;
   int get otTo => _otTo;
@@ -74,6 +75,7 @@ class FilingDocument extends ChangeNotifier {
   bool get isRejected => _isRejected;
   bool get isHalfday => _isHalfday;
   bool get isAm => _isAm;
+  bool get isFlexi => _isFlexi;
   int get finalDate => _finalDate;
   String get notifyStatus => _notifyStatus;
   String get fileId => _fileId;
@@ -219,6 +221,11 @@ class FilingDocument extends ChangeNotifier {
     notifyListeners(); // Notify listeners when the data changes
   }
 
+  set isFlexi(bool newData) {
+    _isFlexi = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
   set isApproved(bool newData) {
     _isApproved = newData;
     notifyListeners(); // Notify listeners when the data changes
@@ -301,6 +308,7 @@ class FilingDocument extends ChangeNotifier {
     correctDate = '';
     otTo = 0;
     isOvernightOt = false;
+    isFlexi = false;
     otType = '';
     hoursNo = '';
   }

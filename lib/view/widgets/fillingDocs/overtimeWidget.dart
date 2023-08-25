@@ -37,6 +37,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
     'Rest Day Special Non Working Holiday'
   ];
   bool isOvernightOt = false;
+  bool isFlexi = false;
 
   void initState() {
     super.initState();
@@ -201,6 +202,22 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                   )
                 ],
               ),
+              Row(
+                children: [
+                  Checkbox(
+                      value: isFlexi,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isFlexi = value!;
+                          dataModel.isFlexi = value!;
+                        });
+                      }),
+                  const Text(
+                    'Flexi Hours',
+                    style: TextStyle(fontSize: 16),
+                  )
+                ],
+              ),
               TextField(
                 decoration: const InputDecoration(labelText: 'Reason'),
                 onChanged: (value) {
@@ -225,12 +242,12 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                     var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType,
                         dataModel.guid, dataModel.isOut, dataModel.otfrom);
                     var isValid = await checkIfValidDate(
-                        dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true);
+                        dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true, dataModel.isFlexi);
                     if (reason.text != '' && totalHours.text != '' && totalHours.text != '0') {
                       if (isValid && (double.parse(totalHours.text) > 0 || isOvernightOt)) {
                         if (!isDupe) {
                           var otType = await checkIfValidDate(
-                              dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, false);
+                              dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, false, dataModel.isFlexi);
                           dataModel.otType = otType;
                           await fileDocument(dataModel, context);
                           setState(() {

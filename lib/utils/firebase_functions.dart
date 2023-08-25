@@ -150,7 +150,7 @@ cancelFilingStatus(key) async {
   });
 }
 
-checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut, isValidateDate) async {
+checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut, isValidateDate, isFlexi) async {
   Attendance logs = new Attendance();
   DateTime queryDate = DateTime.parse(desiredDate);
   DateTime dateTimeFrom = DateTime.fromMillisecondsSinceEpoch(timeFrom);
@@ -164,6 +164,7 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
   int finalTimeFrom = DateTime(year, month, day, dateTimeFrom.hour, dateTimeFrom.minute).millisecondsSinceEpoch;
   int finalTimeTo = DateTime(year, month, dateTimeTo.day, dateTimeTo.hour, dateTimeTo.minute).millisecondsSinceEpoch;
   bool isBeyondTime = false;
+  var columnName = isOvernightOt ? 'dateTimeIn' : 'timeOut';
   var finalValue;
   final int startTimestamp = !isOvernightOt
       ? queryDate.subtract(Duration(hours: queryDate.hour, minutes: queryDate.minute, seconds: queryDate.second)).millisecondsSinceEpoch
@@ -173,7 +174,7 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
       queryDate.add(Duration(days: 1)).subtract(Duration(hours: queryDate.hour, minutes: queryDate.minute, seconds: queryDate.second)).millisecondsSinceEpoch;
 
   final databaseReference =
-      await FirebaseDatabase.instance.ref().child('Logs').orderByChild('timeOut').startAt(startTimestamp).endAt(endTimestamp).get().then((snapshot) {
+      await FirebaseDatabase.instance.ref().child('Logs').orderByChild(columnName).startAt(startTimestamp).endAt(endTimestamp).get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
@@ -197,11 +198,16 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
             int finalDay = convertedTimeOut.day > convertedTimeIn.day ? convertedTimeIn.day + 1 : convertedTimeIn.day;
             int finalTimeOut =
                 DateTime(convertedTimeOut.year, convertedTimeOut.month, finalDay, convertedTimeOut.hour, convertedTimeOut.minute).millisecondsSinceEpoch;
+            var shiftIn = empProfile[12].toString().split(':');
+            var shiftOut = empProfile[13].toString().split(':');
+            int unixShiftIn = DateTime(year, month, day, int.parse(shiftIn[0]), int.parse(shiftIn[1])).millisecondsSinceEpoch;
+            int unixShiftOut = DateTime(year, month, day, int.parse(shiftOut[0]), int.parse(shiftOut[1])).millisecondsSinceEpoch;
             //Final Time from = OT From
             //Final Time Out = Attendance time out
             //Final Time To = OT To
             if (finalTimeFrom < finalTimeOut && finalTimeTo <= finalTimeOut) {
               if (isOvernightOt) {
+
                 finalValue = true;
               } else {
                 if ((dayOfWeek == 'Monday' && (empProfile[14] == '0')) ||
@@ -224,11 +230,8 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
                   }
                 } else {
                   if (isValidateDate) {
-                    var shiftIn = empProfile[12].toString().split(':');
-                    var shiftOut = empProfile[13].toString().split(':');
-                    int unixShiftIn = DateTime(year, month, day, int.parse(shiftIn[0]), int.parse(shiftIn[1])).millisecondsSinceEpoch;
-                    int unixShiftOut = DateTime(year, month, day, int.parse(shiftOut[0]), int.parse(shiftOut[1])).millisecondsSinceEpoch;
-                    if ((unixShiftOut <= finalTimeFrom || timeFrom < unixShiftIn) && timeOut >= timeTo) {
+                    
+                    if (((unixShiftOut <= finalTimeFrom || timeFrom < unixShiftIn) && timeOut >= timeTo) || isFlexi == true) {
                       finalValue = true;
                     } else {
                       finalValue = false;
@@ -256,6 +259,9 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
     } else {
       if (!isOt) {
         finalValue = true;
+      }
+      else{
+        finalValue = false;
       }
     }
   });
