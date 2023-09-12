@@ -36,6 +36,7 @@ class FilingDocument extends ChangeNotifier {
   //Attendance Correction
   String _correctDate = '';
   bool _isOut = false;
+  bool _isNextdayTimeOut = false;
   String _correctTime = '';
 
   //OT
@@ -76,6 +77,7 @@ class FilingDocument extends ChangeNotifier {
   bool get isHalfday => _isHalfday;
   bool get isAm => _isAm;
   bool get isFlexi => _isFlexi;
+  bool get isNextdayTimeOut => _isNextdayTimeOut;
   int get finalDate => _finalDate;
   String get notifyStatus => _notifyStatus;
   String get fileId => _fileId;
@@ -221,6 +223,11 @@ class FilingDocument extends ChangeNotifier {
     notifyListeners(); // Notify listeners when the data changes
   }
 
+  set isNextdayTimeOut(bool newData){
+    _isNextdayTimeOut = newData;
+    notifyListeners();
+  }
+
   set isFlexi(bool newData) {
     _isFlexi = newData;
     notifyListeners(); // Notify listeners when the data changes
@@ -300,6 +307,7 @@ class FilingDocument extends ChangeNotifier {
 
     //Attendance Correction
     isOut = false;
+    isNextdayTimeOut = false;
     correctTime = '';
 
     //OT

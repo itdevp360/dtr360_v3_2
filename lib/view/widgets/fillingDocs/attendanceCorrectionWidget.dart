@@ -24,6 +24,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
   var employeeProfile;
   DateTime startDate = DateTime.now();
   DateTime correctDate = DateTime.now();
+  bool isNextDayTimeOut = false;
   TimeOfDay initialTime = const TimeOfDay(hour: 0, minute: 0);
   TextEditingController reason = TextEditingController();
   List<String> inOrOut = [
@@ -128,6 +129,22 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                   );
                 }).toList(),
               ),
+              dataModel.isOut ? Row(
+                children: [
+                  Checkbox(
+                      value: isNextDayTimeOut,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isNextDayTimeOut = value!;
+                          // dataModel.isFlexi = value!;
+                        });
+                      }),
+                  const Text(
+                    'Next day Time Out',
+                    style: TextStyle(fontSize: 16),
+                  )
+                ],
+              ) : SizedBox(height: 10,),
               TextField(
                 keyboardType: TextInputType.none,
                 decoration: const InputDecoration(labelText: 'Correction Date'),

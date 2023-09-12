@@ -83,6 +83,7 @@ fileDocument(FilingDocument file, context) async {
     'otDate': file.otDate,
     'correctDate': file.correctDate,
     'isOvernightOt': file.isOvernightOt,
+    'isNextdayTimeOut': file.isNextdayTimeOut,
     'empKey': file.empKey
   }).then((value) => saveId(numId, file.docType, context));
 }
@@ -131,7 +132,8 @@ updateFilingDocs(selectedItems, documents, context, approverName) async {
                   documents![i].correctDate,
                   documents[i].correctTime,
                   documents[i].isOut,
-                  approverName)
+                  approverName,
+                  documents[i].isNextdayTimeOut)
               : await attendanceCorrection(
                   selectedData[0].getKey,
                   selectedData[0].getDateIn,
@@ -247,7 +249,7 @@ fetchEmployeeDocument() async {
                 value['correctDate'] == ''
             ? ''
             : longformatDate(DateTime.parse(value['correctDate'])).toString();
-        file.deductLeave = value['deductLeave'];
+        file.deductLeave = value['deductLeave'] ?? false;
         file.rejectionReason = value['rejectionReason'] ?? '';
         file.cancellationDate =
             value['cancellationDate'] == null || value['cancellationDate'] == ''
@@ -264,15 +266,16 @@ fetchEmployeeDocument() async {
         file.guid = value['guid'].toString();
         file.location = value['location'].toString();
         file.hoursNo = value['hoursNo'].toString();
-        file.isApproved = value['isApproved'];
+        file.isApproved = value['isApproved'] ?? false;
         file.isAm = value['isAm'] ?? false;
         file.isCancelled = value['isCancelled'] ?? false;
         file.isHalfday = value['isHalfday'] ?? false;
-        file.isOut = value['isOut'];
+        file.isOut = value['isOut'] ?? false;
         file.leaveType = value['leaveType'].toString();
         file.noOfDay = value['noOfDay'].toString();
         file.notifyStatus = value['notifyStatus'].toString();
         file.empKey = value['empKey'].toString();
+        file.isNextdayTimeOut = value['isNextdayTimeOut'] ?? false;
         file.reason = value['reason'].toString();
         file.approveRejectBy = value['approveRejectBy'].toString();
         file.dateFrom = value['dateFrom'] == null || value['dateFrom'] == ''
@@ -349,8 +352,9 @@ fetchFilingDocuments() async {
                 value['correctDate'] == ''
             ? ''
             : longformatDate(DateTime.parse(value['correctDate'])).toString();
-        file.deductLeave = value['deductLeave'];
+        file.deductLeave = value['deductLeave'] ?? false;;
         file.rejectionReason = value['rejectionReason'] ?? '';
+        file.isNextdayTimeOut = value['isNextdayTimeOut'] ?? false;
         file.approveRejectDate = value['approveRejectDate'] == null ||
                 value['approveRejectDate'] == ''
             ? ''
@@ -366,11 +370,11 @@ fetchFilingDocuments() async {
         file.location = value['location'].toString();
         file.isOvernightOt = value['isOvernightOt'] ?? false;
         file.hoursNo = value['hoursNo'].toString();
-        file.isApproved = value['isApproved'];
+        file.isApproved = value['isApproved'] ?? false;
         file.isAm = value['isAm'] ?? false;
         file.isCancelled = value['isCancelled'] ?? false;
         file.isHalfday = value['isHalfday'] ?? false;
-        file.isOut = value['isOut'];
+        file.isOut = value['isOut'] ?? false;
         file.leaveType = value['leaveType'].toString();
         file.noOfDay = value['noOfDay'].toString();
         file.notifyStatus = value['notifyStatus'].toString();

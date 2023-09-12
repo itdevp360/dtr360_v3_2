@@ -56,8 +56,8 @@ updateRemainingLeaves(empKey, noOfDays) async {
   if (snapshot.exists) {
     Map<dynamic, dynamic>? values = snapshot.value as Map?;
     if (values != null && values.containsKey('remainingLeaves')) {
-      double remainingLeave = values['remainingLeaves'].toDouble();
-      remainingLeave = remainingLeave - double.parse(noOfDays);
+      double? remainingLeave = double.tryParse(values['remainingLeaves']);
+      remainingLeave = remainingLeave! - double.parse(noOfDays);
       await ref.update({
         'remainingLeaves': remainingLeave,
       });
@@ -102,13 +102,14 @@ updateFilingDocStatus(key, context, empKey, approverName) async {
   });
 }
 
-createAttendance(key, context, empKey, correctDate, correctTime, isOut, approverName) async {
+createAttendance(key, context, empKey, correctDate, correctTime, isOut, approverName, nextDay) async {
   Employees emp = await fetchEmployeeByKey(empKey);
   final databaseReference = FirebaseDatabase.instance.ref().child('Logs');
   DateTime selectedDate = DateFormat("EEEE, MMMM dd, yyyy").parse(correctDate);
   DateTime selectedTime = DateFormat("HH:mm").parse(correctTime);
   DateTime combinedDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, selectedTime.hour, selectedTime.minute);
   int timestamp = combinedDate.millisecondsSinceEpoch;
+  int nextDayOut = nextDay ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day + 1, selectedTime.hour, selectedTime.minute).millisecondsSinceEpoch : combinedDate.millisecondsSinceEpoch;
   if (isOut) {
     databaseReference.push().set({
       'dateTimeIn': timestamp,
@@ -116,7 +117,7 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
       'employeeID': emp.empId,
       'employeeName': emp.empName,
       'guid': emp.guid,
-      'timeOut': timestamp,
+      'timeOut': nextDayOut,
       'userType': emp.usrType,
       'isWfh': false,
     }).then(
@@ -147,6 +148,26 @@ cancelFilingStatus(key) async {
   final databaseReference = FirebaseDatabase.instance.ref().child('FilingDocuments/' + key);
   await databaseReference.update({'isCancelled': true, 'cancellationDate': today}).then((value) async {
     // await success_box(context, 'Document approved');
+    var empData = databaseReference.get().then((snapshot) {
+      if(snapshot.exists){
+        Map<dynamic,dynamic>? values = snapshot.value as Map?;
+        var docType = values?['docType'] ?? '';
+        var deductLeave = values?['deductLeave'] ?? false;
+        int noOfDays = int.tryParse(values?['noOfDay']) ?? 0;
+        var empKey = values?['empKey'] ?? '';
+        if(docType == 'Leave' && deductLeave){
+          final empDbref = FirebaseDatabase.instance.ref().child('Employee/' + empKey);
+          empDbref.get().then((snapshot) async{
+            if(snapshot.key != null){
+              Map<dynamic,dynamic>? empData = snapshot.value as Map?;
+              int currLeave = empData?['remainingLeaves'] as int;
+              int newLeaves = currLeave + noOfDays;
+              await empDbref.update({'remainingLeaves': newLeaves});
+            }
+          });
+        }
+      }
+    },);
   });
 }
 
@@ -164,7 +185,9 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
   int finalTimeFrom = DateTime(year, month, day, dateTimeFrom.hour, dateTimeFrom.minute).millisecondsSinceEpoch;
   int finalTimeTo = DateTime(year, month, dateTimeTo.day, dateTimeTo.hour, dateTimeTo.minute).millisecondsSinceEpoch;
   bool isBeyondTime = false;
-  var columnName = isOvernightOt ? 'dateTimeIn' : 'timeOut';
+  var columnName = !isOvernightOt ? 'dateTimeIn' : 'timeOut';
+
+
   var finalValue;
   final int startTimestamp = !isOvernightOt
       ? queryDate.subtract(Duration(hours: queryDate.hour, minutes: queryDate.minute, seconds: queryDate.second)).millisecondsSinceEpoch
@@ -205,11 +228,12 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
             //Final Time from = OT From
             //Final Time Out = Attendance time out
             //Final Time To = OT To
-            if (finalTimeFrom < finalTimeOut && finalTimeTo <= finalTimeOut) {
-              if (isOvernightOt) {
+            if (finalTimeFrom < finalTimeOut && finalTimeTo <= finalTimeOut && !isFlexi) {
+              if (isOvernightOt && isValidateDate) {
 
                 finalValue = true;
-              } else {
+              } 
+              else {
                 if ((dayOfWeek == 'Monday' && (empProfile[14] == '0')) ||
                     (dayOfWeek == 'Tuesday' && (empProfile[15] == '0')) ||
                     (dayOfWeek == 'Wednesday' && (empProfile[16] == '0')) ||
@@ -248,7 +272,38 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
                   // isBeyondTime = timeOut >= desiredTime && finalTimeTo >= desiredTime;
                 }
               }
-            } else {}
+            } else {
+              if(isValidateDate){
+                finalValue = true;
+              }
+              else{
+                if ((dayOfWeek == 'Monday' && (empProfile[14] == '0')) ||
+                    (dayOfWeek == 'Tuesday' && (empProfile[15] == '0')) ||
+                    (dayOfWeek == 'Wednesday' && (empProfile[16] == '0')) ||
+                    (dayOfWeek == 'Thursday' && (empProfile[17] == '0')) ||
+                    (dayOfWeek == 'Friday' && (empProfile[18] == '0')) ||
+                    (dayOfWeek == 'Saturday' && (empProfile[19] == '0')) ||
+                    (dayOfWeek == 'Sunday' && (empProfile[20] == '0'))) {
+
+                    var stringTimeOut = timestampToDateString(timeTo, 'MM/dd/yyyy');
+                      finalValue = 'Rest Day';
+                      for (var i = 0; i < holidays.length; i++) {
+                        if (holidays[i].holidayDate == stringTimeOut) {
+                          finalValue = 'Rest Day ' + holidays[i].holidayType;
+                        }
+                      }
+                } else {
+                  var stringTimeOut = timestampToDateString(timeTo, 'MM/dd/yyyy');
+                    finalValue = 'Regular Overtime';
+                    for (var i = 0; i < holidays.length; i++) {
+                      if (holidays[i].holidayDate == stringTimeOut) {
+                        finalValue = holidays[i].holidayType;
+                      }
+                    }
+                  // isBeyondTime = timeOut >= desiredTime && finalTimeTo >= desiredTime;
+                }
+              }
+            }
           }
         } else {
           if (!isOt) {
@@ -334,7 +389,7 @@ checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut, ot
           //Current OT From
           DateTime filedOtFrom = DateTime.fromMillisecondsSinceEpoch(otFrom);
           var isCancelled = value['isCancelled'] ?? false;
-          if (value['guid'] == guid && (isCancelled == false && isRejected == false && value['docType'] == 'Overtime') && dateOtFrom.hour == filedOtFrom.hour) {
+          if (value['guid'] == guid && (isCancelled == false && isRejected == false && value['docType'] == 'Overtime' && value['isApproved'] == false) && dateOtFrom.hour == filedOtFrom.hour) {
             isDuplicate = true;
           }
         });
