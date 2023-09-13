@@ -289,7 +289,7 @@ fetchEmployeeDocument() async {
             empKeys.contains(file.empKey) &&
             file.isCancelled == false &&
             ((parseCustomDate(file.date).isAfter(cutoffStart)) ||
-                (parseCustomDate(file.date).isAfter(previousCutoffStart) &&
+                (parseCustomDate(file.date).isAfter(previousCutoffStart)  ||
                     parseCustomDate(file.date).isBefore(previousCutoffEnd)))) {
           _listKeys.add(file);
         } else if (file.guid == empProfile[4] &&
@@ -333,7 +333,7 @@ fetchFilingDocuments() async {
         file.dept = value['dept'].toString();
         file.correctTime = value['correctTime'].toString();
         file.docType = value['docType'].toString();
-        file.uniqueId = value['uniqueId'] != null ? value['uniqueId'] : '';
+        file.uniqueId = value['uniqueId'] ?? '';
         file.employeeName = value['employeeName'].toString();
         file.date = longformatDate(DateTime.parse(value['date'])).toString();
         file.otDate = value['otDate'] == null || value['otDate'] == ''

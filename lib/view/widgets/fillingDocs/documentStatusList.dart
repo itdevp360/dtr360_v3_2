@@ -34,7 +34,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
   double screenH = 48.h;
   String? selectedValue = 'All';
   String? empNames = null;
-  String? currentMonth = DateFormat('MMMM').format(DateTime.now());
+  String? currentMonth = DateFormat('MMM').format(DateTime.now());
 
   @override
   void initState() {
@@ -166,18 +166,18 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                   });
                 },
                 items: <String>[
-                  'January',
-                  'February',
-                  'March',
-                  'April',
+                  'Jan',
+                  'Feb',
+                  'Mar',
+                  'Apr',
                   'May',
-                  'June',
-                  'July',
-                  'August',
-                  'September',
-                  'October',
-                  'November',
-                  'December'
+                  'Jun',
+                  'Jul',
+                  'Aug',
+                  'Sep',
+                  'Oct',
+                  'Nov',
+                  'Dec'
                 ].map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,

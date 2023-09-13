@@ -106,7 +106,7 @@ String formatDate(DateTime date) {
 }
 
 String longformatDate(DateTime date) {
-  return DateFormat('EEEE, MMMM d, yyyy').format(date);
+  return DateFormat('EEE, MMM d, yyyy').format(date);
 }
 
 String formatTime(TimeOfDay date) {
