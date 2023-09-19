@@ -83,7 +83,7 @@ String getDayOfWeek(int dayNumber) {
 
 String convertDateFormat(String dateString) {
   // Parse the input date string into a DateTime object
-  DateTime date = DateFormat('EEEE, MMMM d, y').parse(dateString);
+  DateTime date = DateFormat('EEE, MMM d, y').parse(dateString);
 
   // Format the DateTime object into the desired output format
   String formattedDate = DateFormat('MM/dd/yyyy').format(date);
@@ -277,8 +277,8 @@ bool isTimeFromBeforeTimeTo(int dateFrom, int dateTo) {
 
 sortDocs(List<FilingDocument> docs) {
   docs.sort((a, b) {
-    var dateA = DateFormat("EEEE, MMMM d, yyyy").parse(a.date!);
-    var dateB = DateFormat("EEEE, MMMM d, yyyy").parse(b.date!);
+    var dateA = DateFormat("EEE, MMM d, yyyy").parse(a.date!);
+    var dateB = DateFormat("EEE, MMM d, yyyy").parse(b.date!);
     return dateB.compareTo(dateA);
   });
 

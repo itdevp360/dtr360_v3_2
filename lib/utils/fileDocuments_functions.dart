@@ -287,7 +287,6 @@ fetchEmployeeDocument() async {
 
         if (empProfile[6] == 'Approver' &&
             empKeys.contains(file.empKey) &&
-            file.isCancelled == false &&
             ((parseCustomDate(file.date).isAfter(cutoffStart)) ||
                 (parseCustomDate(file.date).isAfter(previousCutoffStart)  ||
                     parseCustomDate(file.date).isBefore(previousCutoffEnd)))) {

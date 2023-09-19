@@ -273,11 +273,12 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
                 }
               }
             } else {
-              if(isValidateDate){
+              if(isValidateDate && isFlexi){
                 finalValue = true;
               }
               else{
-                if ((dayOfWeek == 'Monday' && (empProfile[14] == '0')) ||
+                if(isFlexi){
+                  if ((dayOfWeek == 'Monday' && (empProfile[14] == '0')) ||
                     (dayOfWeek == 'Tuesday' && (empProfile[15] == '0')) ||
                     (dayOfWeek == 'Wednesday' && (empProfile[16] == '0')) ||
                     (dayOfWeek == 'Thursday' && (empProfile[17] == '0')) ||
@@ -302,6 +303,11 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
                     }
                   // isBeyondTime = timeOut >= desiredTime && finalTimeTo >= desiredTime;
                 }
+                }
+                else{
+                  finalValue = false;
+                }
+                
               }
             }
           }
