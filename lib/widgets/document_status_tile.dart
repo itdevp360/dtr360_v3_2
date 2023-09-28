@@ -42,7 +42,7 @@ class DocumentStatusTileWidget extends StatelessWidget{
                   ),
                   Row(
                     children: [
-                       Text('Employee Name: ' + document.employeeName)
+                       Text('Name: ' + document.employeeName)
                     ],
                   ),
                   Row(

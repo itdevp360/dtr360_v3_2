@@ -378,7 +378,7 @@ checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut, ot
               ((!isApproved && !isRejected) || (isApproved && !isCancelled)) &&
               value['docType'] == 'Correction' &&
               isOut == isOutData) {
-            isDuplicate = true;
+            // isDuplicate = true;
           }
         });
       }

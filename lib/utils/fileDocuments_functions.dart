@@ -293,7 +293,7 @@ fetchEmployeeDocument() async {
           _listKeys.add(file);
         } else if (file.guid == empProfile[4] &&
             ((parseCustomDate(file.date).isAfter(cutoffStart)) ||
-                (parseCustomDate(file.date).isAfter(previousCutoffStart) &&
+                (parseCustomDate(file.date).isAfter(previousCutoffStart) ||
                     parseCustomDate(file.date).isBefore(previousCutoffEnd)))) {
           _listKeys.add(file);
         }
