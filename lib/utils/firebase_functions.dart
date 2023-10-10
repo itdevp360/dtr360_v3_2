@@ -105,7 +105,7 @@ updateFilingDocStatus(key, context, empKey, approverName) async {
 createAttendance(key, context, empKey, correctDate, correctTime, isOut, approverName, nextDay) async {
   Employees emp = await fetchEmployeeByKey(empKey);
   final databaseReference = FirebaseDatabase.instance.ref().child('Logs');
-  DateTime selectedDate = DateFormat("EEEE, MMMM dd, yyyy").parse(correctDate);
+  DateTime selectedDate = DateFormat("EEE, MMM d, yyyy").parse(correctDate);
   DateTime selectedTime = DateFormat("HH:mm").parse(correctTime);
   DateTime combinedDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, selectedTime.hour, selectedTime.minute);
   int timestamp = combinedDate.millisecondsSinceEpoch;
@@ -152,10 +152,11 @@ cancelFilingStatus(key) async {
       if(snapshot.exists){
         Map<dynamic,dynamic>? values = snapshot.value as Map?;
         var docType = values?['docType'] ?? '';
+        var isApproved = values?['docType'] ?? '';
         var deductLeave = values?['deductLeave'] ?? false;
         int noOfDays = int.tryParse(values?['noOfDay']) ?? 0;
         var empKey = values?['empKey'] ?? '';
-        if(docType == 'Leave' && deductLeave){
+        if(docType == 'Leave' && deductLeave && isApproved){
           final empDbref = FirebaseDatabase.instance.ref().child('Employee/' + empKey);
           empDbref.get().then((snapshot) async{
             if(snapshot.key != null){
@@ -202,14 +203,14 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
         logs.attendanceKey = key.toString();
-        logs.employeeID = value['employeeID'].toString();
-        logs.employeeName = value['employeeName'].toString();
-        logs.guid = value['guid'].toString();
+        logs.employeeID = value['employeeID'] ?? '';
+        logs.employeeName = value['employeeName'] ?? '';
+        logs.guid = value['guid'] ?? '';
         logs.dateTimeIn = timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
         logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
         logs.timeOut = value['timeOut'] != null ? timestampToDateString(value['timeOut'], 'hh:mm a') : '';
-        logs.userType = value['usertype'].toString();
-        logs.iswfh = value['isWfh'].toString();
+        logs.userType = value['usertype'] ?? '';
+        logs.iswfh = value['isWfh'] ?? '';
         if (isOt) {
           FilingDocument dataModel = FilingDocument();
           if (value['timeOut'] != null && guid == logs.getGuid) {
@@ -459,6 +460,8 @@ fetchHolidays() async {
 login_user(context, email, password) async {
   try {
     FirebaseAuth auth = FirebaseAuth.instance;
+    // save_credentials_pref(email, password)
+    //     .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
     final credential = await auth
         .signInWithEmailAndPassword(email: email, password: password)
         .then((value) => save_credentials_pref(email, password))

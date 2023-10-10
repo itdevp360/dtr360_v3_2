@@ -491,9 +491,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                                     ? 'Cancel'
                                                     : 'Ok'
                                                 : 'Ok')),
-                                    employeeProfile[6] == 'Approver' &&
-                                            document.isApproved
-                                        ? TextButton(
+                                     (employeeProfile[6] != 'Approver' && !document.isApproved && !document.isRejected) || employeeProfile[6] == 'Approver' ? TextButton(
                                             onPressed: () async {
                                               isRefresh = false;
                                               print(document.key);
@@ -510,7 +508,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                               // await success_box(context, "Document Approved");
                                             },
                                             child: Text('Retract'))
-                                        : SizedBox(height: 0)
+                                        : SizedBox(height: 15,)
                                   ],
                                 );
                               },

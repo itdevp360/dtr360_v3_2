@@ -109,20 +109,20 @@ rejectAllDocs(selectedItems, documents, context, reason, rejectedBy) async {
 }
 
 updateFilingDocs(selectedItems, documents, context, approverName) async {
-  List<Attendance> attendance =
-      await fetchSelectedEmployeesAttendance(documents);
+  
   if (selectedItems.isNotEmpty) {
     for (var i = 0; i < selectedItems.length; i++) {
       if (selectedItems[i] != false) {
         print(documents![i].employeeName);
         print(documents![i].docType);
         print(documents![i].date);
-
+        List<Attendance> attendance =
+        await fetchSelectedEmployeesAttendance(documents);
         if (documents![i].docType == 'Correction') {
           var selectedData = attendance
               .where((element) =>
                   element.getDateIn ==
-                  convertDateFormat(documents![i].correctDate))
+                  convertDateFormat(documents![i].correctDate) && documents![i].guid == element.getGuid)
               .toList();
           selectedData.isEmpty
               ? await createAttendance(
@@ -145,7 +145,7 @@ updateFilingDocs(selectedItems, documents, context, approverName) async {
                   approverName);
         } else if (documents![i].docType == 'Leave') {
           var selectedData = attendance
-              .where((element) => element.getDateIn == documents![i].date)
+              .where((element) => element.getDateIn == documents![i].date && documents![i].guid == element.getGuid)
               .toList();
           selectedData.isEmpty
               ? await updateRemainingLeaves(
@@ -163,7 +163,7 @@ updateFilingDocs(selectedItems, documents, context, approverName) async {
                   approverName);
         } else {
           var selectedData = attendance
-              .where((element) => element.getDateIn == documents![i].otDate)
+              .where((element) => element.getDateIn == documents![i].otDate && documents![i].guid == element.getGuid)
               .toList();
           selectedData.isEmpty
               ? await updateFilingDocStatus(
@@ -387,7 +387,7 @@ fetchFilingDocuments() async {
             : longformatDate(DateTime.parse(value['dateTo'])).toString();
         if (empKeys.contains(file.empKey) &&
             !file.isApproved &&
-            !file.isRejected) {
+            !file.isRejected && !file.isCancelled) {
           _listKeys.add(file);
         }
       });

@@ -199,7 +199,11 @@ class _MyWidgetState extends State<leaveWidget> {
                     value: isChecked,
                     onChanged: (bool? value) {
                       setState(() {
-                        isChecked = value!;
+                        if(double.parse(remainingLeave!) >= 1){
+                          isChecked = value!;
+                          dataModel.deductLeave = isChecked;
+                        }
+                        
                       });
                     }),
                 const Text(
