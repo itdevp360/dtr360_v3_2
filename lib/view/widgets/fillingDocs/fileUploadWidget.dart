@@ -60,9 +60,20 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
           parentData.guid, parentData.isOut, parentData.otfrom);
       if (isDateFromBeforeDateTo(parentData.dateFrom, parentData.dateTo)) {
         if (!isDupe) {
-          await fileDocument(parentData!, context);
-          parentData.resetProperties();
-          widget.resetCallback();
+          if(parentData.deductLeave && parentData.noOfDay != '' && double.parse(parentData.noOfDay) > 0){
+            await fileDocument(parentData!, context);
+            parentData.resetProperties();
+            widget.resetCallback();
+          }
+          else if(!parentData.deductLeave){
+            await fileDocument(parentData!, context);
+            parentData.resetProperties();
+            widget.resetCallback();
+          }
+          else{
+            warning_box(context, 'Please determine the no. of days to be deducted');
+          }
+          
         } else {
           warning_box(context, 'There is already an application on this date');
         }

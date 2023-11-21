@@ -55,8 +55,24 @@ updateRemainingLeaves(empKey, noOfDays) async {
   final snapshot = await ref.get();
   if (snapshot.exists) {
     Map<dynamic, dynamic>? values = snapshot.value as Map?;
-    if (values != null && values.containsKey('remainingLeaves')) {
-      double? remainingLeave = double.tryParse(values['remainingLeaves']);
+    if (values != null && values.containsKey('remainingLeaves') && noOfDays != '' && noOfDays != null) {
+      // double? remainingLeave = double.tryParse(values['remainingLeaves']);
+      var remainingLeavesValue = values['remainingLeaves'];
+      double remainingLeave;
+      if (remainingLeavesValue is double) {
+        // If it's already a double, no need to parse
+        remainingLeave = remainingLeavesValue;
+      }
+      else if(remainingLeavesValue is int){
+        remainingLeave = remainingLeavesValue.toDouble();
+      }
+       else if (remainingLeavesValue is String) {
+        // If it's a string, parse it to double
+        remainingLeave = double.tryParse(remainingLeavesValue) ?? 0.0; // Default to 0.0 if parsing fails
+      } else {
+        // Handle other cases if necessary
+        remainingLeave = 0.0; // Default value or handle as needed
+      }
       remainingLeave = remainingLeave! - double.parse(noOfDays);
       await ref.update({
         'remainingLeaves': remainingLeave,

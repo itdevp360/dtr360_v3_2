@@ -218,7 +218,10 @@ class _MyWidgetState extends State<leaveWidget> {
                     controller: noOfDays,
                     onChanged: (value) {
                       setState(() {
-                        dataModel.noOfDay = value;
+                        if(value != '' && double.parse(remainingLeave!) >= double.parse(value)){
+                          dataModel.noOfDay = value;
+                        }
+                        
                       });
                     },
                   )
