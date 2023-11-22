@@ -226,7 +226,7 @@ checkIfValidDate(desiredDate, guid, isOt, timeFrom, timeTo, isOvernightOt, isOut
         logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
         logs.timeOut = value['timeOut'] != null ? timestampToDateString(value['timeOut'], 'hh:mm a') : '';
         logs.userType = value['usertype'] ?? '';
-        logs.iswfh = value['isWfh'] ?? '';
+        // logs.iswfh = value['isWfh'] ?? '';
         if (isOt) {
           FilingDocument dataModel = FilingDocument();
           if (value['timeOut'] != null && guid == logs.getGuid) {
