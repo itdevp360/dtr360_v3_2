@@ -31,7 +31,7 @@ class FilingDocument extends ChangeNotifier {
   String _location = '';
   String _attachmentName = '';
   String _fileId = '';
-  bool _deductLeave = true;
+  bool _deductLeave = false;
 
   //Attendance Correction
   String _correctDate = '';
@@ -303,7 +303,7 @@ class FilingDocument extends ChangeNotifier {
     location = '';
     attachmentName = '';
     fileId = '';
-    deductLeave = true;
+    deductLeave = false;
 
     //Attendance Correction
     isOut = false;
