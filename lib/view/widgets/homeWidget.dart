@@ -155,7 +155,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
               ),
             ),
             appBar: AppBar(
-              title: const Text("DTR360 v3.3.2"),
+              title: const Text("DTR360 v3.3.3"),
               backgroundColor: Colors.redAccent,
               bottom: _selectedIndex == 2
                   ? const TabBar(
