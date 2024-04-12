@@ -177,9 +177,28 @@ cancelFilingStatus(key) async {
           empDbref.get().then((snapshot) async{
             if(snapshot.key != null){
               Map<dynamic,dynamic>? empData = snapshot.value as Map?;
-              int currLeave = empData?['remainingLeaves'] as int;
-              int newLeaves = currLeave + noOfDays;
-              await empDbref.update({'remainingLeaves': newLeaves});
+
+              //Revised
+              if (empData != null) {
+                // Access 'remainingLeaves' from empData with null safety operator
+                dynamic remainingLeaves = empData['remainingLeaves'];
+
+                // Check if remainingLeaves is not null and is convertible to double
+                if (remainingLeaves != null && remainingLeaves is num) {
+                  double currLeave = remainingLeaves.toDouble();
+                  double newLeaves = currLeave + noOfDays;
+                  await empDbref.update({'remainingLeaves': newLeaves});
+                  // Use currLeave variable as needed
+                } else {
+                  print('Error: remainingLeaves is null or not convertible to double');
+                }
+              } else {
+                print('Error: empData is null');
+              }
+              //Original code
+              // double currLeave = empData?['remainingLeaves'] as double;
+              // double newLeaves = currLeave + noOfDays;
+              // await empDbref.update({'remainingLeaves': newLeaves});
             }
           });
         }
@@ -478,6 +497,7 @@ login_user(context, email, password) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     // save_credentials_pref(email, password)
     //     .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
+
     final credential = await auth
         .signInWithEmailAndPassword(email: email, password: password)
         .then((value) => save_credentials_pref(email, password))

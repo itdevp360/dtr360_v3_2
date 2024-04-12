@@ -192,14 +192,18 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               future: fetchFilingDocuments(),
               builder: ((context, snapshot) {
                 if (snapshot.hasData) {
-                  documents = snapshot.data! as List<FilingDocument>?;
+                  if(documents == null){
+                    documents = snapshot.data! as List<FilingDocument>?;
+                    documents = sortDocs(documents!);
+                  }
+                  
                   if (selectedValue != 'All') {
                     documents = documents!
                         .where((item) => item.docType == selectedValue)
                         .toList();
                   }
 
-                  documents = sortDocs(documents!);
+                  
                   if (isSelected) {
                     selectedItems =
                         List.generate(documents!.length, (index) => false);
@@ -230,9 +234,11 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                 if (selectedIndexes.contains(index)) {
                                   selectedIndexes.remove(index);
                                   selectedItems[index] = false;
+                                  print('Index no.: ' + documents![index].uniqueId);
                                 } else {
                                   selectedIndexes.add(index);
                                   selectedItems[index] = true;
+                                  print('ELSE Index no.: ' + documents![index].uniqueId);
                                 }
                               });
                             } else {
