@@ -7,9 +7,16 @@ class FilingDocument extends ChangeNotifier {
   String _key = '';
   String _guid = '';
   String _date = '';
+  String _uniqueId = '';
   String _employeeName = '';
+  String _rejectionReason = '';
+  String _approveRejectDate = '';
+  String _approveRejectBy = '';
+  String _cancellationDate = '';
   int _finalDate = 0;
   bool _isApproved = false;
+  bool _isCancelled = false;
+  bool _isRejected = false;
   String _notifyStatus = '';
   String _empKey = '';
   String _dept = '';
@@ -24,11 +31,12 @@ class FilingDocument extends ChangeNotifier {
   String _location = '';
   String _attachmentName = '';
   String _fileId = '';
-  bool _deductLeave = true;
+  bool _deductLeave = false;
 
   //Attendance Correction
   String _correctDate = '';
   bool _isOut = false;
+  bool _isNextdayTimeOut = false;
   String _correctTime = '';
 
   //OT
@@ -37,9 +45,16 @@ class FilingDocument extends ChangeNotifier {
   int _otTo = 0;
   String _otType = '';
   String _hoursNo = '';
+  bool _isOvernightOt = false;
+  bool _isFlexi = false;
 
   int get otfrom => _otfrom;
   int get otTo => _otTo;
+  String get uniqueId => _uniqueId;
+  String get rejectionReason => _rejectionReason;
+  String get approveRejectDate => _approveRejectDate;
+  String get approveRejectBy => _approveRejectBy;
+  String get cancellationDate => _cancellationDate;
   String get correctDate => _correctDate;
   String get otDate => _otDate;
   String get otType => _otType;
@@ -56,8 +71,13 @@ class FilingDocument extends ChangeNotifier {
   String get leaveType => _leaveType;
   String get noOfDay => _noOfDay;
   bool get isApproved => _isApproved;
+  bool get isCancelled => _isCancelled;
+  bool get isOvernightOt => _isOvernightOt;
+  bool get isRejected => _isRejected;
   bool get isHalfday => _isHalfday;
   bool get isAm => _isAm;
+  bool get isFlexi => _isFlexi;
+  bool get isNextdayTimeOut => _isNextdayTimeOut;
   int get finalDate => _finalDate;
   String get notifyStatus => _notifyStatus;
   String get fileId => _fileId;
@@ -75,6 +95,31 @@ class FilingDocument extends ChangeNotifier {
 
   set key(String newData) {
     _key = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set uniqueId(String newData) {
+    _uniqueId = newData;
+    notifyListeners();
+  }
+
+  set rejectionReason(String newData) {
+    _rejectionReason = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set approveRejectDate(String newData) {
+    _approveRejectDate = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set approveRejectBy(String newData) {
+    _approveRejectBy = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set cancellationDate(String newData) {
+    _cancellationDate = newData;
     notifyListeners(); // Notify listeners when the data changes
   }
 
@@ -163,6 +208,31 @@ class FilingDocument extends ChangeNotifier {
     notifyListeners(); // Notify listeners when the data changes
   }
 
+  set isCancelled(bool newData) {
+    _isCancelled = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set isRejected(bool newData) {
+    _isRejected = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set isOvernightOt(bool newData) {
+    _isOvernightOt = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
+  set isNextdayTimeOut(bool newData){
+    _isNextdayTimeOut = newData;
+    notifyListeners();
+  }
+
+  set isFlexi(bool newData) {
+    _isFlexi = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
   set isApproved(bool newData) {
     _isApproved = newData;
     notifyListeners(); // Notify listeners when the data changes
@@ -213,13 +283,14 @@ class FilingDocument extends ChangeNotifier {
     notifyListeners(); // Notify listeners when the data changes
   }
 
-
-  void resetProperties(){
+  void resetProperties() {
     reason = '';
     key = '';
     date = '';
     finalDate = 0;
     isApproved = false;
+    isCancelled = false;
+    approveRejectBy = '';
     notifyStatus = '';
     //Leaves
     leaveType = '';
@@ -232,10 +303,11 @@ class FilingDocument extends ChangeNotifier {
     location = '';
     attachmentName = '';
     fileId = '';
-    deductLeave = true;
+    deductLeave = false;
 
     //Attendance Correction
     isOut = false;
+    isNextdayTimeOut = false;
     correctTime = '';
 
     //OT
@@ -243,6 +315,8 @@ class FilingDocument extends ChangeNotifier {
     otfrom = 0;
     correctDate = '';
     otTo = 0;
+    isOvernightOt = false;
+    isFlexi = false;
     otType = '';
     hoursNo = '';
   }

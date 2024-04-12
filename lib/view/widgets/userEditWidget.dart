@@ -1,3 +1,5 @@
+import 'package:dtr360_version3_2/controllers/user_edit_controller.dart';
+import 'package:dtr360_version3_2/model/approver.dart';
 import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:flutter/cupertino.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:lottie/lottie.dart';
+import 'package:multi_dropdown/multiselect_dropdown.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../model/users.dart';
@@ -27,15 +30,13 @@ List<String>? list = <String>[
 ];
 
 class _MyWidgetState extends State<UserEditWidget> {
-  TextEditingController employeeId = TextEditingController();
-  TextEditingController employeeName = TextEditingController();
-  TextEditingController department = TextEditingController();
-  TextEditingController approver = TextEditingController();
-  TextEditingController absences = TextEditingController();
+  UserController userEdit = UserController();
 
   List<Employees>? approverList;
+  List<ValueItem> selectedApprovers = [];
+  List<Approver> empApprovers = [];
   Employees selectedApprover = Employees();
-  String? approverDropdownValue;
+  String? approverDropdownValue = null;
   String? approverName;
   List<Employees>? employeeList;
   Employees selectedEmployee = new Employees();
@@ -57,6 +58,7 @@ class _MyWidgetState extends State<UserEditWidget> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       approverList = await fetchApprover();
+      empApprovers = await fetchApprovers();
       sortListAlphabetical(approverList!);
       if (this.mounted) {
         setState(() {
@@ -101,6 +103,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                 child: DropdownButton<String>(
                   isExpanded: true,
                   value: dropdownValue,
+                  hint: Text('Employee Name'),
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
                   style:
@@ -116,20 +119,40 @@ class _MyWidgetState extends State<UserEditWidget> {
                       selectedEmployee = employeeList!
                           .where((element) => element.guid == dropdownValue)
                           .first;
-                      employeeName =
-                          TextEditingController(text: selectedEmployee.empName);
-                      employeeId =
-                          TextEditingController(text: selectedEmployee.empId);
-                      department =
-                          TextEditingController(text: selectedEmployee.dept);
-                      absences = TextEditingController(
-                          text: selectedEmployee.absences);
+                      userEdit.employeeName.controller.text =
+                          selectedEmployee.empName!;
+                      userEdit.employeeId.controller.text =
+                          selectedEmployee.empId!;
+                      userEdit.department.controller.text =
+                          selectedEmployee.dept!;
+                      userEdit.absences.controller.text =
+                          selectedEmployee.absences!;
                       _isWfh = selectedEmployee.wfh == 'null' ||
                               selectedEmployee.wfh == ''
                           ? false
                           : true;
+                      empApprovers = empApprovers
+                          .where((element) =>
+                              element.empKey == selectedEmployee.key)
+                          .toList();
+                      List<String?> filterGuids = empApprovers
+                          .map((approver) => approver.guid)
+                          .toList();
+                      List<Employees>? emps = approverList
+                          ?.where(
+                              (approver) => filterGuids.contains(approver.guid))
+                          .toList();
+                      selectedApprovers = emps != null
+                          ? emps!
+                              .map((e) =>
+                                  ValueItem(label: e.empName!, value: e.guid))
+                              .toList()
+                          : [];
                       userTypeDropdown = selectedEmployee.usrType;
-                      approverDropdownValue = selectedEmployee.appId;
+                      if (selectedEmployee.appId != null &&
+                          selectedEmployee.appId != "null") {
+                        approverDropdownValue = selectedEmployee.appId;
+                      }
                       print(selectedEmployee.key);
                     });
                   },
@@ -153,6 +176,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                 child: DropdownButton<String>(
                   isExpanded: true,
                   value: userTypeDropdown,
+                  hint: Text('Role'),
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
                   style: const TextStyle(
@@ -185,7 +209,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                   bottom: 0,
                 ),
                 child: TextField(
-                  controller: employeeName,
+                  controller: userEdit.employeeName.controller,
                   decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                       prefixIcon: Icon(Icons.drive_file_rename_outline),
@@ -201,7 +225,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                   bottom: 0,
                 ),
                 child: TextField(
-                  controller: employeeId,
+                  controller: userEdit.employeeId.controller,
                   decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                       prefixIcon: Icon(Icons.badge),
@@ -217,7 +241,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                   bottom: 0,
                 ),
                 child: TextField(
-                  controller: department,
+                  controller: userEdit.department.controller,
                   decoration: const InputDecoration(
                       contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                       prefixIcon: Icon(Icons.corporate_fare),
@@ -234,54 +258,73 @@ class _MyWidgetState extends State<UserEditWidget> {
                 ),
                 child: TextField(
                   keyboardType: TextInputType.number,
-                  controller: absences,
+                  controller: userEdit.absences.controller,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                     prefixIcon: Icon(Icons.person_remove),
                     border: OutlineInputBorder(),
-                    labelText: 'Absences',
+                    labelText: 'Remaining Leaves',
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(
-                  left: 28.0,
-                  right: 28.0,
-                  top: 20,
-                  bottom: 0,
-                ),
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  value: approverDropdownValue,
-                  icon: const Icon(Icons.arrow_downward),
-                  elevation: 16,
-                  style:
-                      const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
-                  underline: Container(
-                    height: 2,
-                    color: Color.fromARGB(255, 57, 57, 231),
+                  padding: const EdgeInsets.only(
+                    left: 28.0,
+                    right: 28.0,
+                    top: 20,
+                    bottom: 0,
                   ),
-                  onChanged: (String? value) {
-                    // This is called when the user selects an item.
-                    setState(() {
-                      approverDropdownValue = value!;
-                      selectedApprover = approverList!
-                          .where((element) =>
-                              element.guid == approverDropdownValue)
-                          .first;
-                      print(approverDropdownValue);
-                    });
-                  },
-                  items: approverList != null
-                      ? approverList!.map((e) {
-                          return DropdownMenuItem<String>(
-                            value: e.guid!,
-                            child: Text(e.empName!),
-                          );
-                        }).toList()
-                      : [],
-                ),
-              ),
+                  child: MultiSelectDropDown(
+                    onOptionSelected: (List<ValueItem> selectedOptions) {
+                      selectedApprovers = selectedOptions;
+                    },
+                    options: approverList != null
+                        ? approverList!
+                            .map((e) =>
+                                ValueItem(label: e.empName!, value: e.guid))
+                            .toList()
+                        : [],
+                    selectionType: SelectionType.multi,
+                    selectedOptions: selectedApprovers,
+                    chipConfig: const ChipConfig(wrapType: WrapType.scroll),
+                    dropdownHeight: 300,
+                    optionTextStyle: const TextStyle(fontSize: 16),
+                    selectedOptionIcon: const Icon(Icons.check_circle),
+                  )
+                  // child: DropDownMultiSelect(options: options, selectedValues: selectedValues, onChanged: onChanged)
+                  // child: DropdownButton<String>(
+                  //   isExpanded: true,
+                  //   hint: Text('Approver Name'),
+                  //   value: approverDropdownValue,
+                  //   icon: const Icon(Icons.arrow_downward),
+                  //   elevation: 16,
+                  //   style:
+                  //       const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
+                  //   underline: Container(
+                  //     height: 2,
+                  //     color: Color.fromARGB(255, 57, 57, 231),
+                  //   ),
+                  //   onChanged: (String? value) {
+                  //     // This is called when the user selects an item.
+                  //     setState(() {
+                  //       approverDropdownValue = value!;
+                  //       selectedApprover = approverList!
+                  //           .where((element) =>
+                  //               element.guid == approverDropdownValue)
+                  //           .first;
+                  //       print(approverDropdownValue);
+                  //     });
+                  //   },
+                  //   items: approverList != null
+                  //       ? approverList!.map((e) {
+                  //           return DropdownMenuItem<String>(
+                  //             value: e.guid!,
+                  //             child: Text(e.empName!),
+                  //           );
+                  //         }).toList()
+                  //       : [],
+                  // ),
+                  ),
               Padding(
                   padding: const EdgeInsets.only(
                     left: 18.0,
@@ -319,25 +362,33 @@ class _MyWidgetState extends State<UserEditWidget> {
                     color: Colors.white,
                   ),
                   onPressed: () async {
-                    if (employeeName.text != '' &&
-                        employeeId.text != '' &&
-                        department.text != '') {
-                      updateEmployeeDetails(
+                    if (userEdit.employeeName.controller.text != '' &&
+                        userEdit.employeeId.controller.text != '' &&
+                        userEdit.department.controller.text != '') {
+                      List<Approver> approverObject = [];
+                      approverObject = selectedApprovers.map((e) {
+                        Approver aprvr = new Approver();
+                        aprvr.setGuid(e.value.toString());
+                        return aprvr;
+                      }).toList();
+                      print('test');
+                      await updateEmployeeDetails(
                           selectedEmployee.key,
-                          department.text,
-                          employeeId.text,
-                          employeeName.text,
+                          userEdit.department.controller.text,
+                          userEdit.employeeId.controller.text,
+                          userEdit.employeeName.controller.text,
                           _isWfh,
                           userTypeDropdown,
                           approverDropdownValue,
                           selectedApprover.empName,
-                          absences.text);
+                          userEdit.absences.controller.text,
+                          approverObject);
                       success_box(context, "Employee profile updated.");
                       employeeList = await fetchAllEmployees(false);
                       sortListAlphabetical(employeeList!);
-                      department.text = '';
-                      employeeId.text = '';
-                      employeeName.text = '';
+                      userEdit.department.controller.text = '';
+                      userEdit.employeeId.controller.text = '';
+                      userEdit.employeeName.controller.text = '';
                       FocusScope.of(context).unfocus();
                     } else {
                       warning_box(context, "Please complete all the fields");

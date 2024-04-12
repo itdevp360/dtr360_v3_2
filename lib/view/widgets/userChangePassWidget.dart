@@ -66,8 +66,8 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
                 child: Lottie.asset('assets/json_files/security.json')),
           ),
           Padding(
-              padding:
-                  const EdgeInsets.only(left: 18.0, right: 28.0, top: 0, bottom: 0),
+              padding: const EdgeInsets.only(
+                  left: 18.0, right: 28.0, top: 0, bottom: 0),
               child: Row(
                 children: [
                   Checkbox(
@@ -75,7 +75,6 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
                     onChanged: (value) {
                       setState(() {
                         _changeEmail = value!;
-                        print(_changeEmail);
                       });
                     },
                   ),
@@ -97,8 +96,8 @@ class _MyWidgetState extends State<ChangePasswordWidget> {
                 ),
               )),
           Padding(
-              padding:
-                  const EdgeInsets.only(left: 18.0, right: 28.0, top: 20, bottom: 0),
+              padding: const EdgeInsets.only(
+                  left: 18.0, right: 28.0, top: 20, bottom: 0),
               child: Row(
                 children: [
                   Checkbox(

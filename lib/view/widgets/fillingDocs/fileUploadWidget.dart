@@ -1,4 +1,5 @@
 import 'package:dtr360_version3_2/model/filingdocument.dart';
+import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:dtr360_version3_2/view/widgets/fillingDocs/leaveDataWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -40,25 +41,48 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
 
   void runFile() async {
     final parentData = LeaveDataWidget.of(context)?.dataModel;
-    var test = fetchFile('16yfuIyvJqjom8etz-TFSMK2XqafYY4p0');
-    // List<String> fileName = [];
-    if (_resultFilePath != null) {
-      final fileName = await uploadToDrive(_resultFilePath!);
-      parentData?.fileId = fileName[0];
-      parentData?.attachmentName = fileName[1];
+    if (parentData!.reason != '' && parentData.leaveType != '') {
+      var test = fetchFile('16yfuIyvJqjom8etz-TFSMK2XqafYY4p0');
+      // List<String> fileName = [];
+      if (_resultFilePath != null) {
+        final fileName = await uploadToDrive(_resultFilePath!);
+        parentData?.fileId = fileName[0];
+        parentData?.attachmentName = fileName[1];
+      }
+
+      parentData?.docType = 'Leave';
+      parentData?.date = (parentData?.date == '' ? DateTime.now().toString() : parentData?.date)!;
+      // parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
+
+      //
+      //Save document file to firebase
+      var isDupe = await checkIfDuplicate(parentData.dateFrom, parentData.dateTo, parentData.correctDate, parentData.otDate, parentData.docType,
+          parentData.guid, parentData.isOut, parentData.otfrom);
+      if (isDateFromBeforeDateTo(parentData.dateFrom, parentData.dateTo)) {
+        if (!isDupe) {
+          if(parentData.deductLeave && parentData.noOfDay != '' && double.parse(parentData.noOfDay) > 0){
+            await fileDocument(parentData!, context);
+            parentData.resetProperties();
+            widget.resetCallback();
+          }
+          else if(!parentData.deductLeave){
+            await fileDocument(parentData!, context);
+            parentData.resetProperties();
+            widget.resetCallback();
+          }
+          else{
+            warning_box(context, 'Please determine the no. of days to be deducted');
+          }
+          
+        } else {
+          warning_box(context, 'There is already an application on this date');
+        }
+      } else {
+        warning_box(context, 'Date From should not be greater than Date To');
+      }
+    } else {
+      warning_box(context, 'Please complete the fields.');
     }
-
-    parentData?.docType = 'Leave';
-    parentData?.date = (parentData?.date == ''
-        ? DateTime.now().toString()
-        : parentData?.date)!;
-    // parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
-
-    //
-    //Save document file to firebase
-    fileDocument(parentData!, context);
-    parentData.resetProperties();
-    widget.resetCallback();
   }
 
   @override
@@ -79,15 +103,12 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
                 ),
               )
             : SizedBox(height: 16),
-        parentData!.leaveType == 'Sick Leave'
-            ? Text('Selected File: $_fileName')
-            : SizedBox(height: 16),
+        parentData!.leaveType == 'Sick Leave' ? Text('Selected File: $_fileName') : SizedBox(height: 16),
         SizedBox(height: 16),
         Container(
           height: 6.h,
           width: 80.w,
-          decoration: BoxDecoration(
-              color: Colors.orange, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(20)),
           child: TextButton.icon(
             icon: const Icon(
               Icons.file_copy,

@@ -11,7 +11,16 @@ class Employees {
       appId,
       appName,
       absences,
-      key;
+      key,
+      timeIn,
+      timeOut,
+      mon,
+      tues,
+      wed,
+      thurs,
+      fri,
+      sat,
+      sun;
 
   String? get getAbsences {
     return absences;
@@ -115,5 +124,77 @@ class Employees {
 
   set usertype(String? usertype) {
     usrType = usertype;
+  }
+
+  String? get getShiftTimeIn {
+    return timeIn;
+  }
+
+  set shiftTimeIn(String timein) {
+    timeIn = timein;
+  }
+
+  String? get getShiftTimeOut {
+    return timeOut;
+  }
+
+  set shiftTimeOut(String timeout) {
+    timeOut = timeout;
+  }
+
+  String? get getMonday {
+    return mon;
+  }
+
+  set monday(String _monday) {
+    mon = _monday;
+  }
+
+  String? get getTuesday {
+    return tues;
+  }
+
+  set tuesday(String _tuesday) {
+    tues = _tuesday;
+  }
+
+  String? get getWednesday {
+    return wed;
+  }
+
+  set wednesday(String _wednesday) {
+    wed = _wednesday;
+  }
+
+  String? get getThursday {
+    return thurs;
+  }
+
+  set thursday(String _thursday) {
+    thurs = _thursday;
+  }
+
+  String? get getFriday {
+    return fri;
+  }
+
+  set friday(String _friday) {
+    fri = _friday;
+  }
+
+  String? get getSaturday {
+    return sat;
+  }
+
+  set saturday(String _saturday) {
+    sat = _saturday;
+  }
+
+  String? get getSunday {
+    return sun;
+  }
+
+  set sunday(String _sunday) {
+    sun = _sunday;
   }
 }

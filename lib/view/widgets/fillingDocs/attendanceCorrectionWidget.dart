@@ -1,3 +1,4 @@
+import 'package:dtr360_version3_2/utils/alertbox.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -23,6 +24,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
   var employeeProfile;
   DateTime startDate = DateTime.now();
   DateTime correctDate = DateTime.now();
+  bool isNextDayTimeOut = false;
   TimeOfDay initialTime = const TimeOfDay(hour: 0, minute: 0);
   TextEditingController reason = TextEditingController();
   List<String> inOrOut = [
@@ -38,15 +40,18 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
       dataModel.dept = employeeProfile[1] ?? '';
       dataModel.empKey = employeeProfile[7] ?? '';
       dataModel.employeeName = employeeProfile[0] ?? '';
+      TimeOfDay timeOfDay = TimeOfDay(hour: 0, minute: 0);
+      String formattedTime = DateFormat.Hm().format(DateTime(2023, 1, 1, timeOfDay.hour, timeOfDay.minute));
       setState(() {
         dataModel.date = startDate.toString();
+        dataModel.correctDate = correctDate.toString();
+        dataModel.correctTime = formattedTime;
       });
     });
   }
 
   Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: initialTime);
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialTime);
     if (picked != null && picked != initialTime) {
       setState(() {
         initialTime = picked;
@@ -124,6 +129,22 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                   );
                 }).toList(),
               ),
+              dataModel.isOut ? Row(
+                children: [
+                  Checkbox(
+                      value: isNextDayTimeOut,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isNextDayTimeOut = value!;
+                          // dataModel.isFlexi = value!;
+                        });
+                      }),
+                  const Text(
+                    'Next day Time Out',
+                    style: TextStyle(fontSize: 16),
+                  )
+                ],
+              ) : SizedBox(height: 10,),
               TextField(
                 keyboardType: TextInputType.none,
                 decoration: const InputDecoration(labelText: 'Correction Date'),
@@ -138,8 +159,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                 onTap: () {
                   _selectTime(context);
                 },
-                controller:
-                    TextEditingController(text: formatTime(initialTime)),
+                controller: TextEditingController(text: formatTime(initialTime)),
               ),
               TextField(
                 decoration: const InputDecoration(labelText: 'Reason'),
@@ -154,29 +174,42 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
               Container(
                 height: 6.h,
                 width: 80.w,
-                decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(20)),
                 child: TextButton.icon(
                   icon: const Icon(
                     Icons.file_copy,
                     color: Color.fromARGB(255, 141, 105, 105),
                   ),
-                  onPressed: () async{
-                    dataModel.finalDate = convertStringDateToUnix(
-                        dataModel.date, dataModel.correctTime, 'Correction');
+                  onPressed: () async {
+                    dataModel.finalDate = convertStringDateToUnix(dataModel.correctDate, dataModel.correctTime, 'Correction', false, dataModel.otfrom);
                     dataModel.docType = 'Correction';
-                    await fileDocument(dataModel, context);
-                    setState(() {
-                      dataModel.resetProperties();
-                      reason.text = '';
-                      startDate = DateTime.now();
-                      correctDate = DateTime.now();
-                      dataModel.date = startDate.toString();
-                      dataModel.correctDate = correctDate.toString();
-                      initialTime = const TimeOfDay(hour: 0, minute: 0);
-                    });
-                    
+                    var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType,
+                        dataModel.guid, dataModel.isOut, dataModel.otfrom);
+
+                    if (reason.text != '' && selectedInOrOut != '') {
+                      bool isValid = await checkIfValidDate(
+                          dataModel.correctDate, employeeProfile[4], false, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true, dataModel.isFlexi);
+                      if (isValid) {
+                        if (!isDupe) {
+                          await fileDocument(dataModel, context);
+                          setState(() {
+                            dataModel.resetProperties();
+                            reason.text = '';
+                            startDate = DateTime.now();
+                            correctDate = DateTime.now();
+                            dataModel.date = startDate.toString();
+                            dataModel.correctDate = correctDate.toString();
+                            initialTime = const TimeOfDay(hour: 0, minute: 0);
+                          });
+                        } else {
+                          warning_box(context, 'There is already an application on this date');
+                        }
+                      } else {
+                        warning_box(context, 'Invalid date. No attendance.');
+                      }
+                    } else {
+                      warning_box(context, 'Please complete the fields.');
+                    }
                   },
                   label: const Text(
                     'Submit',

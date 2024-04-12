@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+import 'package:dtr360_version3_2/model/codeTable.dart';
 import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -29,19 +30,8 @@ read_employeeProfile() async {
   return items;
 }
 
-save_employeeProfile(
-    employeeName,
-    department,
-    email,
-    password,
-    guid,
-    imageString,
-    userType,
-    key,
-    employeeID,
-    approver,
-    approverName,
-    remainingLeaves) async {
+save_employeeProfile(employeeName, department, email, password, guid, imageString, userType, key, employeeID, approver, approverName, remainingLeaves,
+    shiftTimeIn, shiftTimeOut, monday, tuesday, wednesday, thursday, friday, saturday, sunday) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setStringList('employeeCredentials', <String>[
     employeeName,
@@ -55,13 +45,21 @@ save_employeeProfile(
     employeeID,
     approverName,
     approver,
-    remainingLeaves
+    remainingLeaves,
+    shiftTimeIn,
+    shiftTimeOut,
+    monday,
+    tuesday,
+    wednesday,
+    thursday,
+    friday,
+    saturday,
+    sunday
   ]);
 }
 
 Image imageFromBase64String(String base64String) {
-  return Image.memory(
-      base64Decode(base64String.replaceAll(RegExp(r'\s+'), '')));
+  return Image.memory(base64Decode(base64String.replaceAll(RegExp(r'\s+'), '')));
 }
 
 String timestampToDateString(dynamic timestamp, format) {
@@ -78,10 +76,25 @@ String timestampToDateString(dynamic timestamp, format) {
   }
 }
 
-isEmployeeExist(employee, documents) {
+String getDayOfWeek(int dayNumber) {
+  List<String> days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  return days[dayNumber - 1];
+}
+
+String convertDateFormat(String dateString) {
+  // Parse the input date string into a DateTime object
+  DateTime date = DateFormat('EEE, MMM d, y').parse(dateString);
+
+  // Format the DateTime object into the desired output format
+  String formattedDate = DateFormat('MM/dd/yyyy').format(date);
+
+  return formattedDate;
+}
+
+isEmployeeExist(guid, documents) {
   bool isExist = false;
   for (var i = 0; i < documents.length; i++) {
-    if (documents[i].employeeName == employee) {
+    if (documents[i].guid == guid) {
       isExist = true;
     }
   }
@@ -90,6 +103,10 @@ isEmployeeExist(employee, documents) {
 
 String formatDate(DateTime date) {
   return DateFormat('MM/dd/yyyy').format(date);
+}
+
+String longformatDate(DateTime date) {
+  return DateFormat('EEE, MMM d, yyyy').format(date);
 }
 
 String formatTime(TimeOfDay date) {
@@ -108,8 +125,7 @@ fetchLatestWeeks(List<Attendance> logs) {
 
   return logs.where((element) {
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(element.dateIn!);
-    final date =
-        DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
+    final date = DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
     //.add(Duration(hours: 8));
     Duration difference = now.difference(date);
     if (difference <= Duration(days: 15)) {
@@ -126,19 +142,30 @@ computeTotalHours(startTIme, endTime) {
 
   // Calculate the difference in hours
   Duration difference = end.difference(start);
-  int totalHours = difference.inHours;
+  double totalHours = difference.inHours.toDouble();
+  double remainingMinutes = difference.inMinutes.remainder(60).toDouble();
+  double remainingSeconds = difference.inSeconds.remainder(60).toDouble();
+
+  // Convert the remaining minutes and seconds into fractions of an hour
+  double minutesFraction = remainingMinutes / 60.0;
+  double secondsFraction = remainingSeconds / 3600.0;
+
+  // Add the fractions to the total hours
+  totalHours += (minutesFraction + secondsFraction);
 
   return totalHours.toStringAsFixed(2);
 }
 
-convertStringDateToUnix(date, selectedTime, docType) {
+convertStringDateToUnix(date, selectedTime, docType, isTimeTo, otFrom) {
   int unixTimestamp = 0;
   if (docType == 'Correction' || docType == 'Overtime') {
     DateTime dateTime = DateFormat("yyyy-MM-dd").parse(date);
     DateFormat timeFormat = DateFormat('HH:mm');
     DateTime time = timeFormat.parse(selectedTime);
-    DateTime convertedTime = DateTime(dateTime.year, dateTime.month,
-        dateTime.day, time.hour, time.minute, time.second);
+    DateTime otTimeFrom = DateTime.fromMillisecondsSinceEpoch(int.parse(otFrom.toString()));
+    int day = isTimeTo && (otTimeFrom.hour > time.hour) ? dateTime.day + 1 : dateTime.day;
+
+    DateTime convertedTime = DateTime(dateTime.year, dateTime.month, day, time.hour, time.minute, time.second);
 
     // Convert to Unix timestamp
     unixTimestamp = convertedTime.millisecondsSinceEpoch;
@@ -147,20 +174,15 @@ convertStringDateToUnix(date, selectedTime, docType) {
 
     // Convert to Unix timestamp
     unixTimestamp = dateTime.millisecondsSinceEpoch;
-  }
-  else{
-    
-  }
+  } else {}
 
   return unixTimestamp;
 }
 
 getDateDiff(dateTime) {
   DateTime now = DateTime.now();
-  DateTime? startDate1 =
-      DateFormat('MM/dd/yyyy HH:mm a').parse(dateTime.toString());
-  final date =
-      DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
+  DateTime? startDate1 = DateFormat('MM/dd/yyyy HH:mm a').parse(dateTime.toString());
+  final date = DateTime.fromMillisecondsSinceEpoch(startDate1.millisecondsSinceEpoch);
   //.add(Duration(hours: 8));
   final difference = now.difference(date).abs();
   if (difference <= Duration(days: 1)) {
@@ -173,7 +195,7 @@ getDateDiff(dateTime) {
 logoutUser(context) {
   FirebaseAuth.instance.signOut();
   save_credentials_pref('', '');
-  save_employeeProfile('', '', '', '', '', '', '', '', '', '', '', '');
+  save_employeeProfile('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
   Navigator.pushReplacementNamed(context, 'Login');
 }
 
@@ -183,17 +205,14 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
     String startDateString = formatDate(startDate);
     String endDateString = formatDate(endDate);
     DateTime? startDate1 = DateFormat('MM/dd/yyyy').parse(startDateString);
-    DateTime? endDate1 = DateFormat('MM/dd/yyyy').parse(endDateString).add(const Duration(days:1));
+    DateTime? endDate1 = DateFormat('MM/dd/yyyy').parse(endDateString).add(const Duration(days: 1));
     ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
     if (startDate1 != null && endDate1 != null) {
       List<Attendance> newlogs = [];
       for (var attendance in ownLogs!) {
         if (attendance.dateIn != null) {
-          var attendanceDate =
-              DateFormat('MM/dd/yyyy').parse(attendance.dateIn!);
-          if (attendanceDate != null &&
-              attendanceDate.isAfter(startDate1!) &&
-              attendanceDate.isBefore(endDate1!)) {
+          var attendanceDate = DateFormat('MM/dd/yyyy').parse(attendance.dateIn!);
+          if (attendanceDate != null && attendanceDate.isAfter(startDate1!) && attendanceDate.isBefore(endDate1!)) {
             newlogs.add(attendance);
           }
         }
@@ -206,24 +225,76 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
 
 sortList(List<Attendance> attendance) {
   attendance.sort((a, b) {
-    var dateA =
-        DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
-    var dateB =
-        DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
-    return dateB.compareTo(dateA);
+    var dateTimeA;
+    var dateTimeB;
+
+    if (a.timeIn != 'No Data') {
+      dateTimeA = DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
+    } else {
+      dateTimeA = DateFormat("MM/dd/yyyy").parse(a.dateIn!);
+    }
+
+    if (b.timeIn != 'No Data') {
+      dateTimeB = DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
+    } else {
+      dateTimeB = DateFormat("MM/dd/yyyy").parse(b.dateIn!);
+    }
+
+    return dateTimeB.compareTo(dateTimeA);
   });
 
   return attendance;
 }
 
+int? getHighestUniqueId(List<codeTable> itemList) {
+  itemList.sort((a, b) => b.uniqueId!.compareTo(a.uniqueId!));
+  return itemList.isNotEmpty ? itemList.first.uniqueId! + 1 : 1;
+}
+
+bool isDateFromBeforeDateTo(String dateFrom, String dateTo) {
+  final dateFormat = 'MM/dd/yyyy';
+  DateTime from = DateTime.parse(dateFrom);
+  DateTime to = DateTime.parse(dateTo);
+  if (from.isBefore(to) || from.isAtSameMomentAs(to)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool isTimeFromBeforeTimeTo(int dateFrom, int dateTo) {
+  print(dateFrom);
+  return false;
+  // final dateFormat = 'HH:mm';
+  // DateTime from = DateTime.parse(dateFrom);
+  // DateTime to = DateTime.parse(dateTo);
+  // if (from.isBefore(to) || from.isAtSameMomentAs(to)) {
+  //   return true;
+  // } else {
+  //   return false;
+  // }
+}
+
 sortDocs(List<FilingDocument> docs) {
   docs.sort((a, b) {
-    var dateA = DateFormat("MM/dd/yyyy").parse(a.date!);
-    var dateB = DateFormat("MM/dd/yyyy").parse(b.date!);
+    var dateA = DateFormat("EEE, MMM d, yyyy").parse(a.date!);
+    var dateB = DateFormat("EEE, MMM d, yyyy").parse(b.date!);
     return dateB.compareTo(dateA);
   });
 
   return docs;
+}
+
+DateTime parseCustomDate(String dateString) {
+  final List<String> months = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  final parts = dateString.split(' ');
+  final weekday = parts[0];
+  final month = months.indexOf(parts[1]);
+  final day = int.parse(parts[2].replaceAll(',', ''));
+  final year = int.parse(parts[3]);
+
+  return DateTime(year, month, day);
 }
 
 //Ascending A to Z

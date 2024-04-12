@@ -55,7 +55,16 @@ class _MyHomeWidgetState extends State<HomeWidget> {
             emp.empId,
             emp.appId,
             emp.appName,
-            emp.absences);
+            emp.absences,
+            emp.timeIn,
+            emp.timeOut,
+            emp.mon,
+            emp.tues,
+            emp.wed,
+            emp.thurs,
+            emp.fri,
+            emp.sat,
+            emp.sun);
         // if(employeeProfile != null && employeeProfile[0] != ''){
         //   emp.empName = employeeProfile[0] ?? '';
         //   emp.dept = employeeProfile[1] ?? '';
@@ -132,7 +141,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                       text: 'Attendance',
                     ),
                     GButton(
-                      icon: LineIcons.file,
+                      icon: LineIcons.fileUpload,
                       text: 'Applications',
                     ),
                   ],
@@ -146,7 +155,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
               ),
             ),
             appBar: AppBar(
-              title: const Text("DTR360 v3.3"),
+              title: const Text("DTR360 v3.3.3"),
               backgroundColor: Colors.redAccent,
               bottom: _selectedIndex == 2
                   ? const TabBar(
@@ -213,7 +222,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return const ApprovalListScreen();
+                                return const ApproverListWidget();
                               },
                             ),
                           );
