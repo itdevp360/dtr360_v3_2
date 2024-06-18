@@ -42,7 +42,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
     //Initialize the Employee Profile during Leave Widget rendering
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       employeeProfile = await read_employeeProfile();
-      _employeesFuture = await fetchAllEmployees(true);
+      _employeesFuture = await fetchAllEmployees(false, true, departmentFilter: employeeProfile[1]);
       setState(() {
         isApprover = employeeProfile[6] == 'Approver' ? true : false;
       });
@@ -188,7 +188,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
             ),
             isApprover ? 
             FutureBuilder<dynamic>(
-              future: fetchAllEmployees(true), // Replace with your own method to fetch list data
+              future: fetchAllEmployees(false, true, departmentFilter: employeeProfile[1]), // Replace with your own method to fetch list data
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();

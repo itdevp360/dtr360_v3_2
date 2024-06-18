@@ -111,6 +111,7 @@ rejectAllDocs(selectedItems, documents, context, reason, rejectedBy) async {
 updateFilingDocs(selectedItems, documents, context, approverName) async {
   
   if (selectedItems.isNotEmpty) {
+    //Loop through selected indexes 
     for (var i = 0; i < selectedItems.length; i++) {
       if (selectedItems[i] != false) {
         print(documents![i].employeeName);

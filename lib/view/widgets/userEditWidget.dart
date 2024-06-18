@@ -37,6 +37,7 @@ class _MyWidgetState extends State<UserEditWidget> {
   List<Approver> empApprovers = [];
   Employees selectedApprover = Employees();
   String? approverDropdownValue = null;
+  var employeeProfile;
   String? approverName;
   List<Employees>? employeeList;
   Employees selectedEmployee = new Employees();
@@ -48,7 +49,8 @@ class _MyWidgetState extends State<UserEditWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      employeeList = await fetchAllEmployees(false);
+      employeeProfile = await read_employeeProfile();
+      employeeList = await fetchAllEmployees(false, true, departmentFilter: employeeProfile[1]);
       sortListAlphabetical(employeeList!);
       if (this.mounted) {
         setState(() {
@@ -384,7 +386,7 @@ class _MyWidgetState extends State<UserEditWidget> {
                           userEdit.absences.controller.text,
                           approverObject);
                       success_box(context, "Employee profile updated.");
-                      employeeList = await fetchAllEmployees(false);
+                      employeeList = await fetchAllEmployees(false, false, departmentFilter: employeeProfile[1]);
                       sortListAlphabetical(employeeList!);
                       userEdit.department.controller.text = '';
                       userEdit.employeeId.controller.text = '';

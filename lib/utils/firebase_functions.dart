@@ -442,36 +442,47 @@ checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut, ot
   return isDuplicate;
 }
 
-fetchAttendance() async {
+fetchAttendance({String? dept, bool? isApprover, bool? isAdmin, String? guid}) async {
   List<Attendance> _listKeys = [];
-  DateTime now = DateTime.now();
-  DateTime start = now.subtract(Duration(days: 15));
   final logRef = FirebaseDatabase.instance.ref().child('Logs');
 
-  final ss = await logRef.get().then((snapshot) {
-    if (snapshot.exists) {
-      Map<dynamic, dynamic>? values = snapshot.value as Map?;
-      values!.forEach((key, value) {
-        Attendance logs = Attendance();
-        logs.attendanceKey = key.toString();
-        logs.employeeID = value['employeeID'].toString();
-        logs.employeeName = value['employeeName'].toString();
-        logs.guid = value['guid'].toString();
-        logs.dateTimeIn = timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
-        logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
-        logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
-        logs.userType = value['usertype'].toString();
-        logs.iswfh = value['isWfh'].toString();
-        if (value['usertype'].toString() != 'Former Employee') {
-          _listKeys.add(logs);
-        }
-      });
-    }
-  });
+  Query query;
+  if (isAdmin ?? false) {
+    // Admin gets all logs
+    query = logRef;
+  } else if (isApprover ?? false) {
+    // Approver gets logs for a specific department
+    query = logRef.orderByChild('department').equalTo(dept);
+  } else if (guid != null) {
+    // Regular user gets logs for a specific guid
+    query = logRef.orderByChild('guid').equalTo(guid);
+  } else {
+    // If no parameters are provided, fetch all logs
+    query = logRef;
+  }
+
+  final snapshot = await query.get();
+  if (snapshot.exists) {
+    Map<dynamic, dynamic>? values = snapshot.value as Map?;
+    values!.forEach((key, value) {
+      Attendance logs = Attendance();
+      logs.attendanceKey = key.toString();
+      logs.employeeID = value['employeeID'].toString();
+      logs.employeeName = value['employeeName'].toString();
+      logs.guid = value['guid'].toString();
+      logs.dateTimeIn = timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
+      logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
+      logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
+      logs.userType = value['usertype'].toString();
+      logs.iswfh = value['isWfh'].toString();
+      if (value['usertype'].toString() != 'Former Employee') {
+        _listKeys.add(logs);
+      }
+    });
+  }
 
   return _listKeys;
 }
-
 fetchHolidays() async {
   List<Holidays> _listKeys = [];
   final holidayRef = FirebaseDatabase.instance.ref().child('Holidays');
@@ -513,46 +524,72 @@ login_user(context, email, password) async {
   }
 }
 
-fetchAllEmployees(bool isAttendance) async {
+fetchAllEmployees(bool isTrue,bool isAttendance, {String? departmentFilter} ) async {
   List<Employees> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('Employee');
-
-  final snapshot = await ref.get().then((snapshot) {
-    if (snapshot.exists) {
-      Map<dynamic, dynamic>? values = snapshot.value as Map?;
-      values!.forEach((key, value) {
-        Employees emp1 = Employees();
-        emp1.itemKey = key.toString();
-        emp1.employeeID = value['employeeID'].toString();
-        emp1.department = value['department'].toString();
-        emp1.email = value['email'].toString();
-        emp1.employeeName = value['employeeName'].toString();
-        emp1.setguid = value['guid'].toString();
-        emp1.imageString = value['imageString'].toString();
-        emp1.isWfh = value['isWfh'].toString();
-        emp1.password = value['password'].toString();
-        emp1.usertype = value['usertype'].toString();
-        emp1.appId = value['approver'].toString();
-        emp1.appName = value['approverName'].toString();
-        emp1.absences = value['remainingLeaves'].toString();
-        if (isAttendance == false) {
+  
+  Query query;
+  if (isTrue) {
+    // Query based on department if departmentFilter is provided
+    query = ref.orderByChild('department').equalTo(departmentFilter);
+  } else {
+    // Fetch all employees if no department filter is provided
+    query = ref;
+  }
+  
+  final snapshot = await query.get();
+  if (snapshot.exists) {
+    Map<dynamic, dynamic>? values = snapshot.value as Map?;
+    values!.forEach((key, value) {
+      Employees emp1 = Employees();
+      emp1.itemKey = key.toString();
+      emp1.employeeID = value['employeeID'].toString();
+      emp1.department = value['department'].toString();
+      emp1.email = value['email'].toString();
+      emp1.employeeName = value['employeeName'].toString();
+      emp1.setguid = value['guid'].toString();
+      emp1.imageString = value['imageString'].toString();
+      emp1.isWfh = value['isWfh'].toString();
+      emp1.password = value['password'].toString();
+      emp1.usertype = value['usertype'].toString();
+      emp1.appId = value['approver'].toString();
+      emp1.appName = value['approverName'].toString();
+      emp1.absences = value['remainingLeaves'].toString();
+      emp1.timeIn = value['shiftTimeIn'].toString();
+      emp1.timeOut = value['shiftTimeOut'].toString();
+      emp1.mon = value['monday'].toString();
+      emp1.tues = value['tuesday'].toString();
+      emp1.wed = value['wednesday'].toString();
+      emp1.thurs = value['thursday'].toString();
+      emp1.fri = value['friday'].toString();
+      emp1.sat = value['saturday'].toString();
+      emp1.sun = value['sunday'].toString();
+      
+      if (isAttendance == false) {
+        _listKeys.add(emp1);
+      } else {
+        if (value['usertype'].toString() != 'Former Employee') {
           _listKeys.add(emp1);
-        } else {
-          if (value['usertype'].toString() != 'Former Employee') {
-            _listKeys.add(emp1);
-          }
         }
-      });
-    }
-  });
+      }
+    });
+  }
+  
   return _listKeys;
 }
 
-fetchEmployees() async {
+fetchEmployees({String? emailAdd}) async {
   List<Employees> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('Employee');
-
-  final snapshot = await ref.get().then((snapshot) {
+  Query query;
+  if(emailAdd != null){
+     query = ref.orderByChild('email').equalTo(emailAdd);
+  }
+  else{
+     query = ref;
+  }
+  
+  final snapshot = await query.get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
@@ -798,7 +835,7 @@ updateTimeOut(key) async {
 }
 
 updateAttendance(guid, context, isTimeIn, Employees emp) async {
-  List<Attendance>? logs = await fetchAttendance();
+  List<Attendance>? logs = await fetchAttendance(dept: '', isApprover: false, isAdmin: false, guid : guid);
   List<Attendance>? newLogs = [];
   newLogs = sortList(logs!.where((element) => (element.guID == guid) || (element.empName == guid) || (element.empId == guid)).toList());
   var result;

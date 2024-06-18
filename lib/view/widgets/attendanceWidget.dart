@@ -29,23 +29,25 @@ class _MyWidgetState extends State<AttendanceWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      logs = await fetchAttendance();
-      employeeList = await fetchAllEmployees(true);
-      sortListAlphabetical(employeeList!);
+      
       employeeProfile = await read_employeeProfile();
-      ownLogs = logs!.where((log) => log.guID == employeeProfile[4]).toList();
-      ownLogs = sortList(fetchLatestWeeks(ownLogs!));
+      String departmentFilter = employeeProfile[1].toString();
+      
       if (employeeProfile[6] == 'Employee') {
         isEmployee = true;
         screenH = 60.h;
+        employeeList = await fetchAllEmployees(false, true, departmentFilter: departmentFilter);
+        logs = await fetchAttendance(dept: employeeProfile[1], guid: employeeProfile[4]);
       } else if (employeeProfile[6] == 'Approver') {
-        employeeList = employeeList!
-            .where((empList) =>
-                employeeProfile[1].toString().contains(empList.dept!))
-            .toList();
-        
+        employeeList = await fetchAllEmployees(true, true, departmentFilter: departmentFilter);
+        logs = await fetchAttendance(dept: employeeProfile[1], isApprover: true);
+      } else if (employeeProfile[6] == 'IT/Admin') {
+        logs = await fetchAttendance(isAdmin: true);
       }
-
+      sortListAlphabetical(employeeList!);
+      // logs = await fetchAttendance();
+      ownLogs = logs!.where((log) => log.guID == employeeProfile[4]).toList();
+      ownLogs = sortList(fetchLatestWeeks(ownLogs!));
       setState(() {
         if(employeeProfile[6] == 'Approver'){
           ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();

@@ -41,7 +41,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
       if (credentials != null && credentials[0] != '') {
         email = credentials[0] ?? '';
         employeeProfile = await read_employeeProfile();
-        empList = await fetchEmployees();
+        empList = await fetchEmployees(emailAdd: email);
         emp = empList.firstWhere((element) => element.emailAdd == email);
         save_employeeProfile(
             emp.empName,
