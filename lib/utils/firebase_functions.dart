@@ -1,3 +1,4 @@
+
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/model/holidays.dart';
@@ -442,7 +443,63 @@ checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut, ot
   return isDuplicate;
 }
 
-fetchAttendance({String? dept, bool? isApprover, bool? isAdmin, String? guid}) async {
+fetchLeaves({String? dept, bool? isApprover, bool? isAdmin, String? guid}) async {
+  List<FilingDocument> _listKeys = [];
+  final logRef = FirebaseDatabase.instance.ref().child('FilingDocuments');
+  List<Attendance> dateRange = [];
+  Query query;
+  if (isAdmin ?? false) {
+    // Admin gets all logs
+    query = logRef;
+  } else if (isApprover ?? false) {
+    // Approver gets logs for a specific department
+    query = logRef.orderByChild('dept').equalTo(dept);
+  } else if (guid != null) {
+    // Regular user gets logs for a specific guid
+    query = logRef.orderByChild('guid').equalTo(guid);
+  } else {
+    // If no parameters are provided, fetch all logs
+    query = logRef;
+  }
+
+  final snapshot = await query.get();
+  if (snapshot.exists) {
+    Map<dynamic, dynamic>? values = snapshot.value as Map?;
+    values!.forEach((key, value) {
+      FilingDocument docs = FilingDocument();
+      if(value['docType'].toString() == "Leave" && value['isCancelled'] != false){
+        docs.key = key.toString();
+        docs.approveRejectBy = value['approveRejectBy'].toString();
+        docs.approveRejectDate = value['approveRejectDate'].toString();
+        docs.date = value['date'].toString();
+        docs.dateFrom = value['dateFrom'].toString();
+        docs.dateTo = value['dateTo'].toString();
+        docs.docType = value['docType'].toString();
+        docs.empKey = value['empKey'].toString();
+        docs.employeeName = value['employeeName'].toString();
+        docs.guid = value['guid'].toString();
+        docs.isAm = value['isAm'];
+        docs.isApproved = value['isApproved'];
+        docs.isCancelled = value['isCancelled'] ?? false;
+        docs.isHalfday = value['isHalfday'] ?? false;
+        docs.leaveType = value['leaveType'].toString();
+        docs.noOfDay = value['noOfDay'].toString();
+        docs.reason = value['reason'].toString();
+        docs.uniqueId = value['uniqueId'].toString();
+        if(docs.isApproved != false){
+          dateRange += convertDateRange(docs.dateFrom, docs.dateTo, docs.guid, docs.employeeName, docs.dept);
+        }
+        
+      }
+      
+    });
+  }
+
+  return dateRange;
+}
+
+
+Future<List<Attendance>> fetchAttendance({String? dept, bool? isApprover, bool? isAdmin, String? guid}) async {
   List<Attendance> _listKeys = [];
   final logRef = FirebaseDatabase.instance.ref().child('Logs');
 
@@ -480,7 +537,8 @@ fetchAttendance({String? dept, bool? isApprover, bool? isAdmin, String? guid}) a
       }
     });
   }
-
+  List<Attendance> test = await fetchLeaves(dept: dept, guid: guid, isAdmin: isAdmin, isApprover: isApprover);
+  _listKeys += test;
   return _listKeys;
 }
 fetchHolidays() async {
