@@ -208,6 +208,8 @@ fetchEmployeeDocument() async {
   }
   final dbRef = FirebaseDatabase.instance.ref().child('Approver');
   List<String> empKeys = [];
+
+  //Fetch list of approvers and filter using the user guid
   final empApprover = await dbRef
       .orderByChild('guid')
       .equalTo(empProfile[4])
@@ -216,7 +218,7 @@ fetchEmployeeDocument() async {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
-        empKeys.add(value['empKey'] ?? '');
+        empKeys.add(value['empKey'] ?? ''); //consolidate all employees with approver as user
       });
     }
   });
@@ -230,7 +232,7 @@ fetchEmployeeDocument() async {
         file.dept = value['dept'].toString();
         file.correctTime = value['correctTime'].toString();
         file.docType = value['docType'].toString();
-        file.uniqueId = value['uniqueId'] != null ? value['uniqueId'] : '';
+        file.uniqueId = value['uniqueId'] ?? '';
         file.employeeName = value['employeeName'].toString();
         file.date = longformatDate(DateTime.parse(value['date'])).toString();
         file.otDate = value['otDate'] == null || value['otDate'] == ''
@@ -285,7 +287,7 @@ fetchEmployeeDocument() async {
         file.dateTo = value['dateTo'] == null || value['dateTo'] == ''
             ? ''
             : longformatDate(DateTime.parse(value['dateTo'])).toString();
-
+      
         if (empProfile[6] == 'Approver' &&
             empKeys.contains(file.empKey) &&
             ((parseCustomDate(file.date).isAfter(cutoffStart)) ||

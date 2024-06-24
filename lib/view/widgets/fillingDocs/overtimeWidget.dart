@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:dtr360_version3_2/view/widgets/loaderView.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -38,6 +39,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
   ];
   bool isOvernightOt = false;
   bool isFlexi = false;
+  bool _loaded = true;
   bool isProcessing = false;
 
   void initState() {
@@ -117,7 +119,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return LoaderView(showLoader: _loaded == false, child: SingleChildScrollView(
       child: Container(
           margin: const EdgeInsets.all(24),
           child: Column(
@@ -254,6 +256,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                             dataModel.otType = otType;
                             setState(() {
                               isProcessing = true;
+                              _loaded = false;
                             });
                             await fileDocument(dataModel, context);
                             setState(() {
@@ -267,6 +270,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                               initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
                               totalHours.text = '';
                               isProcessing = false;
+                              _loaded = true;
                             });
                           } else {
                             warning_box(context, 'There is already an application on this date');
@@ -290,6 +294,6 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
               )
             ],
           )),
-    );
+    ));
   }
 }

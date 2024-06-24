@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/utils/fileDocuments_functions.dart';
+import 'package:dtr360_version3_2/view/widgets/loaderView.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -29,6 +30,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
   List<int> selectedIndexes = [];
   bool isLoaded = false;
   bool isSelected = false;
+  bool _loaded = true;
 
   void deleteSelectedItems() {
     setState(() {
@@ -120,6 +122,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                           ),
                           TextButton(
                             onPressed: () async {
+                              setLoadedFalse();
                               var isTrue = await updateFilingDocs(selectedItems,
                                   documents, context, employeeProfile[0]);
                               if (isTrue == true) {
@@ -133,6 +136,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                   selectedItems = List.generate(
                                       documents!.length, (index) => false);
                                   selectedIndexes.clear();
+                                  _loaded = true;
                                 });
                                 Navigator.of(context).pop();
                                 _showSecondaryAlertDialog(
@@ -149,7 +153,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               )
           ],
         ),
-        body: Column(
+        body: LoaderView(showLoader: _loaded == false,
+        child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.only(
@@ -809,6 +814,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                           child: const Text('Reject')),
                                       TextButton(
                                           onPressed: () async {
+                                            setLoadedFalse();
                                             selectedIndexes.add(index);
                                             selectedItems[index] = true;
                                             var result = await updateFilingDocs(
@@ -828,6 +834,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                   documents!.length,
                                                   (index) => false);
                                               selectedIndexes.clear();
+                                              _loaded = true;
                                             });
 
                                             Navigator.of(context).pop();
@@ -899,7 +906,13 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               }),
             ))
           ],
-        ));
+        )));
+  }
+
+  void setLoadedFalse(){
+    setState(() {
+      _loaded = false;
+    });
   }
 
   void _showModalPopup(String selectedItem) {
@@ -957,6 +970,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                 ),
                 TextButton(
                   onPressed: () async {
+                    setLoadedFalse();
                     var isTrue = await rejectAllDocs(selectedItems, documents, context, rejectionReason.text,employeeProfile[0]);
                     if (isTrue == true) {
                       _listKey.currentState?.setState(() {
@@ -966,6 +980,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                       selectedItems = List.generate(documents!.length, (index) => false);
                       selectedIndexes.clear();
                       rejectionReason.clear();
+                      _loaded = true;
                     });
                     Navigator.of(context).pop();
                     _showRejectionSuccess(context);
@@ -1020,6 +1035,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   onPressed: () async {
                     print(rejectionReason.text);
                     print(selectedItem);
+                    setLoadedFalse();
                     await rejectApplication(
                         selectedItem, rejectionReason.text, employeeProfile[0]);
                     _listKey.currentState?.setState(() {
@@ -1032,6 +1048,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                           List.generate(documents!.length, (index) => false);
                       selectedIndexes.clear();
                       rejectionReason.clear();
+                      _loaded = true;
                     });
                     Navigator.of(context).pop();
                     _showRejectionSuccess(context);

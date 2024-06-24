@@ -138,8 +138,8 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
       'userType': emp.usrType,
       'isWfh': false,
     }).then(
-      (value) {
-        updateFilingDocStatus(key, context, empKey, approverName);
+      (value) async {
+        await updateFilingDocStatus(key, context, empKey, approverName);
       },
     );
   } else {
@@ -153,8 +153,8 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
       'userType': emp.usrType,
       'isWfh': false,
     }).then(
-      (value) {
-        updateFilingDocStatus(key, context, empKey, approverName);
+      (value) async{
+        await updateFilingDocStatus(key, context, empKey, approverName);
       },
     );
   }

@@ -12,7 +12,10 @@ import '../../../utils/utilities.dart';
 
 class FilePickerWidget extends StatefulWidget {
   final VoidCallback resetCallback;
-  FilePickerWidget(this.resetCallback);
+  final VoidCallback loadView;
+
+  FilePickerWidget(this.resetCallback, this.loadView);
+
 
   @override
   _FilePickerWidgetState createState() => _FilePickerWidgetState();

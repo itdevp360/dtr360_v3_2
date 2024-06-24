@@ -1,4 +1,5 @@
 import 'package:dtr360_version3_2/utils/alertbox.dart';
+import 'package:dtr360_version3_2/view/widgets/loaderView.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -26,6 +27,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
   DateTime correctDate = DateTime.now();
   bool isNextDayTimeOut = false;
   bool isProcessing = false;
+  bool _loaded = true;
   TimeOfDay initialTime = const TimeOfDay(hour: 0, minute: 0);
   TextEditingController reason = TextEditingController();
   List<String> inOrOut = [
@@ -93,7 +95,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return LoaderView(showLoader: _loaded == false, child: SingleChildScrollView(
       child: Container(
           margin: const EdgeInsets.all(24),
           child: Column(
@@ -197,6 +199,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                           if (!isDupe) {
                             setState(() {
                               isProcessing = true;
+                              _loaded = false;
                             });
                             await fileDocument(dataModel, context);
                             setState(() {
@@ -208,7 +211,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                               dataModel.date = startDate.toString();
                               dataModel.correctDate = correctDate.toString();
                               initialTime = const TimeOfDay(hour: 0, minute: 0);
-                              
+                              _loaded = true;
                             });
                           } else {
                             warning_box(context, 'There is already an application on this date');
@@ -232,6 +235,6 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
               )
             ],
           )),
-    );
+    ));
   }
 }
