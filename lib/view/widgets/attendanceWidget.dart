@@ -44,6 +44,7 @@ class _MyWidgetState extends State<AttendanceWidget> {
         employeeList = await fetchAllEmployees(true, true, departmentFilter: departmentFilter);
         logs = await fetchAttendance(dept: employeeProfile[1], isApprover: true);
       } else if (employeeProfile[6] == 'IT/Admin') {
+        employeeList = await fetchAllEmployees(false, true, departmentFilter: departmentFilter);
         logs = await fetchAttendance(isAdmin: true);
       }
       // leaves = await fetchLeaves(dept: employeeProfile[1], guid: employeeProfile[4]);

@@ -133,8 +133,9 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                       .toList();
                                 });
                                 setState(() {
-                                  selectedItems = List.generate(
-                                      documents!.length, (index) => false);
+                                  documents = null;
+                                  // selectedItems = List.generate(
+                                  //     documents!.length, (index) => false);
                                   selectedIndexes.clear();
                                   _loaded = true;
                                 });
@@ -200,6 +201,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   if(documents == null){
                     documents = snapshot.data! as List<FilingDocument>?;
                     documents = sortDocs(documents!);
+                    selectedItems =
+                        List.generate(documents!.length, (index) => false);
                   }
                   
                   if (selectedValue != 'All') {
@@ -830,9 +833,11 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                   .toList();
                                             });
                                             setState(() {
-                                              selectedItems = List.generate(
-                                                  documents!.length,
-                                                  (index) => false);
+                                              documents = null;
+                                              // selectedItems = [];
+                                              // selectedItems = List.generate(
+                                              //     documents!.length,
+                                              //     (index) => false);
                                               selectedIndexes.clear();
                                               _loaded = true;
                                             });
@@ -977,7 +982,9 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                         documents = documents!.where((item) =>  item.docType == selectedValue).toList();
                       });
                     setState(() {
-                      selectedItems = List.generate(documents!.length, (index) => false);
+                      documents = null;
+                      // selectedItems = [];
+                      // selectedItems = List.generate(documents!.length, (index) => false);
                       selectedIndexes.clear();
                       rejectionReason.clear();
                       _loaded = true;
@@ -1044,8 +1051,10 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                           .toList();
                     });
                     setState(() {
-                      selectedItems =
-                          List.generate(documents!.length, (index) => false);
+                      documents = null;
+                      // selectedItems = [];
+                      // selectedItems =
+                      //     List.generate(documents!.length, (index) => false);
                       selectedIndexes.clear();
                       rejectionReason.clear();
                       _loaded = true;

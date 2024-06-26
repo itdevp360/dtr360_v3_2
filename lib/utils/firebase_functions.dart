@@ -564,13 +564,13 @@ fetchHolidays() async {
 login_user(context, email, password) async {
   try {
     FirebaseAuth auth = FirebaseAuth.instance;
-    // save_credentials_pref(email, password)
-    //     .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
-
-    final credential = await auth
-        .signInWithEmailAndPassword(email: email, password: password)
-        .then((value) => save_credentials_pref(email, password))
+    save_credentials_pref(email, password)
         .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
+
+    // final credential = await auth
+    //     .signInWithEmailAndPassword(email: email, password: password)
+    //     .then((value) => save_credentials_pref(email, password))
+    //     .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {
       print('No user found for that email.');
