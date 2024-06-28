@@ -146,15 +146,17 @@ class _qrWidgetState extends State<qrWidget> {
                                             _enabled == true) {
                                       setState(() {
                                         _enabled = false;
+                                        _loaded = false;
                                       });
                                       await updateAttendance(
                                           emp.guid.toString(),
                                           context,
                                           true,
                                           emp);
-                                      Future.delayed(Duration(seconds: 2), () {
+                                      Future.delayed(Duration(seconds: 1), () {
                                         setState(() {
                                           _enabled = true;
+                                          _loaded = true;
                                         });
                                       });
                                     } else {
@@ -167,12 +169,17 @@ class _qrWidgetState extends State<qrWidget> {
                                       if (result != null) {
                                         setState(() {
                                           print("GUID " + result.toString());
+                                          _loaded = false;
                                         });
                                       }
                                       Employees scannedEmp = empList.firstWhere(
                                           (element) => element.guid == result);
                                       var newres = await updateAttendance(
                                           result, context, true, scannedEmp);
+                                          setState(() {
+                                          _enabled = true;
+                                          _loaded = true;
+                                        });
                                     }
                                   },
                             child: Image.asset('assets/greenclock.png'),
@@ -197,15 +204,17 @@ class _qrWidgetState extends State<qrWidget> {
                                             _enabled == true) {
                                       setState(() {
                                         _enabled = false;
+                                        _loaded = false;
                                       });
                                       await updateAttendance(
                                           emp.guid.toString(),
                                           context,
                                           false,
                                           emp);
-                                      Future.delayed(Duration(seconds: 2), () {
+                                      Future.delayed(Duration(seconds: 1), () {
                                         setState(() {
                                           _enabled = true;
+                                          _loaded = true;
                                         });
                                       });
                                     } else {
@@ -216,7 +225,9 @@ class _qrWidgetState extends State<qrWidget> {
                                                 QRViewExample()),
                                       );
                                       if (result != null) {
-                                        setState(() {});
+                                        setState(() {
+                                          _loaded = false;
+                                        });
                                       }
                                       Employees scannedEmp = empList.firstWhere(
                                           (element) =>
@@ -224,6 +235,10 @@ class _qrWidgetState extends State<qrWidget> {
                                               (element.empName == result));
                                       var newres = await updateAttendance(
                                           result, context, false, scannedEmp);
+                                          setState(() {
+                                          _enabled = true;
+                                          _loaded = true;
+                                        });
                                     }
                                   },
                             child: Image.asset('assets/redclock.png'),

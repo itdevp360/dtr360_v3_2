@@ -1,4 +1,5 @@
 import 'package:dtr360_version3_2/model/attendance.dart';
+import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/model/users.dart';
 import 'package:dtr360_version3_2/utils/utilities.dart';
 import 'package:dtr360_version3_2/utils/firebase_functions.dart';
@@ -16,6 +17,7 @@ class AttendanceWidget extends StatefulWidget {
 class _MyWidgetState extends State<AttendanceWidget> {
   List<Attendance>? logs;
   List<Attendance>? ownLogs;
+  List<FilingDocument>? leaves;
   DateTime startDate = DateTime.now().subtract(Duration(days: 15));
   DateTime endDate = DateTime.now();
   List<Employees>? employeeList;
@@ -29,23 +31,27 @@ class _MyWidgetState extends State<AttendanceWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      logs = await fetchAttendance();
-      employeeList = await fetchAllEmployees(true);
-      sortListAlphabetical(employeeList!);
+      
       employeeProfile = await read_employeeProfile();
-      ownLogs = logs!.where((log) => log.guID == employeeProfile[4]).toList();
-      ownLogs = sortList(fetchLatestWeeks(ownLogs!));
+      String departmentFilter = employeeProfile[1].toString();
+      
       if (employeeProfile[6] == 'Employee') {
         isEmployee = true;
         screenH = 60.h;
+        employeeList = await fetchAllEmployees(false, true, departmentFilter: departmentFilter);
+        logs = await fetchAttendance(dept: employeeProfile[1], guid: employeeProfile[4]);
       } else if (employeeProfile[6] == 'Approver') {
-        employeeList = employeeList!
-            .where((empList) =>
-                employeeProfile[1].toString().contains(empList.dept!))
-            .toList();
-        
+        employeeList = await fetchAllEmployees(true, true, departmentFilter: departmentFilter);
+        logs = await fetchAttendance(dept: employeeProfile[1], isApprover: true);
+      } else if (employeeProfile[6] == 'IT/Admin') {
+        employeeList = await fetchAllEmployees(false, true, departmentFilter: departmentFilter);
+        logs = await fetchAttendance(isAdmin: true);
       }
-
+      // leaves = await fetchLeaves(dept: employeeProfile[1], guid: employeeProfile[4]);
+      sortListAlphabetical(employeeList!);
+      // logs = await fetchAttendance();
+      ownLogs = logs!.where((log) => log.guID == employeeProfile[4]).toList();
+      ownLogs = sortList(fetchLatestWeeks(ownLogs!));
       setState(() {
         if(employeeProfile[6] == 'Approver'){
           ownLogs = logs!.where((log) => log.empName == dropdownvalue).toList();
@@ -188,7 +194,16 @@ class _MyWidgetState extends State<AttendanceWidget> {
                                     DataCell(Text(log.dateIn!)),
                                     DataCell(Text(log.timeIn!)),
                                     DataCell(Text(log.timeOut!.toString()))
-                                  ]))
+                                  ],
+                                  color: MaterialStateProperty.resolveWith<Color?>(
+                                    (Set<MaterialState> states) {
+                                      if (log.timeIn == 'Leave') {
+                                        return Colors.grey.shade300; // Change row color to grey
+                                      }
+                                      return null; // Use default color
+                                    },
+                                  ),
+                                  ))
                               .toList(),
                     )))
               ],

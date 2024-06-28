@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/utils/fileDocuments_functions.dart';
+import 'package:dtr360_version3_2/view/widgets/loaderView.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -29,6 +30,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
   List<int> selectedIndexes = [];
   bool isLoaded = false;
   bool isSelected = false;
+  bool _loaded = true;
 
   void deleteSelectedItems() {
     setState(() {
@@ -120,6 +122,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                           ),
                           TextButton(
                             onPressed: () async {
+                              setLoadedFalse();
                               var isTrue = await updateFilingDocs(selectedItems,
                                   documents, context, employeeProfile[0]);
                               if (isTrue == true) {
@@ -130,9 +133,11 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                       .toList();
                                 });
                                 setState(() {
-                                  selectedItems = List.generate(
-                                      documents!.length, (index) => false);
+                                  documents = null;
+                                  // selectedItems = List.generate(
+                                  //     documents!.length, (index) => false);
                                   selectedIndexes.clear();
+                                  _loaded = true;
                                 });
                                 Navigator.of(context).pop();
                                 _showSecondaryAlertDialog(
@@ -149,7 +154,8 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               )
           ],
         ),
-        body: Column(
+        body: LoaderView(showLoader: _loaded == false,
+        child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.only(
@@ -192,14 +198,20 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               future: fetchFilingDocuments(),
               builder: ((context, snapshot) {
                 if (snapshot.hasData) {
-                  documents = snapshot.data! as List<FilingDocument>?;
+                  if(documents == null){
+                    documents = snapshot.data! as List<FilingDocument>?;
+                    documents = sortDocs(documents!);
+                    selectedItems =
+                        List.generate(documents!.length, (index) => false);
+                  }
+                  
                   if (selectedValue != 'All') {
                     documents = documents!
                         .where((item) => item.docType == selectedValue)
                         .toList();
                   }
 
-                  documents = sortDocs(documents!);
+                  
                   if (isSelected) {
                     selectedItems =
                         List.generate(documents!.length, (index) => false);
@@ -230,9 +242,11 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                 if (selectedIndexes.contains(index)) {
                                   selectedIndexes.remove(index);
                                   selectedItems[index] = false;
+                                  print('Index no.: ' + documents![index].uniqueId);
                                 } else {
                                   selectedIndexes.add(index);
                                   selectedItems[index] = true;
+                                  print('ELSE Index no.: ' + documents![index].uniqueId);
                                 }
                               });
                             } else {
@@ -803,6 +817,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                           child: const Text('Reject')),
                                       TextButton(
                                           onPressed: () async {
+                                            setLoadedFalse();
                                             selectedIndexes.add(index);
                                             selectedItems[index] = true;
                                             var result = await updateFilingDocs(
@@ -818,10 +833,13 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                   .toList();
                                             });
                                             setState(() {
-                                              selectedItems = List.generate(
-                                                  documents!.length,
-                                                  (index) => false);
+                                              documents = null;
+                                              // selectedItems = [];
+                                              // selectedItems = List.generate(
+                                              //     documents!.length,
+                                              //     (index) => false);
                                               selectedIndexes.clear();
+                                              _loaded = true;
                                             });
 
                                             Navigator.of(context).pop();
@@ -893,7 +911,13 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
               }),
             ))
           ],
-        ));
+        )));
+  }
+
+  void setLoadedFalse(){
+    setState(() {
+      _loaded = false;
+    });
   }
 
   void _showModalPopup(String selectedItem) {
@@ -951,15 +975,19 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                 ),
                 TextButton(
                   onPressed: () async {
+                    setLoadedFalse();
                     var isTrue = await rejectAllDocs(selectedItems, documents, context, rejectionReason.text,employeeProfile[0]);
                     if (isTrue == true) {
                       _listKey.currentState?.setState(() {
                         documents = documents!.where((item) =>  item.docType == selectedValue).toList();
                       });
                     setState(() {
-                      selectedItems = List.generate(documents!.length, (index) => false);
+                      documents = null;
+                      // selectedItems = [];
+                      // selectedItems = List.generate(documents!.length, (index) => false);
                       selectedIndexes.clear();
                       rejectionReason.clear();
+                      _loaded = true;
                     });
                     Navigator.of(context).pop();
                     _showRejectionSuccess(context);
@@ -1014,6 +1042,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   onPressed: () async {
                     print(rejectionReason.text);
                     print(selectedItem);
+                    setLoadedFalse();
                     await rejectApplication(
                         selectedItem, rejectionReason.text, employeeProfile[0]);
                     _listKey.currentState?.setState(() {
@@ -1022,10 +1051,13 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                           .toList();
                     });
                     setState(() {
-                      selectedItems =
-                          List.generate(documents!.length, (index) => false);
+                      documents = null;
+                      // selectedItems = [];
+                      // selectedItems =
+                      //     List.generate(documents!.length, (index) => false);
                       selectedIndexes.clear();
                       rejectionReason.clear();
+                      _loaded = true;
                     });
                     Navigator.of(context).pop();
                     _showRejectionSuccess(context);

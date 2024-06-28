@@ -41,7 +41,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
       if (credentials != null && credentials[0] != '') {
         email = credentials[0] ?? '';
         employeeProfile = await read_employeeProfile();
-        empList = await fetchEmployees();
+        empList = await fetchEmployees(emailAdd: email);
         emp = empList.firstWhere((element) => element.emailAdd == email);
         save_employeeProfile(
             emp.empName,
@@ -155,7 +155,7 @@ class _MyHomeWidgetState extends State<HomeWidget> {
               ),
             ),
             appBar: AppBar(
-              title: const Text("DTR360 v3.3.3"),
+              title: const Text("DTR360 v3.3.5"),
               backgroundColor: Colors.redAccent,
               bottom: _selectedIndex == 2
                   ? const TabBar(

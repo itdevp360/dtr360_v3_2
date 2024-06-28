@@ -12,7 +12,10 @@ import '../../../utils/utilities.dart';
 
 class FilePickerWidget extends StatefulWidget {
   final VoidCallback resetCallback;
-  FilePickerWidget(this.resetCallback);
+  final VoidCallback loadView;
+
+  FilePickerWidget(this.resetCallback, this.loadView);
+
 
   @override
   _FilePickerWidgetState createState() => _FilePickerWidgetState();
@@ -23,6 +26,7 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
   String? _fileType;
   FilePickerResult? _fileResult;
   String? _resultFilePath;
+  bool isProcessing = false;
 
   void _openFilePicker() async {
     _fileResult = await FilePicker.platform.pickFiles(
@@ -40,48 +44,55 @@ class _FilePickerWidgetState extends State<FilePickerWidget> {
   }
 
   void runFile() async {
-    final parentData = LeaveDataWidget.of(context)?.dataModel;
-    if (parentData!.reason != '' && parentData.leaveType != '') {
-      var test = fetchFile('16yfuIyvJqjom8etz-TFSMK2XqafYY4p0');
-      // List<String> fileName = [];
-      if (_resultFilePath != null) {
-        final fileName = await uploadToDrive(_resultFilePath!);
-        parentData?.fileId = fileName[0];
-        parentData?.attachmentName = fileName[1];
-      }
+    if(isProcessing == false){
 
-      parentData?.docType = 'Leave';
-      parentData?.date = (parentData?.date == '' ? DateTime.now().toString() : parentData?.date)!;
-      // parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
+    
+      final parentData = LeaveDataWidget.of(context)?.dataModel;
+      if (parentData!.reason != '' && parentData.leaveType != '') {
+        var test = fetchFile('16yfuIyvJqjom8etz-TFSMK2XqafYY4p0');
+        // List<String> fileName = [];
+        if (_resultFilePath != null) {
+          final fileName = await uploadToDrive(_resultFilePath!);
+          parentData?.fileId = fileName[0];
+          parentData?.attachmentName = fileName[1];
+        }
 
-      //
-      //Save document file to firebase
-      var isDupe = await checkIfDuplicate(parentData.dateFrom, parentData.dateTo, parentData.correctDate, parentData.otDate, parentData.docType,
-          parentData.guid, parentData.isOut, parentData.otfrom);
-      if (isDateFromBeforeDateTo(parentData.dateFrom, parentData.dateTo)) {
-        if (!isDupe) {
-          if(parentData.deductLeave && parentData.noOfDay != '' && double.parse(parentData.noOfDay) > 0){
-            await fileDocument(parentData!, context);
-            parentData.resetProperties();
-            widget.resetCallback();
+        parentData?.docType = 'Leave';
+        parentData?.date = (parentData?.date == '' ? DateTime.now().toString() : parentData?.date)!;
+        // parentData?.finalDate = convertStringDateToUnix(parentData.date, parentData.correctTime, 'Leave');
+
+        //
+        //Save document file to firebase
+        var isDupe = await checkIfDuplicate(parentData.dateFrom, parentData.dateTo, parentData.correctDate, parentData.otDate, parentData.docType,
+            parentData.guid, parentData.isOut, parentData.otfrom);
+        if (isDateFromBeforeDateTo(parentData.dateFrom, parentData.dateTo)) {
+          if (!isDupe) {
+            if(parentData.deductLeave && parentData.noOfDay != '' && double.parse(parentData.noOfDay) > 0){
+              await fileDocument(parentData!, context);
+              parentData.resetProperties();
+              widget.resetCallback();
+            }
+            else if(!parentData.deductLeave){
+              await fileDocument(parentData!, context);
+              parentData.resetProperties();
+              widget.resetCallback();
+            }
+            else{
+              warning_box(context, 'Please determine the no. of days to be deducted');
+            }
+            
+          } else {
+            warning_box(context, 'There is already an application on this date');
           }
-          else if(!parentData.deductLeave){
-            await fileDocument(parentData!, context);
-            parentData.resetProperties();
-            widget.resetCallback();
-          }
-          else{
-            warning_box(context, 'Please determine the no. of days to be deducted');
-          }
-          
         } else {
-          warning_box(context, 'There is already an application on this date');
+          warning_box(context, 'Date From should not be greater than Date To');
         }
       } else {
-        warning_box(context, 'Date From should not be greater than Date To');
+        warning_box(context, 'Please complete the fields.');
       }
-    } else {
-      warning_box(context, 'Please complete the fields.');
+    }
+    else{
+      warning_box(context, 'Request is already in process');
     }
   }
 

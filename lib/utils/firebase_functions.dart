@@ -1,3 +1,4 @@
+
 import 'package:dtr360_version3_2/model/attendance.dart';
 import 'package:dtr360_version3_2/model/filingdocument.dart';
 import 'package:dtr360_version3_2/model/holidays.dart';
@@ -137,8 +138,8 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
       'userType': emp.usrType,
       'isWfh': false,
     }).then(
-      (value) {
-        updateFilingDocStatus(key, context, empKey, approverName);
+      (value) async {
+        await updateFilingDocStatus(key, context, empKey, approverName);
       },
     );
   } else {
@@ -152,8 +153,8 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
       'userType': emp.usrType,
       'isWfh': false,
     }).then(
-      (value) {
-        updateFilingDocStatus(key, context, empKey, approverName);
+      (value) async{
+        await updateFilingDocStatus(key, context, empKey, approverName);
       },
     );
   }
@@ -177,9 +178,28 @@ cancelFilingStatus(key) async {
           empDbref.get().then((snapshot) async{
             if(snapshot.key != null){
               Map<dynamic,dynamic>? empData = snapshot.value as Map?;
-              int currLeave = empData?['remainingLeaves'] as int;
-              int newLeaves = currLeave + noOfDays;
-              await empDbref.update({'remainingLeaves': newLeaves});
+
+              //Revised
+              if (empData != null) {
+                // Access 'remainingLeaves' from empData with null safety operator
+                dynamic remainingLeaves = empData['remainingLeaves'];
+
+                // Check if remainingLeaves is not null and is convertible to double
+                if (remainingLeaves != null && remainingLeaves is num) {
+                  double currLeave = remainingLeaves.toDouble();
+                  double newLeaves = currLeave + noOfDays;
+                  await empDbref.update({'remainingLeaves': newLeaves});
+                  // Use currLeave variable as needed
+                } else {
+                  print('Error: remainingLeaves is null or not convertible to double');
+                }
+              } else {
+                print('Error: empData is null');
+              }
+              //Original code
+              // double currLeave = empData?['remainingLeaves'] as double;
+              // double newLeaves = currLeave + noOfDays;
+              // await empDbref.update({'remainingLeaves': newLeaves});
             }
           });
         }
@@ -423,36 +443,104 @@ checkIfDuplicate(dateFrom, dateTo, correctDate, otDate, docType, guid, isOut, ot
   return isDuplicate;
 }
 
-fetchAttendance() async {
-  List<Attendance> _listKeys = [];
-  DateTime now = DateTime.now();
-  DateTime start = now.subtract(Duration(days: 15));
-  final logRef = FirebaseDatabase.instance.ref().child('Logs');
+fetchLeaves({String? dept, bool? isApprover, bool? isAdmin, String? guid}) async {
+  List<FilingDocument> _listKeys = [];
+  final logRef = FirebaseDatabase.instance.ref().child('FilingDocuments');
+  List<Attendance> dateRange = [];
+  Query query;
+  if (isAdmin ?? false) {
+    // Admin gets all logs
+    query = logRef;
+  } else if (isApprover ?? false) {
+    // Approver gets logs for a specific department
+    query = logRef.orderByChild('dept').equalTo(dept);
+  } else if (guid != null) {
+    // Regular user gets logs for a specific guid
+    query = logRef.orderByChild('guid').equalTo(guid);
+  } else {
+    // If no parameters are provided, fetch all logs
+    query = logRef;
+  }
 
-  final ss = await logRef.get().then((snapshot) {
-    if (snapshot.exists) {
-      Map<dynamic, dynamic>? values = snapshot.value as Map?;
-      values!.forEach((key, value) {
-        Attendance logs = Attendance();
-        logs.attendanceKey = key.toString();
-        logs.employeeID = value['employeeID'].toString();
-        logs.employeeName = value['employeeName'].toString();
-        logs.guid = value['guid'].toString();
-        logs.dateTimeIn = timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
-        logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
-        logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
-        logs.userType = value['usertype'].toString();
-        logs.iswfh = value['isWfh'].toString();
-        if (value['usertype'].toString() != 'Former Employee') {
-          _listKeys.add(logs);
+  final snapshot = await query.get();
+  if (snapshot.exists) {
+    Map<dynamic, dynamic>? values = snapshot.value as Map?;
+    values!.forEach((key, value) {
+      FilingDocument docs = FilingDocument();
+      if(value['docType'].toString() == "Leave" && value['isCancelled'] != false){
+        docs.key = key.toString();
+        docs.approveRejectBy = value['approveRejectBy'].toString();
+        docs.approveRejectDate = value['approveRejectDate'].toString();
+        docs.date = value['date'].toString();
+        docs.dateFrom = value['dateFrom'].toString();
+        docs.dateTo = value['dateTo'].toString();
+        docs.docType = value['docType'].toString();
+        docs.empKey = value['empKey'].toString();
+        docs.employeeName = value['employeeName'].toString();
+        docs.guid = value['guid'].toString();
+        docs.isAm = value['isAm'];
+        docs.isApproved = value['isApproved'];
+        docs.isCancelled = value['isCancelled'] ?? false;
+        docs.isHalfday = value['isHalfday'] ?? false;
+        docs.leaveType = value['leaveType'].toString();
+        docs.noOfDay = value['noOfDay'].toString();
+        docs.reason = value['reason'].toString();
+        docs.uniqueId = value['uniqueId'].toString();
+        if(docs.isApproved != false){
+          dateRange += convertDateRange(docs.dateFrom, docs.dateTo, docs.guid, docs.employeeName, docs.dept);
         }
-      });
-    }
-  });
+        
+      }
+      
+    });
+  }
 
-  return _listKeys;
+  return dateRange;
 }
 
+
+Future<List<Attendance>> fetchAttendance({String? dept, bool? isApprover, bool? isAdmin, String? guid}) async {
+  List<Attendance> _listKeys = [];
+  final logRef = FirebaseDatabase.instance.ref().child('Logs');
+
+  Query query;
+  if (isAdmin ?? false) {
+    // Admin gets all logs
+    query = logRef;
+  } else if (isApprover ?? false) {
+    // Approver gets logs for a specific department
+    query = logRef.orderByChild('department').equalTo(dept);
+  } else if (guid != null) {
+    // Regular user gets logs for a specific guid
+    query = logRef.orderByChild('guid').equalTo(guid);
+  } else {
+    // If no parameters are provided, fetch all logs
+    query = logRef;
+  }
+
+  final snapshot = await query.get();
+  if (snapshot.exists) {
+    Map<dynamic, dynamic>? values = snapshot.value as Map?;
+    values!.forEach((key, value) {
+      Attendance logs = Attendance();
+      logs.attendanceKey = key.toString();
+      logs.employeeID = value['employeeID'].toString();
+      logs.employeeName = value['employeeName'].toString();
+      logs.guid = value['guid'].toString();
+      logs.dateTimeIn = timestampToDateString(value['dateTimeIn'], 'MM/dd/yyyy');
+      logs.timeIn = timestampToDateString(value['timeIn'], 'hh:mm a');
+      logs.timeOut = timestampToDateString(value['timeOut'], 'hh:mm a');
+      logs.userType = value['usertype'].toString();
+      logs.iswfh = value['isWfh'].toString();
+      if (value['usertype'].toString() != 'Former Employee') {
+        _listKeys.add(logs);
+      }
+    });
+  }
+  List<Attendance> test = await fetchLeaves(dept: dept, guid: guid, isAdmin: isAdmin, isApprover: isApprover);
+  _listKeys += test;
+  return _listKeys;
+}
 fetchHolidays() async {
   List<Holidays> _listKeys = [];
   final holidayRef = FirebaseDatabase.instance.ref().child('Holidays');
@@ -476,12 +564,13 @@ fetchHolidays() async {
 login_user(context, email, password) async {
   try {
     FirebaseAuth auth = FirebaseAuth.instance;
-    // save_credentials_pref(email, password)
-    //     .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
-    final credential = await auth
-        .signInWithEmailAndPassword(email: email, password: password)
-        .then((value) => save_credentials_pref(email, password))
+    save_credentials_pref(email, password)
         .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
+
+    // final credential = await auth
+    //     .signInWithEmailAndPassword(email: email, password: password)
+    //     .then((value) => save_credentials_pref(email, password))
+    //     .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {
       print('No user found for that email.');
@@ -493,46 +582,72 @@ login_user(context, email, password) async {
   }
 }
 
-fetchAllEmployees(bool isAttendance) async {
+fetchAllEmployees(bool isTrue,bool isAttendance, {String? departmentFilter} ) async {
   List<Employees> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('Employee');
-
-  final snapshot = await ref.get().then((snapshot) {
-    if (snapshot.exists) {
-      Map<dynamic, dynamic>? values = snapshot.value as Map?;
-      values!.forEach((key, value) {
-        Employees emp1 = Employees();
-        emp1.itemKey = key.toString();
-        emp1.employeeID = value['employeeID'].toString();
-        emp1.department = value['department'].toString();
-        emp1.email = value['email'].toString();
-        emp1.employeeName = value['employeeName'].toString();
-        emp1.setguid = value['guid'].toString();
-        emp1.imageString = value['imageString'].toString();
-        emp1.isWfh = value['isWfh'].toString();
-        emp1.password = value['password'].toString();
-        emp1.usertype = value['usertype'].toString();
-        emp1.appId = value['approver'].toString();
-        emp1.appName = value['approverName'].toString();
-        emp1.absences = value['remainingLeaves'].toString();
-        if (isAttendance == false) {
+  
+  Query query;
+  if (isTrue) {
+    // Query based on department if departmentFilter is provided
+    query = ref.orderByChild('department').equalTo(departmentFilter);
+  } else {
+    // Fetch all employees if no department filter is provided
+    query = ref;
+  }
+  
+  final snapshot = await query.get();
+  if (snapshot.exists) {
+    Map<dynamic, dynamic>? values = snapshot.value as Map?;
+    values!.forEach((key, value) {
+      Employees emp1 = Employees();
+      emp1.itemKey = key.toString();
+      emp1.employeeID = value['employeeID'].toString();
+      emp1.department = value['department'].toString();
+      emp1.email = value['email'].toString();
+      emp1.employeeName = value['employeeName'].toString();
+      emp1.setguid = value['guid'].toString();
+      emp1.imageString = value['imageString'].toString();
+      emp1.isWfh = value['isWfh'].toString();
+      emp1.password = value['password'].toString();
+      emp1.usertype = value['usertype'].toString();
+      emp1.appId = value['approver'].toString();
+      emp1.appName = value['approverName'].toString();
+      emp1.absences = value['remainingLeaves'].toString();
+      emp1.timeIn = value['shiftTimeIn'].toString();
+      emp1.timeOut = value['shiftTimeOut'].toString();
+      emp1.mon = value['monday'].toString();
+      emp1.tues = value['tuesday'].toString();
+      emp1.wed = value['wednesday'].toString();
+      emp1.thurs = value['thursday'].toString();
+      emp1.fri = value['friday'].toString();
+      emp1.sat = value['saturday'].toString();
+      emp1.sun = value['sunday'].toString();
+      
+      if (isAttendance == false) {
+        _listKeys.add(emp1);
+      } else {
+        if (value['usertype'].toString() != 'Former Employee') {
           _listKeys.add(emp1);
-        } else {
-          if (value['usertype'].toString() != 'Former Employee') {
-            _listKeys.add(emp1);
-          }
         }
-      });
-    }
-  });
+      }
+    });
+  }
+  
   return _listKeys;
 }
 
-fetchEmployees() async {
+fetchEmployees({String? emailAdd}) async {
   List<Employees> _listKeys = [];
   final ref = FirebaseDatabase.instance.ref().child('Employee');
-
-  final snapshot = await ref.get().then((snapshot) {
+  Query query;
+  if(emailAdd != null){
+     query = ref.orderByChild('email').equalTo(emailAdd);
+  }
+  else{
+     query = ref;
+  }
+  
+  final snapshot = await query.get().then((snapshot) {
     if (snapshot.exists) {
       Map<dynamic, dynamic>? values = snapshot.value as Map?;
       values!.forEach((key, value) {
@@ -778,7 +893,7 @@ updateTimeOut(key) async {
 }
 
 updateAttendance(guid, context, isTimeIn, Employees emp) async {
-  List<Attendance>? logs = await fetchAttendance();
+  List<Attendance>? logs = await fetchAttendance(dept: '', isApprover: false, isAdmin: false, guid : guid);
   List<Attendance>? newLogs = [];
   newLogs = sortList(logs!.where((element) => (element.guID == guid) || (element.empName == guid) || (element.empId == guid)).toList());
   var result;

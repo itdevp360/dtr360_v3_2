@@ -223,18 +223,39 @@ getDateRange(dropdownvalue, startDate, endDate, List<Attendance> logs) {
   return ownLogs;
 }
 
+
+List<Attendance> convertDateRange(String dateFrom, String dateTo, String guid, String employeeName, String dept) {
+  DateTime startDate = DateTime.parse(dateFrom);
+  DateTime endDate = DateTime.parse(dateTo);
+  DateFormat formatter = DateFormat('MM/dd/yyyy');
+  List<Attendance> attendanceLeaves = [];
+  for (DateTime date = startDate; date.isBefore(endDate) || date.isAtSameMomentAs(endDate); date = date.add(Duration(days: 1))) {
+    if (date.weekday != DateTime.saturday && date.weekday != DateTime.sunday) {
+      Attendance logs = Attendance();
+      logs.employeeName = employeeName;
+      logs.guid = guid;
+      logs.dateTimeIn = formatter.format(date);
+      logs.timeIn = 'Leave';
+      logs.timeOut = '---';
+      attendanceLeaves.add(logs);
+    }
+  }
+
+  return attendanceLeaves;
+}
+
 sortList(List<Attendance> attendance) {
   attendance.sort((a, b) {
     var dateTimeA;
     var dateTimeB;
 
-    if (a.timeIn != 'No Data') {
+    if (a.timeIn != 'No Data' && a.timeIn != 'Leave') {
       dateTimeA = DateFormat("MM/dd/yyyy HH:mm a").parse(a.dateIn! + ' ' + a.timeIn!);
     } else {
       dateTimeA = DateFormat("MM/dd/yyyy").parse(a.dateIn!);
     }
 
-    if (b.timeIn != 'No Data') {
+    if (b.timeIn != 'No Data' && b.timeIn != 'Leave') {
       dateTimeB = DateFormat("MM/dd/yyyy HH:mm a").parse(b.dateIn! + ' ' + b.timeIn!);
     } else {
       dateTimeB = DateFormat("MM/dd/yyyy").parse(b.dateIn!);

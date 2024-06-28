@@ -1,5 +1,6 @@
 import 'package:dtr360_version3_2/view/widgets/fillingDocs/fileUploadWidget.dart';
 import 'package:dtr360_version3_2/view/widgets/fillingDocs/leaveDataWidget.dart';
+import 'package:dtr360_version3_2/view/widgets/loaderView.dart';
 import 'package:flutter/material.dart';
 
 import '../../../model/filingdocument.dart';
@@ -20,6 +21,7 @@ class _MyWidgetState extends State<leaveWidget> {
   String? isAm;
   bool isChecked = false;
   bool isHalfday = false;
+  bool _loaded = true;
   TextEditingController reason = new TextEditingController();
   TextEditingController location = new TextEditingController();
   TextEditingController noOfDays = new TextEditingController();
@@ -60,6 +62,7 @@ class _MyWidgetState extends State<leaveWidget> {
       reason.text = '';
       location.text = '';
       noOfDays.text = '';
+      _loaded = true;
       isChecked = false;
       isHalfday = false;
       selectedLeaveType = null;
@@ -72,6 +75,11 @@ class _MyWidgetState extends State<leaveWidget> {
     });
   }
 
+  void runLoader(){
+    setState(() {
+      _loaded = false;
+    });
+  }
   DateTime startDate = DateTime.now();
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -122,7 +130,7 @@ class _MyWidgetState extends State<leaveWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return LoaderView(showLoader: _loaded == false, child: SingleChildScrollView(
       child: Container(
         margin: EdgeInsets.all(24),
         child: Column(
@@ -263,10 +271,10 @@ class _MyWidgetState extends State<leaveWidget> {
                   )
                 : SizedBox(height: 0),
             LeaveDataWidget(
-                dataModel: dataModel, child: FilePickerWidget(resetFields)),
+                dataModel: dataModel, child: FilePickerWidget(resetFields, runLoader)),
           ],
         ),
       ),
-    );
+    ));
   }
 }

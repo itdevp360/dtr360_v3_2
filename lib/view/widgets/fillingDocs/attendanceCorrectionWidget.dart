@@ -1,4 +1,5 @@
 import 'package:dtr360_version3_2/utils/alertbox.dart';
+import 'package:dtr360_version3_2/view/widgets/loaderView.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -25,6 +26,8 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
   DateTime startDate = DateTime.now();
   DateTime correctDate = DateTime.now();
   bool isNextDayTimeOut = false;
+  bool isProcessing = false;
+  bool _loaded = true;
   TimeOfDay initialTime = const TimeOfDay(hour: 0, minute: 0);
   TextEditingController reason = TextEditingController();
   List<String> inOrOut = [
@@ -92,7 +95,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return LoaderView(showLoader: _loaded == false, child: SingleChildScrollView(
       child: Container(
           margin: const EdgeInsets.all(24),
           child: Column(
@@ -181,34 +184,47 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                     color: Color.fromARGB(255, 141, 105, 105),
                   ),
                   onPressed: () async {
-                    dataModel.finalDate = convertStringDateToUnix(dataModel.correctDate, dataModel.correctTime, 'Correction', false, dataModel.otfrom);
-                    dataModel.docType = 'Correction';
-                    var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType,
-                        dataModel.guid, dataModel.isOut, dataModel.otfrom);
+                    if(isProcessing == false){
+                      
+                    
+                      dataModel.finalDate = convertStringDateToUnix(dataModel.correctDate, dataModel.correctTime, 'Correction', false, dataModel.otfrom);
+                      dataModel.docType = 'Correction';
+                      var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType,
+                          dataModel.guid, dataModel.isOut, dataModel.otfrom);
 
-                    if (reason.text != '' && selectedInOrOut != '') {
-                      bool isValid = await checkIfValidDate(
-                          dataModel.correctDate, employeeProfile[4], false, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true, dataModel.isFlexi);
-                      if (isValid) {
-                        if (!isDupe) {
-                          await fileDocument(dataModel, context);
-                          setState(() {
-                            dataModel.resetProperties();
-                            reason.text = '';
-                            startDate = DateTime.now();
-                            correctDate = DateTime.now();
-                            dataModel.date = startDate.toString();
-                            dataModel.correctDate = correctDate.toString();
-                            initialTime = const TimeOfDay(hour: 0, minute: 0);
-                          });
+                      if (reason.text != '' && selectedInOrOut != '') {
+                        bool isValid = await checkIfValidDate(
+                            dataModel.correctDate, employeeProfile[4], false, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true, dataModel.isFlexi);
+                        if (isValid) {
+                          if (!isDupe) {
+                            setState(() {
+                              isProcessing = true;
+                              _loaded = false;
+                            });
+                            await fileDocument(dataModel, context);
+                            setState(() {
+                              isProcessing = false;
+                              dataModel.resetProperties();
+                              reason.text = '';
+                              startDate = DateTime.now();
+                              correctDate = DateTime.now();
+                              dataModel.date = startDate.toString();
+                              dataModel.correctDate = correctDate.toString();
+                              initialTime = const TimeOfDay(hour: 0, minute: 0);
+                              _loaded = true;
+                            });
+                          } else {
+                            warning_box(context, 'There is already an application on this date');
+                          }
                         } else {
-                          warning_box(context, 'There is already an application on this date');
+                          warning_box(context, 'Invalid date. No attendance.');
                         }
                       } else {
-                        warning_box(context, 'Invalid date. No attendance.');
+                        warning_box(context, 'Please complete the fields.');
                       }
-                    } else {
-                      warning_box(context, 'Please complete the fields.');
+                    }
+                    else{
+                      warning_box(context, 'Request is already in process');
                     }
                   },
                   label: const Text(
@@ -219,6 +235,6 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
               )
             ],
           )),
-    );
+    ));
   }
 }

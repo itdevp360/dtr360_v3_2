@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:dtr360_version3_2/view/widgets/loaderView.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -38,6 +39,8 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
   ];
   bool isOvernightOt = false;
   bool isFlexi = false;
+  bool _loaded = true;
+  bool isProcessing = false;
 
   void initState() {
     super.initState();
@@ -116,7 +119,7 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return LoaderView(showLoader: _loaded == false, child: SingleChildScrollView(
       child: Container(
           margin: const EdgeInsets.all(24),
           child: Column(
@@ -238,37 +241,49 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
                     color: Color.fromARGB(255, 141, 105, 105),
                   ),
                   onPressed: () async {
-                    dataModel.docType = 'Overtime';
-                    var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType,
-                        dataModel.guid, dataModel.isOut, dataModel.otfrom);
-                    var isValid = await checkIfValidDate(
-                        dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true, dataModel.isFlexi);
-                    if (reason.text != '' && totalHours.text != '' && totalHours.text != '0') {
-                      if (isValid && (double.parse(totalHours.text) > 0 || isOvernightOt)) {
-                        if (!isDupe) {
-                          var otType = await checkIfValidDate(
-                              dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, false, dataModel.isFlexi);
-                          dataModel.otType = otType;
-                          await fileDocument(dataModel, context);
-                          setState(() {
-                            dataModel.resetProperties();
-                            reason.text = '';
-                            startDate = DateTime.now();
-                            otDate = DateTime.now();
-                            dataModel.date = startDate.toString();
-                            dataModel.otDate = otDate.toString();
-                            initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
-                            initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
-                            totalHours.text = '';
-                          });
+                    if(isProcessing == false){
+                      
+                      dataModel.docType = 'Overtime';
+                      var isDupe = await checkIfDuplicate(dataModel.dateFrom, dataModel.dateTo, dataModel.correctDate, dataModel.otDate, dataModel.docType,
+                          dataModel.guid, dataModel.isOut, dataModel.otfrom);
+                      var isValid = await checkIfValidDate(
+                          dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, true, dataModel.isFlexi);
+                      if (reason.text != '' && totalHours.text != '' && totalHours.text != '0') {
+                        if (isValid && (double.parse(totalHours.text) > 0 || isOvernightOt)) {
+                          if (!isDupe) {
+                            var otType = await checkIfValidDate(
+                                dataModel.otDate, employeeProfile[4], true, dataModel.otfrom, dataModel.otTo, dataModel.isOvernightOt, dataModel.isOut, false, dataModel.isFlexi);
+                            dataModel.otType = otType;
+                            setState(() {
+                              isProcessing = true;
+                              _loaded = false;
+                            });
+                            await fileDocument(dataModel, context);
+                            setState(() {
+                              dataModel.resetProperties();
+                              reason.text = '';
+                              startDate = DateTime.now();
+                              otDate = DateTime.now();
+                              dataModel.date = startDate.toString();
+                              dataModel.otDate = otDate.toString();
+                              initialTimeFrom = const TimeOfDay(hour: 0, minute: 0);
+                              initialTimeTo = const TimeOfDay(hour: 0, minute: 0);
+                              totalHours.text = '';
+                              isProcessing = false;
+                              _loaded = true;
+                            });
+                          } else {
+                            warning_box(context, 'There is already an application on this date');
+                          }
                         } else {
-                          warning_box(context, 'There is already an application on this date');
+                          warning_box(context, 'Invalid Overtime');
                         }
                       } else {
-                        warning_box(context, 'Invalid Overtime');
+                        warning_box(context, 'Please complete the fields.');
                       }
-                    } else {
-                      warning_box(context, 'Please complete the fields.');
+                    }
+                    else{
+                      warning_box(context, 'Request is already in process');
                     }
                   },
                   label: const Text(
@@ -279,6 +294,6 @@ class _OvertimeWidgetState extends State<OvertimeWidget> {
               )
             ],
           )),
-    );
+    ));
   }
 }
