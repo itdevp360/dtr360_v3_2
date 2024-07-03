@@ -206,10 +206,24 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   }
                   
                   if (selectedValue != 'All') {
+                    if(isSelected){
+                      selectedIndexes.clear();
+                      documents = snapshot.data! as List<FilingDocument>?;
+                      documents = sortDocs(documents!);
+                    }
+                    
                     documents = documents!
                         .where((item) => item.docType == selectedValue)
                         .toList();
                   }
+                  else{
+                    if(isSelected){
+                      selectedIndexes.clear();
+                      documents = snapshot.data! as List<FilingDocument>?;
+                      documents = sortDocs(documents!);
+                    }
+                  }
+
 
                   
                   if (isSelected) {
