@@ -528,7 +528,7 @@ Future<List<Attendance>> fetchLeaves({String? dept, bool? isApprover, bool? isAd
 }
 
 
-Future<List<Attendance>> fetchAttendance({String? dept, bool? isApprover, bool? isAdmin, String? guid}) async {
+Future<List<Attendance>> fetchAttendance({String? dept, bool? isApprover, bool? isAdmin, String? guid, bool? isTimeInOut}) async {
   List<Attendance> _listKeys = [];
   final logRef = FirebaseDatabase.instance.ref().child('Logs');
 
@@ -597,8 +597,12 @@ Future<List<Attendance>> fetchAttendance({String? dept, bool? isApprover, bool? 
     }
   }
 
-  List<Attendance> additionalLogs = await fetchLeaves(dept: dept, guid: guid, isAdmin: isAdmin, isApprover: isApprover);
-  _listKeys += additionalLogs;
+  if(!isTimeInOut!){
+    List<Attendance> additionalLogs = await fetchLeaves(dept: dept, guid: guid, isAdmin: isAdmin, isApprover: isApprover);
+    _listKeys += additionalLogs;
+  }
+  
+  
   return _listKeys;
 }
 
@@ -979,7 +983,7 @@ updateTimeOut(key) async {
 }
 
 updateAttendance(guid, context, isTimeIn, Employees emp) async {
-  List<Attendance>? logs = await fetchAttendance(dept: '', isApprover: false, isAdmin: false, guid : guid);
+  List<Attendance>? logs = await fetchAttendance(dept: '', isApprover: false, isAdmin: false, guid : guid, isTimeInOut: true);
   List<Attendance>? newLogs = [];
   newLogs = sortList(logs!.where((element) => (element.guID == guid) || (element.empName == guid) || (element.empId == guid)).toList());
   var result;

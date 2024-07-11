@@ -39,13 +39,13 @@ class _MyWidgetState extends State<AttendanceWidget> {
         isEmployee = true;
         screenH = 60.h;
         employeeList = await fetchAllEmployees(false, true, departmentFilter: departmentFilter);
-        logs = await fetchAttendance(dept: employeeProfile[1], guid: employeeProfile[4]);
+        logs = await fetchAttendance(dept: employeeProfile[1], guid: employeeProfile[4], isTimeInOut: false);
       } else if (employeeProfile[6] == 'Approver') {
         employeeList = await fetchAllEmployees(true, true, departmentFilter: departmentFilter);
-        logs = await fetchAttendance(dept: employeeProfile[1], isApprover: true);
+        logs = await fetchAttendance(dept: employeeProfile[1], isApprover: true, isTimeInOut: false);
       } else if (employeeProfile[6] == 'IT/Admin') {
         employeeList = await fetchAllEmployees(false, true, departmentFilter: departmentFilter);
-        logs = await fetchAttendance(isAdmin: true);
+        logs = await fetchAttendance(isAdmin: true, isTimeInOut: false);
       }
       // leaves = await fetchLeaves(dept: employeeProfile[1], guid: employeeProfile[4]);
       sortListAlphabetical(employeeList!);
