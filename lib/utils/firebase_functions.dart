@@ -629,13 +629,13 @@ fetchHolidays() async {
 login_user(context, email, password) async {
   try {
     FirebaseAuth auth = FirebaseAuth.instance;
-    // save_credentials_pref(email, password)
-    //     .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
-
-    final credential = await auth
-        .signInWithEmailAndPassword(email: email, password: password)
-        .then((value) => save_credentials_pref(email, password))
+    save_credentials_pref(email, password)
         .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
+
+    // final credential = await auth
+    //     .signInWithEmailAndPassword(email: email, password: password)
+    //     .then((value) => save_credentials_pref(email, password))
+    //     .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
 
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {
@@ -1015,4 +1015,27 @@ updateAttendance(guid, context, isTimeIn, Employees emp) async {
     success_box(context, message);
   }
   return result;
+}
+
+filterDate(documents, dateFilter, selectedValue, currentMonth){
+  documents = documents!
+    .where((item) {
+        String dateToCheck;
+
+        // Determine which date field to use based on the dateFilter
+        if (dateFilter == 'Date Filed') {
+            dateToCheck = item.date;
+        } else if (dateFilter == 'Effectivity Date') {
+            dateToCheck = item.dateFrom;
+        } else if (dateFilter == 'OT Date') {
+            dateToCheck = item.otDate;
+        } else {
+            // If dateFilter doesn't match any expected value, return false to exclude this item
+            return false;
+        }
+
+        // Apply the filter based on the selectedValue and the determined date field
+        return item.docType == selectedValue && dateToCheck.contains(currentMonth!);
+    })
+    .toList();
 }

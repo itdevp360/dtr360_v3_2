@@ -34,6 +34,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
   double screenH = 48.h;
   String? selectedValue = 'All';
   String? empNames = null;
+  String? dateFilter = 'Date Filed';
   String? currentMonth = DateFormat('MMM').format(DateTime.now());
 
   @override
@@ -151,6 +152,40 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                 ),
                 child: 
                 DropdownButton<String>(
+                value: dateFilter,
+                isExpanded: true,
+                icon: const Icon(Icons.arrow_downward),
+                elevation: 16,
+                style:const TextStyle(color: Color.fromARGB(255, 57, 57, 231)),
+                underline: Container(
+                  height: 2,
+                  color: Color.fromARGB(255, 57, 57, 231),
+                ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    dateFilter = newValue!;
+                  });
+                },
+                items: <String>[
+                  'Date Filed',
+                  'Effectivity Date',
+                  'OT Date',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ),
+            Padding(
+                padding: const EdgeInsets.only(
+                  left: 28.0,
+                  right: 28.0,
+                  bottom: 0,
+                ),
+                child: 
+                DropdownButton<String>(
                 value: currentMonth,
                 isExpanded: true,
                 icon: const Icon(Icons.arrow_downward),
@@ -237,43 +272,139 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                     if (selectedValue != 'All') {
                       if (empNames != '' && empNames != null) {
                         if (empNames != 'All') {
-                          documents = documents!
+                          if(dateFilter == 'Date Filed'){
+                            documents = documents!
                             .where((item) =>
                                 item.docType == selectedValue &&
                                 item.employeeName == empNames &&
                                 item.date.contains(currentMonth!))
                             .toList();
+                          }
+                          else if(dateFilter == 'Effectivity Date'){
+                            documents = documents!
+                            .where((item) =>
+                                item.docType == selectedValue &&
+                                item.employeeName == empNames &&
+                                item.dateFrom.contains(currentMonth!))
+                            .toList();
+                          }
+                          else{
+                            documents = documents!
+                            .where((item) =>
+                                item.docType == selectedValue &&
+                                item.employeeName == empNames &&
+                                item.otDate.contains(currentMonth!))
+                            .toList();
+                          }
+                          
                       } else {
-                        documents = documents!
+                        if(dateFilter == 'Date Filed'){
+                            documents = documents!
                             .where((item) =>
                                 item.docType == selectedValue &&
                                 item.date.contains(currentMonth!))
                             .toList();
+                          }
+                          else if(dateFilter == 'Effectivity Date'){
+                            documents = documents!
+                            .where((item) =>
+                                item.docType == selectedValue &&
+                                item.dateFrom.contains(currentMonth!))
+                            .toList();
+                          }
+                          else{
+                            documents = documents!
+                            .where((item) =>
+                                item.docType == selectedValue &&
+                                item.otDate.contains(currentMonth!))
+                            .toList();
+                          }
+                        
                       }
                     } else {
-                      documents = documents!
+                      if(dateFilter == 'Date Filed'){
+                            documents = documents!
                           .where((item) =>
                               item.docType == selectedValue &&
                               item.date.contains(currentMonth!))
                           .toList();
+                          }
+                          else if(dateFilter == 'Effectivity Date'){
+                            documents = documents!
+                          .where((item) =>
+                              item.docType == selectedValue &&
+                              item.dateFrom.contains(currentMonth!))
+                          .toList();
+                          }
+                          else{
+                            documents = documents!
+                          .where((item) =>
+                              item.docType == selectedValue &&
+                              item.otDate.contains(currentMonth!))
+                          .toList();
+                          }
+                      
                     }
                   } else {
                     if (empNames != '' && empNames != null) {
                       if (empNames != 'All') {
-                        documents = documents!
+                        if(dateFilter == 'Date Filed'){
+                            documents = documents!
                             .where((item) =>
                                 item.employeeName == empNames &&
                                 item.date.contains(currentMonth!))
                             .toList();
+                          }
+                          else if(dateFilter == 'Effectivity Date'){
+                            documents = documents!
+                            .where((item) =>
+                                item.employeeName == empNames &&
+                                item.dateFrom.contains(currentMonth!))
+                            .toList();
+                          }
+                          else{
+                            documents = documents!
+                            .where((item) =>
+                                item.employeeName == empNames &&
+                                item.otDate.contains(currentMonth!))
+                            .toList();
+                          }
+                        
                       } else {
-                        documents = documents!
+                        if(dateFilter == 'Date Filed'){
+                            documents = documents!
                             .where((item) => item.date.contains(currentMonth!))
                             .toList();
+                          }
+                          else if(dateFilter == 'Effectivity Date'){
+                            documents = documents!
+                            .where((item) => item.dateFrom.contains(currentMonth!))
+                            .toList();
+                          }
+                          else{
+                            documents = documents!
+                            .where((item) => item.otDate.contains(currentMonth!))
+                            .toList();
+                          }
+                        
                       }
                     } else {
-                      documents = documents!
+                      if(dateFilter == 'Date Filed'){
+                            documents = documents!
                           .where((item) => item.date.contains(currentMonth!))
                           .toList();
+                          }
+                          else if(dateFilter == 'Effectivity Date'){
+                            documents = documents!
+                          .where((item) => item.dateFrom.contains(currentMonth!))
+                          .toList();
+                          }
+                          else{
+                            documents = documents!
+                          .where((item) => item.otDate.contains(currentMonth!))
+                          .toList();
+                          }
+                      
                     }
                   }
                   documents = sortDocs(documents!);
