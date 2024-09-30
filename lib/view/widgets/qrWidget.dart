@@ -102,13 +102,15 @@ class _qrWidgetState extends State<qrWidget> {
                       height: 8.h,
                       child: Column(
                         children: [
+                          Flexible(child: 
                           Text(
                             _loaded
                                 ? emp.employeeName.toString()
                                 : 'Employee Name',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20.sp),
-                          ),
+                                fontWeight: FontWeight.bold, fontSize: 20.sp,),
+                                textAlign: TextAlign.center,
+                          ),),
                           Text(
                             _loaded ? emp.department.toString() : 'Department',
                             style: TextStyle(

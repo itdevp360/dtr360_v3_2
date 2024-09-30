@@ -33,6 +33,7 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
   List<String> inOrOut = [
     'Time In',
     'Time Out',
+    'Both'
   ];
 
   void initState() {
@@ -164,6 +165,14 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
                 },
                 controller: TextEditingController(text: formatTime(initialTime)),
               ),
+              selectedInOrOut == 'Both' ? TextField(
+                keyboardType: TextInputType.none,
+                decoration: const InputDecoration(labelText: 'Correct Time Out'),
+                onTap: () {
+                  _selectTime(context);
+                },
+                controller: TextEditingController(text: formatTime(initialTime)),
+              ) : SizedBox(height: 10,),
               TextField(
                 decoration: const InputDecoration(labelText: 'Reason'),
                 onChanged: (value) {

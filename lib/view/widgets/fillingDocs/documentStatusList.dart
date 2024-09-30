@@ -452,7 +452,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                       return SingleChildScrollView(
                                         child: Column(
                                           children: [
-                                            ModalDetailsWidget(textData: document.reason, textLabel: 'Reason'),
+                                            Flexible(child: ModalDetailsWidget(textData: document.reason, textLabel: 'Reason')) ,
                                             Row(children: [
                                               SizedBox(height: 15)
                                             ]),
