@@ -38,6 +38,7 @@ class FilingDocument extends ChangeNotifier {
   bool _isOut = false;
   bool _isNextdayTimeOut = false;
   String _correctTime = '';
+  String _correctBothTime = '';
 
   //OT
   String _otDate = '';
@@ -86,6 +87,7 @@ class FilingDocument extends ChangeNotifier {
   bool get deductLeave => _deductLeave;
   bool get isOut => _isOut;
   String get correctTime => _correctTime;
+  String get correctBothTime => _correctBothTime;
   String get hoursNo => _hoursNo;
 
   set guid(String newData) {
@@ -278,6 +280,11 @@ class FilingDocument extends ChangeNotifier {
     notifyListeners(); // Notify listeners when the data changes
   }
 
+  set correctBothTime(String newData) {
+    _correctBothTime = newData;
+    notifyListeners(); // Notify listeners when the data changes
+  }
+
   set hoursNo(String newData) {
     _hoursNo = newData;
     notifyListeners(); // Notify listeners when the data changes
@@ -309,6 +316,7 @@ class FilingDocument extends ChangeNotifier {
     isOut = false;
     isNextdayTimeOut = false;
     correctTime = '';
+    correctBothTime = '';
 
     //OT
     otDate = '';

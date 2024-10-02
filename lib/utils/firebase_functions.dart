@@ -119,15 +119,32 @@ updateFilingDocStatus(key, context, empKey, approverName) async {
   });
 }
 
-createAttendance(key, context, empKey, correctDate, correctTime, isOut, approverName, nextDay) async {
+createAttendance(key, context, empKey, correctDate, correctTime, isOut, approverName, nextDay, correctBothTime) async {
   Employees emp = await fetchEmployeeByKey(empKey);
   final databaseReference = FirebaseDatabase.instance.ref().child('Logs');
   DateTime selectedDate = DateFormat("EEE, MMM d, yyyy").parse(correctDate);
   DateTime selectedTime = DateFormat("HH:mm").parse(correctTime);
+  DateTime selectedCorrectBothTime = (correctBothTime != null || correctBothTime != 'null') 
+    ? DateFormat("HH:mm").parse(correctBothTime) 
+    : DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 0, 0); // Default to 00:00
+
   DateTime combinedDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, selectedTime.hour, selectedTime.minute);
+  DateTime combinedDateOut = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, selectedCorrectBothTime.hour, selectedCorrectBothTime.minute);
   int timestamp = combinedDate.millisecondsSinceEpoch;
-  int nextDayOut = nextDay ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day + 1, selectedTime.hour, selectedTime.minute).millisecondsSinceEpoch : combinedDate.millisecondsSinceEpoch;
-  if (isOut) {
+  int nextDayOut = nextDay 
+    ? DateTime(
+        selectedDate.year, 
+        selectedDate.month, 
+        selectedDate.day + 1, 
+        (correctBothTime != null || correctBothTime != 'null') 
+            ? selectedCorrectBothTime.hour 
+            : selectedTime.hour, 
+        (correctBothTime != null || correctBothTime != 'null') 
+            ? selectedCorrectBothTime.minute 
+            : selectedTime.minute
+      ).millisecondsSinceEpoch 
+    : (correctBothTime == "null" ? combinedDate.millisecondsSinceEpoch : combinedDateOut.millisecondsSinceEpoch);
+  if (isOut && correctBothTime == "null") {
     databaseReference.push().set({
       'dateTimeIn': timestamp,
       'department': emp.dept,
@@ -142,7 +159,25 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
         await updateFilingDocStatus(key, context, empKey, approverName);
       },
     );
-  } else {
+  }
+  else if(isOut && correctBothTime != "null"){
+    databaseReference.push().set({
+      'dateTimeIn': timestamp,
+      'department': emp.dept,
+      'employeeID': emp.empId,
+      'employeeName': emp.empName,
+      'guid': emp.guid,
+      'timeIn': timestamp,
+      'timeOut': nextDayOut,
+      'userType': emp.usrType,
+      'isWfh': false,
+    }).then(
+      (value) async {
+        await updateFilingDocStatus(key, context, empKey, approverName);
+      },
+    );
+  }
+   else {
     databaseReference.push().set({
       'dateTimeIn': timestamp,
       'department': emp.dept,

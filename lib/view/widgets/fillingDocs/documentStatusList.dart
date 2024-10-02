@@ -452,7 +452,7 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                       return SingleChildScrollView(
                                         child: Column(
                                           children: [
-                                            Flexible(child: ModalDetailsWidget(textData: document.reason, textLabel: 'Reason')) ,
+                                            ModalDetailsWidget(textData: document.reason, textLabel: 'Reason'),
                                             Row(children: [
                                               SizedBox(height: 15)
                                             ]),
@@ -504,7 +504,16 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                                   Row(children: [
                                                     SizedBox(height: 15)
                                                   ]),
-                                                  ModalDetailsWidget(textData: document.isOut == true ? 'Time Out' : 'Time In', textLabel: 'Time In/Out:'),
+                                                  document.correctBothTime != null ? ModalDetailsWidget(textData: document.correctBothTime, textLabel: 'Correct Time Out:') : SizedBox(height: 0),
+                                                  Row(children: [
+                                                    SizedBox(height: 15)
+                                                  ]),
+                                                  ModalDetailsWidget(
+                                                    textData: document.isOut
+                                                        ? (document.correctBothTime != null ? 'Both' : 'Time Out')
+                                                        : 'Time In',
+                                                    textLabel: 'Time In/Out:',
+                                                  ),
                                                 ],
                                               ),
                                             Row(children: [
