@@ -124,7 +124,7 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
   final databaseReference = FirebaseDatabase.instance.ref().child('Logs');
   DateTime selectedDate = DateFormat("EEE, MMM d, yyyy").parse(correctDate);
   DateTime selectedTime = DateFormat("HH:mm").parse(correctTime);
-  DateTime selectedCorrectBothTime = (correctBothTime != null || correctBothTime != 'null') 
+  DateTime selectedCorrectBothTime = (correctBothTime != null && correctBothTime != 'null') 
     ? DateFormat("HH:mm").parse(correctBothTime) 
     : DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 0, 0); // Default to 00:00
 
@@ -136,10 +136,10 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
         selectedDate.year, 
         selectedDate.month, 
         selectedDate.day + 1, 
-        (correctBothTime != null || correctBothTime != 'null') 
+        (correctBothTime != null && correctBothTime != 'null') 
             ? selectedCorrectBothTime.hour 
             : selectedTime.hour, 
-        (correctBothTime != null || correctBothTime != 'null') 
+        (correctBothTime != null && correctBothTime != 'null') 
             ? selectedCorrectBothTime.minute 
             : selectedTime.minute
       ).millisecondsSinceEpoch 
@@ -664,13 +664,13 @@ fetchHolidays() async {
 login_user(context, email, password) async {
   try {
     FirebaseAuth auth = FirebaseAuth.instance;
-    save_credentials_pref(email, password)
-        .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
-
-    // final credential = await auth
-    //     .signInWithEmailAndPassword(email: email, password: password)
-    //     .then((value) => save_credentials_pref(email, password))
+    // save_credentials_pref(email, password)
     //     .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
+
+    final credential = await auth
+        .signInWithEmailAndPassword(email: email, password: password)
+        .then((value) => save_credentials_pref(email, password))
+        .then((value) => Navigator.pushReplacementNamed(context, 'Home'));
 
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {
