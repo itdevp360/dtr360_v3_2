@@ -68,6 +68,7 @@ fileDocument(FilingDocument file, context) async {
     'fileId': file.fileId,
     'isOut': file.isOut,
     'correctTime': file.correctTime,
+    'correctBothTime': file.correctBothTime,
     'hoursNo': file.hoursNo,
     'isApproved': file.isApproved,
     'notifyStatus': file.notifyStatus,
@@ -134,7 +135,8 @@ updateFilingDocs(selectedItems, documents, context, approverName) async {
                   documents[i].correctTime,
                   documents[i].isOut,
                   approverName,
-                  documents[i].isNextdayTimeOut)
+                  documents[i].isNextdayTimeOut,
+                  documents[i].correctBothTime)
               : await attendanceCorrection(
                   selectedData[0].getKey,
                   selectedData[0].getDateIn,
@@ -231,6 +233,7 @@ fetchEmployeeDocument() async {
         file.attachmentName = value['attachmentName'].toString();
         file.dept = value['dept'].toString();
         file.correctTime = value['correctTime'].toString();
+        file.correctBothTime = value['correctBothTime'].toString();
         file.docType = value['docType'].toString();
         file.uniqueId = value['uniqueId'] ?? '';
         file.employeeName = value['employeeName'].toString();
@@ -334,6 +337,7 @@ fetchFilingDocuments() async {
         file.attachmentName = value['attachmentName'].toString();
         file.dept = value['dept'].toString();
         file.correctTime = value['correctTime'].toString();
+        file.correctBothTime = value['correctBothTime'].toString();
         file.docType = value['docType'].toString();
         file.uniqueId = value['uniqueId'] ?? '';
         file.employeeName = value['employeeName'].toString();

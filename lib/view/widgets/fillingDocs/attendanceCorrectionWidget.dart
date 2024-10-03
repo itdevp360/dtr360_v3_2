@@ -29,10 +29,12 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
   bool isProcessing = false;
   bool _loaded = true;
   TimeOfDay initialTime = const TimeOfDay(hour: 0, minute: 0);
+  TimeOfDay initialBothTime = const TimeOfDay(hour: 0, minute: 0);
   TextEditingController reason = TextEditingController();
   List<String> inOrOut = [
     'Time In',
     'Time Out',
+    'Both'
   ];
 
   void initState() {
@@ -59,6 +61,16 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
       setState(() {
         initialTime = picked;
         dataModel.correctTime = formatTime(initialTime);
+      });
+    }
+  }
+
+  Future<void> _selectBothTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: initialBothTime);
+    if (picked != null && picked != initialBothTime) {
+      setState(() {
+        initialBothTime = picked;
+        dataModel.correctBothTime = formatTime(initialBothTime);
       });
     }
   }
@@ -158,12 +170,20 @@ class _AttendanceCorrectionState extends State<AttendanceCorrection> {
               ),
               TextField(
                 keyboardType: TextInputType.none,
-                decoration: const InputDecoration(labelText: 'Correct Time'),
+                decoration: selectedInOrOut != 'Both' ? const InputDecoration(labelText: 'Correct Time') : const InputDecoration(labelText: 'Correct Time In'),
                 onTap: () {
                   _selectTime(context);
                 },
                 controller: TextEditingController(text: formatTime(initialTime)),
               ),
+              selectedInOrOut == 'Both' ? TextField(
+                keyboardType: TextInputType.none,
+                decoration: const InputDecoration(labelText: 'Correct Time Out'),
+                onTap: () {
+                  _selectBothTime(context);
+                },
+                controller: TextEditingController(text: formatTime(initialBothTime)),
+              ) : SizedBox(height: 10,),
               TextField(
                 decoration: const InputDecoration(labelText: 'Reason'),
                 onChanged: (value) {

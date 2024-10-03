@@ -206,10 +206,24 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                   }
                   
                   if (selectedValue != 'All') {
+                    if(isSelected){
+                      selectedIndexes.clear();
+                      documents = snapshot.data! as List<FilingDocument>?;
+                      documents = sortDocs(documents!);
+                    }
+                    
                     documents = documents!
                         .where((item) => item.docType == selectedValue)
                         .toList();
                   }
+                  else{
+                    if(isSelected){
+                      selectedIndexes.clear();
+                      documents = snapshot.data! as List<FilingDocument>?;
+                      documents = sortDocs(documents!);
+                    }
+                  }
+
 
                   
                   if (isSelected) {
@@ -590,23 +604,21 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                       Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
-                                                      Row(children: [
+                                                      document.correctBothTime != "null" ? Row(children: [
                                                         Column(
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
                                                             const Text(
-                                                              'Time In/Out:',
+                                                              'Correct Time Out:',
                                                               style: TextStyle(
                                                                 fontSize: 11.0,
                                                               ),
                                                             ),
                                                             Text(
-                                                              document.isOut ==
-                                                                      true
-                                                                  ? 'Time Out'
-                                                                  : 'Time In',
+                                                              document
+                                                                  .correctBothTime,
                                                               style:
                                                                   const TextStyle(
                                                                 fontSize: 15.0,
@@ -617,7 +629,34 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                             ),
                                                           ],
                                                         ),
+                                                      ]) : SizedBox(height: 0),
+                                                      Row(children: const [
+                                                        SizedBox(height: 15)
                                                       ]),
+                                                      Row(
+                                                        children: [
+                                                          Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              const Text(
+                                                                'Time In/Out:',
+                                                                style: TextStyle(
+                                                                  fontSize: 11.0,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                document.isOut
+                                                                    ? (document.correctBothTime != "null" ? 'Both' : 'Time Out')
+                                                                    : 'Time In',
+                                                                style: const TextStyle(
+                                                                  fontSize: 15.0,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      )
                                                     ],
                                                   ),
                                                 Row(children: const [
