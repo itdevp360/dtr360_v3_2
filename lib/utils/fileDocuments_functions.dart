@@ -145,7 +145,7 @@ updateFilingDocs(selectedItems, documents, context, approverName) async {
                   documents[i].key,
                   context,
                   documents[i].empKey,
-                  approverName);
+                  approverName, documents[i].correctBothTime);
         } else if (documents![i].docType == 'Leave') {
           var selectedData = attendance
               .where((element) => element.getDateIn == documents![i].date && documents![i].guid == element.getGuid)

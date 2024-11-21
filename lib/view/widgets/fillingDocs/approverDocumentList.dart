@@ -604,7 +604,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                       Row(children: const [
                                                         SizedBox(height: 15)
                                                       ]),
-                                                      document.correctBothTime != "null" ? Row(children: [
+                                                      document.correctBothTime != "" ? Row(children: [
                                                         Column(
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
@@ -646,7 +646,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                                                               ),
                                                               Text(
                                                                 document.isOut
-                                                                    ? (document.correctBothTime != "null" ? 'Both' : 'Time Out')
+                                                                    ? (document.correctBothTime != "" ? 'Both' : 'Time Out')
                                                                     : 'Time In',
                                                                 style: const TextStyle(
                                                                   fontSize: 15.0,
@@ -1079,8 +1079,7 @@ class _ApproverListWidgetState extends State<ApproverListWidget> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    print(rejectionReason.text);
-                    print(selectedItem);
+
                     setLoadedFalse();
                     await rejectApplication(
                         selectedItem, rejectionReason.text, employeeProfile[0]);

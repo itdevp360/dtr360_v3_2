@@ -504,13 +504,13 @@ class _MyWidgetState extends State<DocumentStatusWidget> {
                                                   Row(children: [
                                                     SizedBox(height: 15)
                                                   ]),
-                                                  document.correctBothTime != null ? ModalDetailsWidget(textData: document.correctBothTime, textLabel: 'Correct Time Out:') : SizedBox(height: 0),
+                                                  document.correctBothTime != "" ? ModalDetailsWidget(textData: document.correctBothTime, textLabel: 'Correct Time Out:') : SizedBox(height: 0),
                                                   Row(children: [
                                                     SizedBox(height: 15)
                                                   ]),
                                                   ModalDetailsWidget(
                                                     textData: document.isOut
-                                                        ? (document.correctBothTime != null ? 'Both' : 'Time Out')
+                                                        ? (document.correctBothTime != "" ? 'Both' : 'Time Out')
                                                         : 'Time In',
                                                     textLabel: 'Time In/Out:',
                                                   ),

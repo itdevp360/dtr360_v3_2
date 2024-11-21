@@ -69,7 +69,7 @@ class _MyLoginPage extends State<LoginWidget> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        title: const Text("DTR360 v3.3.6"),
+        title: const Text("DTR360 v3.3.7"),
         backgroundColor: Colors.redAccent,
       ),
       body: SingleChildScrollView(

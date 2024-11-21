@@ -89,20 +89,39 @@ fileOvertime(key, filingDocKey, context, otType, hoursNo, empKey, approverName) 
   });
 }
 
-attendanceCorrection(key, date, time, isOut, filingDocKey, context, empKey, approverName) async {
+attendanceCorrection(key, date, time, isOut, filingDocKey, context, empKey, approverName, correctBothTime) async {
   final databaseReference = FirebaseDatabase.instance.ref().child('Logs/' + key);
   String dateTimeString = '$date $time';
+  DateTime selectedDate = DateFormat("MM/dd/yyyy").parse(date);
   DateFormat dateFormat = DateFormat('MM/dd/yyyy HH:mm');
+  DateTime selectedCorrectBothTime = (correctBothTime != null && correctBothTime != '')
+    ? DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        DateFormat("HH:mm").parse(correctBothTime).hour,
+        DateFormat("HH:mm").parse(correctBothTime).minute,
+      )
+    : DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 0, 0);
   DateTime dateTime = dateFormat.parse(dateTimeString);
-
+  int unixBothTime = selectedCorrectBothTime.millisecondsSinceEpoch;
   int unixTimestamp = dateTime.millisecondsSinceEpoch;
-  if (isOut) {
+  if (isOut  && correctBothTime == "") {
     await databaseReference.update({
       'timeOut': unixTimestamp,
     }).then((value) async {
       await updateFilingDocStatus(filingDocKey, context, empKey, approverName);
     });
-  } else {
+  }
+  else if(isOut && correctBothTime != ""){
+    await databaseReference.update({
+      'timeIn': unixTimestamp,
+      'timeOut': unixBothTime,
+    }).then((value) async {
+      await updateFilingDocStatus(filingDocKey, context, empKey, approverName);
+    });
+  }
+  else {
     await databaseReference.update({
       'timeIn': unixTimestamp,
     }).then((value) async {
@@ -124,7 +143,7 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
   final databaseReference = FirebaseDatabase.instance.ref().child('Logs');
   DateTime selectedDate = DateFormat("EEE, MMM d, yyyy").parse(correctDate);
   DateTime selectedTime = DateFormat("HH:mm").parse(correctTime);
-  DateTime selectedCorrectBothTime = (correctBothTime != null && correctBothTime != 'null') 
+  DateTime selectedCorrectBothTime = (correctBothTime != null && correctBothTime != '') 
     ? DateFormat("HH:mm").parse(correctBothTime) 
     : DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 0, 0); // Default to 00:00
 
@@ -136,15 +155,15 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
         selectedDate.year, 
         selectedDate.month, 
         selectedDate.day + 1, 
-        (correctBothTime != null && correctBothTime != 'null') 
+        (correctBothTime != null && correctBothTime != '') 
             ? selectedCorrectBothTime.hour 
             : selectedTime.hour, 
-        (correctBothTime != null && correctBothTime != 'null') 
+        (correctBothTime != null && correctBothTime != '') 
             ? selectedCorrectBothTime.minute 
             : selectedTime.minute
       ).millisecondsSinceEpoch 
-    : (correctBothTime == "null" ? combinedDate.millisecondsSinceEpoch : combinedDateOut.millisecondsSinceEpoch);
-  if (isOut && correctBothTime == "null") {
+    : (correctBothTime == "" ? combinedDate.millisecondsSinceEpoch : combinedDateOut.millisecondsSinceEpoch);
+  if (isOut && correctBothTime == "") {
     databaseReference.push().set({
       'dateTimeIn': timestamp,
       'department': emp.dept,
@@ -160,7 +179,7 @@ createAttendance(key, context, empKey, correctDate, correctTime, isOut, approver
       },
     );
   }
-  else if(isOut && correctBothTime != "null"){
+  else if(isOut && correctBothTime != ""){
     databaseReference.push().set({
       'dateTimeIn': timestamp,
       'department': emp.dept,
@@ -651,7 +670,7 @@ fetchHolidays() async {
       values!.forEach((key, value) {
         Holidays logs = Holidays();
         logs.key = key.toString();
-        logs.holidayDate = DateFormat('MM/dd/yyyy').format(DateFormat('MM/dd/yyyy').parse(value['holidayDate'].toString()));
+        logs.holidayDate = value['holidayDate'].toString();
         logs.holidayType = value['holidayType'].toString();
         _listKeys.add(logs);
       });
